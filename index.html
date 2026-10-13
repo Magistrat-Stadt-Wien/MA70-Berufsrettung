@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de-AT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Berufsrettung RP</title>
+<style>
+:root{--red:#e2001a;--ink:#1f1f1f;--bg:#f2f2f2;--line:#d9d9d9}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;font:16px/1.45 Arial,"Helvetica Neue",sans-serif;color:var(--ink);background:var(--bg)}
+header{background:#fff;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:4px solid var(--red)}
+.wien{background:var(--red);color:#fff;font-weight:700;font-size:1.6rem;padding:12px 16px}
+header b{font-size:1.1rem}header small{display:block;color:#555}
+#who{margin-left:auto;font-size:.9rem;display:flex;gap:10px;align-items:center}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--line);padding:16px;margin-bottom:14px}
+h2{font-size:1.15rem;margin:0 0 10px}h3{font-size:1rem;margin:14px 0 4px;border-bottom:1px solid var(--line)}
+label{display:block;font-size:.85rem;font-weight:600;margin:8px 0 3px}
+input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:8px;border:1px solid #8a8a8a;background:#fff;border-radius:0}
+textarea{min-height:56px;resize:vertical}
+input[type=checkbox]{width:auto;margin-right:8px}
+.chk{display:flex;align-items:center;font-weight:600;margin:10px 0}
+button{background:var(--red);color:#fff;border:0;padding:9px 16px;cursor:pointer;font-weight:700}
+button.alt{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:7px 14px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #1e66b0;outline-offset:1px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{background:none;color:var(--ink);border-bottom:4px solid transparent;padding:10px 16px}
+.tabs button.on{border-bottom-color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));column-gap:12px}
+.badge{display:inline-block;color:#fff;padding:2px 9px;font-size:.85rem;font-weight:700}
+.v{border:1px solid var(--line);border-top:5px solid #999;padding:12px;background:#fff}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.st{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.st button{background:#fff;color:var(--ink);border:1px solid var(--line);border-left:10px solid;text-align:left}
+.st button.on{background:var(--ink);color:#fff}
+.vrow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+#banner{background:var(--ink);color:#fff;padding:12px 20px;font-weight:700;border-bottom:4px solid #e0a100}
+#login{max-width:420px;margin:40px auto}
+@media(max-width:640px){.vrow{grid-template-columns:repeat(4,1fr)}}
+@media print{body *{visibility:hidden}#print,#print *{visibility:visible}#print{position:absolute;left:0;top:0;width:100%;border:0}}
+</style>
+</head>
+<body>
+<header><div class="wien">Wien</div><div><b>Berufsrettung Wien</b><small>Magistratsabteilung 70</small></div><span id="who"></span></header>
+<div id="banner" hidden></div>
+<main>
+<section id="login" class="card">
+  <h2>Anmelden</h2>
+  <label for="l-role">Rolle</label>
+  <select id="l-role"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select>
+  <label for="l-name">Dein Name</label><input id="l-name" autocomplete="off">
+  <div id="l-call-w"><label for="l-call">Funkrufname des Fahrzeugs (z. B. RTW 1)</label><input id="l-call" autocomplete="off"></div>
+  <div class="row"><button id="l-go">Anmelden</button></div>
+  <p id="l-err" style="color:var(--red)"></p>
+</section>
+<section id="app" hidden></section>
+</main>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import {getDatabase,ref,set,update,onValue,get} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCC8FoVOADO4NfUkdO9vf9al95stpIpQPQ",
+  authDomain: "rettungsdienst-rmp.firebaseapp.com",
+  databaseURL: "https://rettungsdienst-rmp-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "rettungsdienst-rmp",
+  storageBucket: "rettungsdienst-rmp.firebasestorage.app",
+  messagingSenderId: "64612033940",
+  appId: "1:64612033940:web:b6ba1d959f57f904e09b81"
+};
+const db = getDatabase(initializeApp(firebaseConfig));
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const STATUS = [
+  ["s1","1 – Einsatzbereit","#2e8b57"],
+  ["s2","2 – Einsatz übernommen","#e0a100"],
+  ["s3","3 – Am Einsatzort","#e2001a"],
+  ["s4","4 – Sprechwunsch","#00897b"],
+  ["s5","5 – Nicht einsatzbereit","#6b7178"],
+  ["s6","6 – Patient aufgenommen","#8e24aa"],
+  ["s7","7 – Am Zielort","#1e66b0"]
+];
+const sInfo = k => STATUS.find(s => s[0] === k) || STATUS[0];
+let me = null, actx = null, lastAnn = null, firstAnn = true;
+
+/* ---------- Login ---------- */
+$("#l-role").onchange = e => $("#l-call-w").hidden = e.target.value === "leit";
+$("#l-go").onclick = () => {
+  const role = $("#l-role").value, name = $("#l-name").value.trim(), call = $("#l-call").value.trim();
+  if (!name || (role === "fzg" && !call)) { $("#l-err").textContent = "Bitte Namen" + (role === "fzg" ? " und Funkrufnamen" : "") + " eingeben."; return; }
+  me = {role, name, call, vid: call.toLowerCase().replace(/[^a-z0-9]+/g, "-")};
+  try { sessionStorage.setItem("me", JSON.stringify(me)); } catch {}
+  start();
+};
+try { const s = sessionStorage.getItem("me"); if (s) { me = JSON.parse(s); $("#l-name").value = me.name; } } catch {}
+
+/* ---------- Funk ---------- */
+function beep() {
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  [880, 660].forEach((f, i) => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = f; g.gain.value = .15;
+    o.connect(g); g.connect(actx.destination);
+    o.start(actx.currentTime + i * .18); o.stop(actx.currentTime + i * .18 + .14);
+  });
+}
+function say(text) {
+  beep();
+  setTimeout(() => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "de-AT"; u.rate = 1.05;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }, 450);
+}
+function listenAnnouncements() {
+  onValue(ref(db, "announcements/latest"), snap => {
+    const a = snap.val();
+    if (firstAnn) { firstAnn = false; lastAnn = a && a.id; return; }
+    if (!a || a.id === lastAnn) return;
+    lastAnn = a.id;
+    if (a.target === "alle" || a.target === me.vid) {
+      const b = $("#banner"); b.hidden = false;
+      b.textContent = "Leitstelle: " + a.text;
+      say(a.text);
+    }
+  });
+}
+
+/* ---------- Start ---------- */
+async function start() {
+  $("#login").hidden = true; $("#app").hidden = false;
+  $("#who").innerHTML = esc(me.name) + (me.role === "fzg" ? " · " + esc(me.call) : " · Leitstelle") + ' <button class="alt" id="out">Abmelden</button>';
+  $("#out").onclick = async () => {
+    if (me.role === "fzg") await update(ref(db, "vehicles/" + me.vid), {status: "aus"});
+    sessionStorage.removeItem("me"); location.reload();
+  };
+  beep();
+  listenAnnouncements();
+  me.role === "leit" ? leitstelle() : fahrzeug();
+}
+
+/* ---------- Gemeinsames ---------- */
+const SEC=[
+["Patient",[["p_name","Name"],["p_gebdat","Geburtsdatum","date"],["p_svnr","SV-Nummer"],["p_sex","Geschlecht",["","weiblich","männlich","divers"]],["p_adr","Adresse / Einsatzort"],["pain","Schmerzen angegeben (OPQRST einblenden)","check"],["stroke","Verdacht auf Schlaganfall (BFAST einblenden)","check"]]],
+["X – Lebensbedrohliche Blutung",[["x","Blutung (Ort, Stärke, Maßnahme)","area"]]],
+["A – Atemweg",[["a","Atemweg (frei, gefährdet, verlegt) und Maßnahme","area"]]],
+["B – Atmung",[["b_af","Atemfrequenz /min"],["b_spo2","SpO₂ %"],["b_aus","Atemgeräusch, Thorax","area"]]],
+["C – Kreislauf",[["c_puls","Puls /min"],["c_rr","Blutdruck mmHg"],["c_rek","Rekap-Zeit, Haut","area"]]],
+["D – Neurologie",[["d_gcs","GCS"],["d_pup","Pupillen"],["d_bz","Blutzucker mg/dl"]]],
+["E – Exposure und Umgebung",[["e","Verletzungen, Temperatur, Umgebung","area"]]],
+["SAMPLER – Anamnese",[["s_s","S – Symptome","area"],["s_a","A – Allergien"],["s_m","M – Medikamente","area"],["s_p","P – Patientengeschichte","area"],["s_l","L – Letzte Mahlzeit / Flüssigkeit"],["s_e","E – Ereignis","area"],["s_r","R – Risikofaktoren"]]],
+["OPQRST – Schmerzanamnese",[["o","O – Onset (Beginn)"],["pr","P – Provokation / Palliation"],["q","Q – Qualität"],["rad","R – Radiation (Ausstrahlung)"],["sev","S – Schweregrad (0–10)"],["t","T – Time (Verlauf)"]],"pain"],
+["BFAST – Schlaganfall-Schnelltest",[["bf_b","B – Balance"],["bf_f","F – Face (Gesicht)"],["bf_a","A – Arms (Arme)"],["bf_s","S – Speech (Sprache)"],["bf_t","T – Time (letzter symptomfreier Zeitpunkt)"]],"stroke"],
+["Vitalwerte im Verlauf","vit"],
+["Maßnahmen und Medikamente",[["mass","Durchgeführte Maßnahmen","area"],["med","Verabreichte Medikamente (Name, Dosis, Uhrzeit)","area"]]],
+["Übergabe",[["ziel","Zielklinik"],["ueb","Übergeben an"],["uebtxt","Übergabebericht","area"]]]
+];
+const VK=["t","rr","puls","spo2","af","bz","gcs"];
+const field=([k,l,t])=>{const id="f-"+k;
+  if(t==="check")return `<label class="chk" style="grid-column:1/-1"><input type="checkbox" id="${id}" data-k="${k}">${l}</label>`;
+  const i=Array.isArray(t)?`<select id="${id}" data-k="${k}">${t.map(o=>`<option>${o}</option>`).join("")}</select>`
+   :t==="area"?`<textarea id="${id}" data-k="${k}"></textarea>`:`<input id="${id}" data-k="${k}" ${t==="date"?'type="date"':""}>`;
+  return `<div><label for="${id}">${l}</label>${i}</div>`};
+const sec=([t,f,c])=>f==="vit"?`<div class="card"><h2>${t}</h2><div id="vit"></div><button type="button" class="alt" id="vadd">Messung hinzufügen</button></div>`
+  :`<div class="card" ${c?`data-c="${c}" hidden`:""}><h2>${t}</h2><div class="fields">${f.map(field).join("")}</div></div>`;
+
+function tabs(names){
+  $("#app").innerHTML=`<nav class="tabs" id="tabs">${names.map((n,i)=>`<button data-t="${i}">${n}</button>`).join("")}</nav>`+names.map(()=>'<div class="pane"></div>').join("");
+  const go=i=>{$$("#tabs button").forEach((b,j)=>b.classList.toggle("on",i===j));$$(".pane").forEach((p,j)=>p.hidden=i!==j)};
+  $("#tabs").onclick=e=>{if(e.target.dataset.t)go(+e.target.dataset.t)};
+  go(0);return {panes:$$(".pane"),go};
+}
+
+function archive(box,edit){
+  box.innerHTML='<input id="q" placeholder="Suchen: Patient, Fahrzeug, SV-Nummer, Einsatz" aria-label="Suchen" style="margin-bottom:12px"><div id="alist"></div><div id="adet"></div>';
+  let all={};
+  const draw=()=>{
+    const q=$("#q").value.toLowerCase();
+    const rows=Object.entries(all).filter(([,p])=>[p.p_name,p.fz,p.p_svnr,p.enr].join(" ").toLowerCase().includes(q)).sort((a,b)=>b[1].ts-a[1].ts);
+    $("#alist").innerHTML=rows.length?rows.map(([id,p])=>`<div class="card"><b>${esc(p.p_name||"Unbekannter Patient")}</b> · ${esc(p.fz)} · ${new Date(p.ts).toLocaleString("de-AT")}${p.enr?" · "+esc(p.enr):""}<div class="row"><button data-a="v" data-id="${id}">Ansehen</button>${edit?`<button class="alt" data-a="e" data-id="${id}">Bearbeiten</button>`:`<button class="alt" data-a="d" data-id="${id}">Löschen</button>`}</div></div>`).join(""):"<p>Keine Protokolle gefunden.</p>";
+  };
+  const detail=p=>{
+    const h=SEC.map(([t,f,c])=>{
+      if(c&&!p[c])return"";
+      if(f==="vit")return p.vit&&p.vit.length?`<h3>${t}</h3>`+p.vit.map(v=>`<div>${VK.map(k=>k.toUpperCase()+": "+esc(v[k]||"–")).join(" · ")}</div>`).join(""):"";
+      const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
+      return l?`<h3>${t}</h3>${l}`:"";
+    }).join("");
+    $("#adet").innerHTML=`<div class="card" id="print"><h2>Patientenprotokoll</h2><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
+    $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";
+    $("#adet").scrollIntoView();
+  };
+  box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const id=b.dataset.id;
+    if(b.dataset.a==="v")detail(all[id]);
+    if(b.dataset.a==="e")edit(id);
+    if(b.dataset.a==="d"&&confirm("Protokoll endgültig löschen?"))set(ref(db,"protocols/"+id),null)};
+  $("#q").oninput=draw;
+  onValue(ref(db,"protocols"),s=>{all=s.val()||{};draw()});
+}
+
+/* ---------- Leitstelle ---------- */
+function leitstelle(){
+  const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv"]);
+  let V={},M={},editId=null;
+  panes[0].innerHTML=`<div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields">
+   <div><label for="m-art">Einsatzart</label><select id="m-art"><option>Notfallrettung</option><option>Notarzteinsatz</option><option>Krankentransport</option></select></div>
+   <div><label for="m-sw">Stichwort</label><input id="m-sw" placeholder="z. B. Brustschmerz"></div>
+   <div><label for="m-adr">Einsatzort</label><input id="m-adr"></div>
+   <div><label for="m-v">Fahrzeug</label><select id="m-v"></select></div></div>
+   <label for="m-info">Meldung / Bemerkung</label><textarea id="m-info"></textarea>
+   <label class="chk"><input type="checkbox" id="m-ann" checked>Zuweisung per Funk durchsagen</label>
+   <div class="row"><button id="m-save">Einsatz speichern</button><button class="alt" id="m-cancel" hidden>Abbrechen</button></div></div><div id="mlist"></div>`;
+  panes[1].innerHTML=`<div class="card"><h2>Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div><h2>Fahrzeuge</h2><div id="vlist" class="grid"></div>`;
+  const reset=()=>{editId=null;$("#mt").textContent="Neuer Einsatz";$("#m-cancel").hidden=true;["sw","adr","info"].forEach(k=>$("#m-"+k).value="");$("#m-v").value=""};
+  $("#m-cancel").onclick=reset;
+  $("#m-save").onclick=async()=>{
+    const sw=$("#m-sw").value.trim(),adr=$("#m-adr").value.trim();
+    if(!sw||!adr){alert("Bitte Stichwort und Einsatzort eingeben.");return}
+    const id=editId||"e"+Date.now(),old=M[id]||{},vid=$("#m-v").value,art=$("#m-art").value;
+    await set(ref(db,"missions/"+id),{nr:old.nr||"E-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(100+Math.random()*900),art,sw,adr,info:$("#m-info").value,vid,done:!!old.done,ts:old.ts||Date.now()});
+    if(vid&&vid!==old.vid&&$("#m-ann").checked)await set(ref(db,"announcements/latest"),{id:Date.now(),text:`${V[vid].name}, ${art}, ${sw}, ${adr}.`,target:vid,von:me.name});
+    reset();
+  };
+  $("#mlist").onclick=e=>{const b=e.target.closest("button");if(!b)return;const id=b.dataset.id,m=M[id];
+    if(b.dataset.a==="e"){editId=id;$("#mt").textContent="Einsatz bearbeiten: "+m.nr;$("#m-art").value=m.art;$("#m-sw").value=m.sw;$("#m-adr").value=m.adr;$("#m-info").value=m.info||"";$("#m-v").value=m.vid||"";$("#m-cancel").hidden=false;scrollTo(0,0)}
+    if(b.dataset.a==="f")update(ref(db,"missions/"+id),{done:!m.done});
+    if(b.dataset.a==="d"&&confirm("Einsatz "+m.nr+" löschen?"))set(ref(db,"missions/"+id),null)};
+  $("#a-send").onclick=async()=>{const text=$("#a-text").value.trim();if(!text)return;
+    await set(ref(db,"announcements/latest"),{id:Date.now(),text,target:$("#a-target").value,von:me.name});$("#a-text").value=""};
+  $("#vlist").onclick=e=>{const b=e.target.closest("button");if(b&&confirm("Fahrzeug aus der Liste entfernen?"))set(ref(db,"vehicles/"+b.dataset.id),null)};
+  const draw=()=>{
+    const opts=Object.entries(V).map(([id,v])=>`<option value="${id}">${esc(v.name)}</option>`).join("");
+    const cv=$("#m-v").value,ct=$("#a-target").value;
+    $("#m-v").innerHTML='<option value="">– nicht zugewiesen –</option>'+opts;$("#m-v").value=cv;
+    $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
+    $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>m.vid===id&&!m.done);
+      return `<div class="v" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div><div class="row"><button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
+    const rows=Object.entries(M).sort((a,b)=>(a[1].done-b[1].done)||b[1].ts-a[1].ts);
+    $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const st=m.done?["Abgeschlossen","#6b7178"]:m.vid?["Zugewiesen","#e0a100"]:["Offen","#e2001a"];
+      return `<div class="card"><b>${esc(m.nr)}</b> <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div><div>Fahrzeug: ${m.vid&&V[m.vid]?esc(V[m.vid].name):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):"<p>Noch keine Einsätze. Lege oben den ersten an.</p>";
+  };
+  onValue(ref(db,"vehicles"),s=>{V=s.val()||{};draw()});
+  onValue(ref(db,"missions"),s=>{M=s.val()||{};draw()});
+  archive(panes[2],false);
+}
+
+/* ---------- Fahrzeug ---------- */
+async function fahrzeug(){
+  const {panes,go}=tabs(["Einsatz und Status","Protokoll","Archiv"]);
+  const vref=ref(db,"vehicles/"+me.vid),cur=(await get(vref)).val();
+  await update(vref,{name:me.call,crew:me.name,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
+  panes[0].innerHTML=`<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]}">${s[1]}</button>`).join("")}</div></div>`;
+  panes[1].innerHTML=`<form onsubmit="return false">${SEC.map(sec).join("")}</form><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div>`;
+  let cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
+  try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
+  onValue(ref(db,"missions"),s=>{const ms=Object.values(s.val()||{}).filter(m=>m.vid===me.vid&&!m.done);cm=ms.length?ms[0].nr:"";
+    $("#mission").innerHTML=ms.length?ms.map(m=>`<p><b>${esc(m.nr)}</b> · ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}</p>`).join(""):"Kein Einsatz zugewiesen."});
+  onValue(vref,s=>{const v=s.val()||{};$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
+  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s)update(vref,{status:s})};
+  const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
+    r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
+  const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
+  const fill=d=>{$$("[data-k]").forEach(el=>{const v=d[el.dataset.k];el.type==="checkbox"?el.checked=!!v:el.value=v??""});
+    $("#vit").innerHTML="";(d.vit||[]).forEach(vrow);toggles()};
+  const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();enr=d.enr||"";fill(d)};
+  const setPid=id=>{clearTimeout(timer);pid=id;try{sessionStorage.setItem("pid",id)}catch{}};
+  await load();
+  const save=()=>{clearTimeout(timer);timer=setTimeout(()=>{
+    const o={};$$("[data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
+    o.vit=$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value])));
+    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now()});
+    set(ref(db,"protocols/"+pid),o)},600)};
+  panes[1].addEventListener("input",()=>{toggles();save()});
+  $("#vadd").onclick=()=>{vrow({t:new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"})});save()};
+  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();fill({})}};
+  archive(panes[2],true);
+  // Bearbeiten aus dem Archiv
+  panes[2].addEventListener("click",async e=>{const b=e.target.closest('button[data-a="e"]');if(b){setPid(b.dataset.id);await load();go(1)}});
+}
+
+if(me&&me.role)start();
+</script>
+</body>
+</html>
