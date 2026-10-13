@@ -5,28 +5,34 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Berufsrettung RP</title>
 <style>
-:root{--red:#e2001a;--ink:#1f1f1f;--bg:#f2f2f2;--line:#d9d9d9}
+:root{--red:#e2001a;--red-dk:#b4000f;--ink:#1a1a1a;--bg:#eceef0;--line:#d7dade;--gold:#c9a24b}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;font:16px/1.45 Arial,"Helvetica Neue",sans-serif;color:var(--ink);background:var(--bg)}
-header{background:#fff;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:4px solid var(--red)}
-.wien{background:var(--red);color:#fff;font-weight:700;font-size:1.6rem;padding:12px 16px}
-header b{font-size:1.1rem}header small{display:block;color:#555}
+header{background:linear-gradient(180deg,#fff,#f5f5f5);display:flex;align-items:center;gap:16px;padding:0 20px;
+  border-bottom:3px solid var(--red);box-shadow:0 1px 0 var(--red-dk)}
+.crest{width:46px;height:46px;flex:none}
+.htxt b{font-size:1.15rem;letter-spacing:.2px}
+.htxt small{display:block;color:#5a5a5a;font-size:.78rem;letter-spacing:.4px}
+.hband{width:6px;align-self:stretch;background:repeating-linear-gradient(45deg,var(--red) 0 8px,var(--red-dk) 8px 16px);margin-left:4px}
 #who{margin-left:auto;font-size:.9rem;display:flex;gap:10px;align-items:center}
 main{max-width:1100px;margin:0 auto;padding:16px}
-.card{background:#fff;border:1px solid var(--line);padding:16px;margin-bottom:14px}
-h2{font-size:1.15rem;margin:0 0 10px}h3{font-size:1rem;margin:14px 0 4px;border-bottom:1px solid var(--line)}
+.card{background:#fff;border:1px solid var(--line);border-top:3px solid var(--red);padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h2{font-size:1.1rem;margin:0 0 10px;color:var(--red-dk);font-weight:700}
+h3{font-size:.95rem;margin:14px 0 4px;padding-bottom:3px;border-bottom:2px solid var(--gold);color:var(--ink)}
 label{display:block;font-size:.85rem;font-weight:600;margin:8px 0 3px}
 input,select,textarea,button{font:inherit}
-input,select,textarea{width:100%;padding:8px;border:1px solid #8a8a8a;background:#fff;border-radius:0}
+input,select,textarea{width:100%;padding:8px;border:1px solid #9a9a9a;background:#fff;border-radius:0}
 textarea{min-height:56px;resize:vertical}
 input[type=checkbox]{width:auto;margin-right:8px}
 .chk{display:flex;align-items:center;font-weight:600;margin:10px 0}
-button{background:var(--red);color:#fff;border:0;padding:9px 16px;cursor:pointer;font-weight:700}
+button{background:var(--red);color:#fff;border:0;padding:9px 16px;cursor:pointer;font-weight:700;letter-spacing:.2px}
+button:hover{background:var(--red-dk)}
 button.alt{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:7px 14px}
+button.alt:hover{background:var(--ink);color:#fff}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #1e66b0;outline-offset:1px}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
 .tabs button{background:none;color:var(--ink);border-bottom:4px solid transparent;padding:10px 16px}
-.tabs button.on{border-bottom-color:var(--red)}
+.tabs button.on{border-bottom-color:var(--red);color:var(--red-dk)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));column-gap:12px}
 .badge{display:inline-block;color:#fff;padding:2px 9px;font-size:.85rem;font-weight:700}
@@ -36,17 +42,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .st button{background:#fff;color:var(--ink);border:1px solid var(--line);border-left:10px solid;text-align:left}
 .st button.on{background:var(--ink);color:#fff}
 .vrow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
-#banner{background:var(--ink);color:#fff;padding:12px 20px;font-weight:700;border-bottom:4px solid #e0a100}
+#banner{background:var(--ink);color:#fff;padding:12px 20px;font-weight:700;border-bottom:4px solid var(--gold)}
 #login{max-width:420px;margin:40px auto}
+#login .crest{width:64px;height:64px;display:block;margin:0 auto 10px}
 @media(max-width:640px){.vrow{grid-template-columns:repeat(4,1fr)}}
 @media print{body *{visibility:hidden}#print,#print *{visibility:visible}#print{position:absolute;left:0;top:0;width:100%;border:0}}
+
+body{padding-bottom:84px}
+#radio{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:3px solid var(--red);padding:10px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;z-index:5}
+#rst{font-weight:700}
+#radio.busy #rst{color:var(--red-dk)}
+#radio.tx{background:var(--red);color:#fff}
+#ptt{min-width:260px;padding:14px;font-size:1.05rem;touch-action:none;user-select:none;-webkit-user-select:none}
+#radio.tx #ptt{background:#fff;color:var(--red-dk)}
 </style>
 </head>
 <body>
-<header><div class="wien">Wien</div><div><b>Berufsrettung Wien</b><small>Magistratsabteilung 70</small></div><span id="who"></span></header>
+<header><svg class="crest" viewBox="0 0 48 48" role="img" aria-label="Signet Stadt Wien"><rect x="1" y="1" width="46" height="46" rx="4" fill="#e2001a"/><rect x="1" y="1" width="46" height="46" rx="4" fill="none" stroke="#c9a24b" stroke-width="2"/><path d="M8 14 L14 34 L18 20 L22 34 L28 34 L32 20 L36 34 L40 14" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="htxt"><b>Berufsrettung Wien</b><small>MAGISTRATSABTEILUNG 70 &middot; STADT WIEN</small></div><div class="hband"></div><span id="who"></span></header>
 <div id="banner" hidden></div>
 <main>
 <section id="login" class="card">
+  <svg class="crest" viewBox="0 0 48 48" role="img" aria-label="Signet Stadt Wien"><rect x="1" y="1" width="46" height="46" rx="4" fill="#e2001a"/><rect x="1" y="1" width="46" height="46" rx="4" fill="none" stroke="#c9a24b" stroke-width="2"/><path d="M8 14 L14 34 L18 20 L22 34 L28 34 L32 20 L36 34 L40 14" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg>
   <h2>Anmelden</h2>
   <label for="l-role">Rolle</label>
   <select id="l-role"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select>
@@ -58,9 +74,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <section id="app" hidden></section>
 </main>
 
+<div id="radio" hidden><div id="rst">Funkkanal frei</div><button id="ptt">Sprechtaste (Leertaste gedrückt halten)</button></div>
+<audio id="rx" autoplay></audio>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import {getDatabase,ref,set,update,onValue,get} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
+import {getDatabase,ref,set,update,onValue,get,onDisconnect,runTransaction} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCC8FoVOADO4NfUkdO9vf9al95stpIpQPQ",
@@ -109,6 +127,17 @@ function beep() {
     o.start(actx.currentTime + i * .18); o.stop(actx.currentTime + i * .18 + .14);
   });
 }
+/* Kurzes Digitalfunk-Quittungssignal (Tetra-artig), beim Statuswechsel */
+function tetraBeep() {
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  const t0 = actx.currentTime;
+  [[1400, 0], [1800, .07], [1400, .14]].forEach(([f, off]) => {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = "square"; o.frequency.value = f; g.gain.value = .06;
+    o.connect(g); g.connect(actx.destination);
+    o.start(t0 + off); o.stop(t0 + off + .05);
+  });
+}
 function say(text) {
   beep();
   setTimeout(() => {
@@ -141,6 +170,7 @@ async function start() {
   };
   beep();
   listenAnnouncements();
+  radioInit();
   me.role === "leit" ? leitstelle() : fahrzeug();
 }
 
@@ -261,7 +291,7 @@ async function fahrzeug(){
   onValue(ref(db,"missions"),s=>{const ms=Object.values(s.val()||{}).filter(m=>m.vid===me.vid&&!m.done);cm=ms.length?ms[0].nr:"";
     $("#mission").innerHTML=ms.length?ms.map(m=>`<p><b>${esc(m.nr)}</b> · ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}</p>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(vref,s=>{const v=s.val()||{};$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
-  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s)update(vref,{status:s})};
+  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
     r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
@@ -281,6 +311,89 @@ async function fahrzeug(){
   archive(panes[2],true);
   // Bearbeiten aus dem Archiv
   panes[2].addEventListener("click",async e=>{const b=e.target.closest('button[data-a="e"]');if(b){setPid(b.dataset.id);await load();go(1)}});
+}
+
+/* ---------- Sprechfunk (WebRTC, Push-to-Talk, ein Sprecher gleichzeitig) ---------- */
+const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
+const pcs={};let C={},T=null,talk=0,seq=0,stream=null,od=null;
+const tref=ref(db,"radio/talker");
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const myName=()=>me.role==="leit"?"Leitstelle":me.call;
+const peers=()=>Object.keys(C).filter(k=>k!==me.cid);
+const gather=pc=>new Promise(r=>{if(pc.iceGatheringState==="complete")return r();
+  pc.addEventListener("icegatheringstatechange",()=>pc.iceGatheringState==="complete"&&r());setTimeout(r,2000)});
+const freeLock=()=>runTransaction(tref,c=>c&&c.cid===me.cid?null:c);
+function ui(){
+  const mine=T&&T.cid===me.cid,r=$("#radio");
+  r.classList.toggle("tx",!!(talk||mine));r.classList.toggle("busy",!!T&&!mine);
+  $("#rst").textContent=talk&&!mine?"Verbindung wird aufgebaut …":mine?"Du sprichst – Kanal offen":T?"Es spricht: "+T.name:"Funkkanal frei";
+}
+async function pttDown(){
+  if(talk)return;const id=++seq;talk=id;ui();
+  try{stream=stream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
+  catch{talk=0;ui();alert("Mikrofon nicht verfügbar. Bitte Zugriff erlauben (Schloss-Symbol in der Adresszeile).");return}
+  if(talk!==id)return;
+  const r=await runTransaction(tref,c=>(!c||c.cid===me.cid||Date.now()-c.ts>60000)?{cid:me.cid,name:myName(),ts:Date.now()}:undefined);
+  if(!r.committed){talk=0;ui();return}
+  if(talk!==id){await freeLock();return}
+  od=onDisconnect(tref);od.remove();
+  stream.getAudioTracks().forEach(t=>t.enabled=true);
+  let ready=false;const ok=()=>{if(!ready&&talk===id){ready=true;tetraBeep()}};
+  const ps=peers();if(!ps.length)ok();
+  setTimeout(ok,3000);
+  await Promise.all(ps.map(async k=>{try{
+    const pc=new RTCPeerConnection(ICE);pcs["out"+k]=pc;
+    stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+    pc.onconnectionstatechange=()=>pc.connectionState==="connected"&&ok();
+    await pc.setLocalDescription(await pc.createOffer());await gather(pc);
+    if(talk!==id)return;
+    await set(ref(db,`sig/${k}/${me.cid}`),{type:"offer",sdp:pc.localDescription.sdp});
+  }catch(e){console.warn(e)}}));
+}
+async function pttUp(){
+  if(!talk)return;talk=0;ui();
+  stream&&stream.getAudioTracks().forEach(t=>t.enabled=false);
+  tetraBeep();await sleep(400);
+  Object.keys(pcs).filter(k=>k.startsWith("out")).forEach(k=>{pcs[k].close();delete pcs[k];set(ref(db,`sig/${k.slice(3)}/${me.cid}`),null)});
+  set(ref(db,"ans/"+me.cid),null);
+  if(od){od.cancel();od=null}
+  await freeLock();
+}
+function radioInit(){
+  me.cid="c"+Math.random().toString(36).slice(2,10);
+  const cref=ref(db,"clients/"+me.cid);
+  set(cref,{name:myName()});onDisconnect(cref).remove();
+  $("#radio").hidden=false;
+  onValue(ref(db,"clients"),s=>{C=s.val()||{}});
+  let prev=null;
+  onValue(tref,s=>{T=s.val();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
+  onValue(ref(db,"sig/"+me.cid),async s=>{
+    const all=s.val()||{};
+    for(const [from,o] of Object.entries(all)){
+      if(pcs["in"+from]||o.type!=="offer")continue;
+      const pc=new RTCPeerConnection(ICE);pcs["in"+from]=pc;
+      pc.ontrack=e=>{const a=$("#rx");a.srcObject=e.streams[0];a.play().catch(()=>{})};
+      try{
+        await pc.setRemoteDescription({type:"offer",sdp:o.sdp});
+        await pc.setLocalDescription(await pc.createAnswer());await gather(pc);
+        await set(ref(db,`ans/${from}/${me.cid}`),{sdp:pc.localDescription.sdp});
+      }catch(e){console.warn(e)}
+    }
+    Object.keys(pcs).forEach(k=>{if(k.startsWith("in")&&!all[k.slice(2)]){pcs[k].close();delete pcs[k]}});
+  });
+  onValue(ref(db,"ans/"+me.cid),async s=>{
+    for(const [from,o] of Object.entries(s.val()||{})){
+      const pc=pcs["out"+from];
+      if(pc&&pc.signalingState==="have-local-offer")await pc.setRemoteDescription({type:"answer",sdp:o.sdp}).catch(()=>{});
+    }
+  });
+  const b=$("#ptt");
+  b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);pttDown()};
+  b.onpointerup=b.onpointercancel=pttUp;
+  b.oncontextmenu=e=>e.preventDefault();
+  const spaceOk=()=>{const t=document.activeElement.tagName;return !/INPUT|TEXTAREA|SELECT/.test(t)&&(t!=="BUTTON"||document.activeElement.id==="ptt")};
+  addEventListener("keydown",e=>{if(e.code==="Space"&&spaceOk()){e.preventDefault();if(!e.repeat)pttDown()}});
+  addEventListener("keyup",e=>{if(e.code==="Space"&&spaceOk()){e.preventDefault();pttUp()}});
 }
 
 if(me&&me.role)start();
