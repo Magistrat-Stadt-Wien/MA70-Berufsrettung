@@ -5,60 +5,78 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Berufsrettung RP</title>
 <style>
-:root{--red:#e2001a;--red-dk:#b4000f;--ink:#1a1a1a;--bg:#eceef0;--line:#d7dade;--gold:#c9a24b}
+:root{--red:#e2001a;--red-dk:#b4000f;--ink:#1a1a1a;--bg:#eceef0;--line:#d7dade;--gold:#c9a24b;--card:#fff;--hd1:#fff;--hd2:#f5f5f5;--sub:#5a5a5a;--inb:#9a9a9a;--rt:#b4000f;color-scheme:light}
+:root[data-theme=dark]{--ink:#e8e8e8;--bg:#121315;--line:#3a3d42;--card:#1d1f23;--hd1:#25272b;--hd2:#1d1f23;--sub:#a5a9ae;--inb:#6b7076;--rt:#ff6b78;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#e8e8e8;--bg:#121315;--line:#3a3d42;--card:#1d1f23;--hd1:#25272b;--hd2:#1d1f23;--sub:#a5a9ae;--inb:#6b7076;--rt:#ff6b78;color-scheme:dark}}
+@media print{:root{--card:#fff!important;--ink:#1a1a1a!important;--bg:#fff!important;--line:#d7dade!important;--sub:#5a5a5a!important;--inb:#9a9a9a!important;--rt:#b4000f!important}}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;font:16px/1.45 Arial,"Helvetica Neue",sans-serif;color:var(--ink);background:var(--bg)}
-header{background:linear-gradient(180deg,#fff,#f5f5f5);display:flex;align-items:center;gap:16px;padding:0 20px;
+header{background:linear-gradient(180deg,var(--hd1),var(--hd2));display:flex;align-items:center;gap:16px;padding:0 20px;
   border-bottom:3px solid var(--red);box-shadow:0 1px 0 var(--red-dk)}
 .crest{width:46px;height:46px;flex:none}
 .htxt b{font-size:1.15rem;letter-spacing:.2px}
-.htxt small{display:block;color:#5a5a5a;font-size:.78rem;letter-spacing:.4px}
+.htxt small{display:block;color:var(--sub);font-size:.78rem;letter-spacing:.4px}
 .hband{width:6px;align-self:stretch;background:repeating-linear-gradient(45deg,var(--red) 0 8px,var(--red-dk) 8px 16px);margin-left:4px}
 #who{margin-left:auto;font-size:.9rem;display:flex;gap:10px;align-items:center}
 main{max-width:1100px;margin:0 auto;padding:16px}
-.card{background:#fff;border:1px solid var(--line);border-top:3px solid var(--red);padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-h2{font-size:1.1rem;margin:0 0 10px;color:var(--red-dk);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--red);padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+h2{font-size:1.1rem;margin:0 0 10px;color:var(--rt);font-weight:700}
 h3{font-size:.95rem;margin:14px 0 4px;padding-bottom:3px;border-bottom:2px solid var(--gold);color:var(--ink)}
 label{display:block;font-size:.85rem;font-weight:600;margin:8px 0 3px}
 input,select,textarea,button{font:inherit}
-input,select,textarea{width:100%;padding:8px;border:1px solid #9a9a9a;background:#fff;border-radius:0}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--inb);background:var(--card);color:var(--ink);border-radius:0}
 textarea{min-height:56px;resize:vertical}
 input[type=checkbox]{width:auto;margin-right:8px}
 .chk{display:flex;align-items:center;font-weight:600;margin:10px 0}
 button{background:var(--red);color:#fff;border:0;padding:9px 16px;cursor:pointer;font-weight:700;letter-spacing:.2px}
 button:hover{background:var(--red-dk)}
-button.alt{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:7px 14px}
-button.alt:hover{background:var(--ink);color:#fff}
+button.alt{background:var(--card);color:var(--ink);border:2px solid var(--ink);padding:7px 14px}
+button.alt:hover{background:var(--ink);color:var(--bg)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #1e66b0;outline-offset:1px}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
 .tabs button{background:none;color:var(--ink);border-bottom:4px solid transparent;padding:10px 16px}
-.tabs button.on{border-bottom-color:var(--red);color:var(--red-dk)}
+.tabs button.on{border-bottom-color:var(--red);color:var(--rt)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
 .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));column-gap:12px}
 .badge{display:inline-block;color:#fff;padding:2px 9px;font-size:.85rem;font-weight:700}
-.v{border:1px solid var(--line);border-top:5px solid #999;padding:12px;background:#fff}
+.v{border:1px solid var(--line);border-top:5px solid #999;padding:12px;background:var(--card)}
 .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .st{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
-.st button{background:#fff;color:var(--ink);border:1px solid var(--line);border-left:10px solid;text-align:left}
-.st button.on{background:var(--ink);color:#fff}
+.st button{background:var(--card);color:var(--ink);border:1px solid var(--line);border-left:10px solid;text-align:left}
+.st button.on{background:var(--ink);color:var(--bg)}
 .vrow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
-#banner{background:var(--ink);color:#fff;padding:12px 20px;font-weight:700;border-bottom:4px solid var(--gold)}
+#banner{background:var(--ink);color:var(--bg);padding:12px 20px;font-weight:700;border-bottom:4px solid var(--gold)}
 #login{max-width:420px;margin:40px auto}
 #login .crest{width:64px;height:64px;display:block;margin:0 auto 10px}
 @media(max-width:640px){.vrow{grid-template-columns:repeat(4,1fr)}}
 @media print{body *{visibility:hidden}#print,#print *{visibility:visible}#print{position:absolute;left:0;top:0;width:100%;border:0}}
 
 body{padding-bottom:84px}
-#radio{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:3px solid var(--red);padding:10px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;z-index:5}
+#radio{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:3px solid var(--red);padding:10px 20px;display:flex;gap:14px;align-items:center;justify-content:space-between;z-index:5}
 #rst{font-weight:700}
-#radio.busy #rst{color:var(--red-dk)}
+#ch,#tg{width:auto;min-width:150px;margin:0}
+#radio.busy #rst{color:var(--rt)}
+#theme{margin-left:10px;white-space:nowrap}
 #radio.tx{background:var(--red);color:#fff}
 #ptt{min-width:260px;padding:14px;font-size:1.05rem;touch-action:none;user-select:none;-webkit-user-select:none}
 #radio.tx #ptt{background:#fff;color:var(--red-dk)}
 </style>
+<script>
+(function(){
+  var h=document.documentElement,t=null;
+  try{t=localStorage.getItem("theme")}catch(e){}
+  if(t==="dark"||t==="light")h.setAttribute("data-theme",t);
+  var eff=function(){return h.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")};
+  var lab=function(b){b.textContent=eff()==="dark"?"\u2600 Hell":"\u263E Dunkel"};
+  addEventListener("DOMContentLoaded",function(){
+    var b=document.getElementById("theme");lab(b);
+    b.onclick=function(){var n=eff()==="dark"?"light":"dark";h.setAttribute("data-theme",n);try{localStorage.setItem("theme",n)}catch(e){}lab(b)};
+  });
+})();
+</script>
 </head>
 <body>
-<header><svg class="crest" viewBox="0 0 48 48" role="img" aria-label="Signet Stadt Wien"><rect x="1" y="1" width="46" height="46" rx="4" fill="#e2001a"/><rect x="1" y="1" width="46" height="46" rx="4" fill="none" stroke="#c9a24b" stroke-width="2"/><path d="M8 14 L14 34 L18 20 L22 34 L28 34 L32 20 L36 34 L40 14" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="htxt"><b>Berufsrettung Wien</b><small>MAGISTRATSABTEILUNG 70 &middot; STADT WIEN</small></div><div class="hband"></div><span id="who"></span></header>
+<header><svg class="crest" viewBox="0 0 48 48" role="img" aria-label="Signet Stadt Wien"><rect x="1" y="1" width="46" height="46" rx="4" fill="#e2001a"/><rect x="1" y="1" width="46" height="46" rx="4" fill="none" stroke="#c9a24b" stroke-width="2"/><path d="M8 14 L14 34 L18 20 L22 34 L28 34 L32 20 L36 34 L40 14" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/></svg><div class="htxt"><b>Berufsrettung Wien</b><small>MAGISTRATSABTEILUNG 70 &middot; STADT WIEN</small></div><div class="hband"></div><span id="who"></span><button class="alt" id="theme" type="button"></button></header>
 <div id="banner" hidden></div>
 <main>
 <section id="login" class="card">
@@ -67,14 +85,14 @@ body{padding-bottom:84px}
   <label for="l-role">Rolle</label>
   <select id="l-role"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select>
   <label for="l-name">Dein Name</label><input id="l-name" autocomplete="off">
-  <div id="l-call-w"><label for="l-call">Funkrufname des Fahrzeugs (z. B. RTW 1)</label><input id="l-call" autocomplete="off"></div>
+  <div id="l-call-w"><label for="l-typ">Fahrzeugtyp</label><select id="l-typ"><option value="rtw">RTW</option><option value="nef">NEF / NAW</option><option value="ktw">KTW / NKTW</option></select><label for="l-call">Funkrufname des Fahrzeugs (z. B. RTW 1)</label><input id="l-call" autocomplete="off"></div>
   <div class="row"><button id="l-go">Anmelden</button></div>
   <p id="l-err" style="color:var(--red)"></p>
 </section>
 <section id="app" hidden></section>
 </main>
 
-<div id="radio" hidden><div id="rst">Funkkanal frei</div><button id="ptt">Sprechtaste (Leertaste gedrückt halten)</button></div>
+<div id="radio" hidden><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select><div id="rst">Funkkanal frei</div><button id="ptt">Sprechtaste (Leertaste gedrückt halten)</button></div>
 <audio id="rx" autoplay></audio>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
@@ -111,7 +129,8 @@ $("#l-role").onchange = e => $("#l-call-w").hidden = e.target.value === "leit";
 $("#l-go").onclick = () => {
   const role = $("#l-role").value, name = $("#l-name").value.trim(), call = $("#l-call").value.trim();
   if (!name || (role === "fzg" && !call)) { $("#l-err").textContent = "Bitte Namen" + (role === "fzg" ? " und Funkrufnamen" : "") + " eingeben."; return; }
-  me = {role, name, call, vid: call.toLowerCase().replace(/[^a-z0-9]+/g, "-")};
+  const typ = $("#l-typ").value;
+  me = {role, name, call, typ, ch: role === "leit" ? "rtw" : typ, vid: call.toLowerCase().replace(/[^a-z0-9]+/g, "-")};
   try { sessionStorage.setItem("me", JSON.stringify(me)); } catch {}
   start();
 };
@@ -162,6 +181,7 @@ function listenAnnouncements() {
 
 /* ---------- Start ---------- */
 async function start() {
+  me.ch = me.ch || "rtw";
   $("#login").hidden = true; $("#app").hidden = false;
   $("#who").innerHTML = esc(me.name) + (me.role === "fzg" ? " · " + esc(me.call) : " · Leitstelle") + ' <button class="alt" id="out">Abmelden</button>';
   $("#out").onclick = async () => {
@@ -316,27 +336,31 @@ async function fahrzeug(){
 /* ---------- Sprechfunk (WebRTC, Push-to-Talk, ein Sprecher gleichzeitig) ---------- */
 const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
 const pcs={};let C={},T=null,talk=0,seq=0,stream=null,od=null;
-const tref=ref(db,"radio/talker");
+const CH=[["rtw","RTW"],["nef","NEF / NAW"],["ktw","KTW / NKTW"],["son1","Sonderlage 1"],["son2","Sonderlage 2"]];
+let R={},lk=null,tg="";const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
+const tref=()=>ref(db,"radio/"+(me.role==="leit"&&tg?"dm_"+tg:me.ch)+"/talker");
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const myName=()=>me.role==="leit"?"Leitstelle":me.call;
-const peers=()=>Object.keys(C).filter(k=>k!==me.cid);
+const peers=()=>me.role==="leit"&&tg?(C[tg]?[tg]:[]):Object.keys(C).filter(k=>k!==me.cid&&(C[k].leit||C[k].ch===me.ch));
 const gather=pc=>new Promise(r=>{if(pc.iceGatheringState==="complete")return r();
   pc.addEventListener("icegatheringstatechange",()=>pc.iceGatheringState==="complete"&&r());setTimeout(r,2000)});
-const freeLock=()=>runTransaction(tref,c=>c&&c.cid===me.cid?null:c);
+const freeLock=()=>runTransaction(lk||tref(),c=>c&&c.cid===me.cid?null:c);
 function ui(){
   const mine=T&&T.cid===me.cid,r=$("#radio");
   r.classList.toggle("tx",!!(talk||mine));r.classList.toggle("busy",!!T&&!mine);
-  $("#rst").textContent=talk&&!mine?"Verbindung wird aufgebaut …":mine?"Du sprichst – Kanal offen":T?"Es spricht: "+T.name:"Funkkanal frei";
+  const oth=me.role==="leit"?Object.entries(R).filter(([k,v])=>(tg||k!==me.ch)&&v&&v.talker&&CH.some(c=>c[0]===k)).map(([k,v])=>chName(k)+": "+v.talker.name):[];
+  $("#rst").textContent=(talk&&!mine?"Verbindung wird aufgebaut …":mine?(tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"");
+  $("#ch").disabled=$("#tg").disabled=!!(talk||mine);
 }
 async function pttDown(){
   if(talk)return;const id=++seq;talk=id;ui();
   try{stream=stream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
   catch{talk=0;ui();alert("Mikrofon nicht verfügbar. Bitte Zugriff erlauben (Schloss-Symbol in der Adresszeile).");return}
   if(talk!==id)return;
-  const r=await runTransaction(tref,c=>(!c||c.cid===me.cid||Date.now()-c.ts>60000)?{cid:me.cid,name:myName(),ts:Date.now()}:undefined);
+  lk=tref();const r=await runTransaction(lk,c=>(!c||c.cid===me.cid||Date.now()-c.ts>60000)?{cid:me.cid,name:myName(),ts:Date.now()}:undefined);
   if(!r.committed){talk=0;ui();return}
   if(talk!==id){await freeLock();return}
-  od=onDisconnect(tref);od.remove();
+  od=onDisconnect(lk);od.remove();
   stream.getAudioTracks().forEach(t=>t.enabled=true);
   let ready=false;const ok=()=>{if(!ready&&talk===id){ready=true;tetraBeep()}};
   const ps=peers();if(!ps.length)ok();
@@ -362,24 +386,32 @@ async function pttUp(){
 function radioInit(){
   me.cid="c"+Math.random().toString(36).slice(2,10);
   const cref=ref(db,"clients/"+me.cid);
-  set(cref,{name:myName()});onDisconnect(cref).remove();
+  set(cref,{name:myName(),ch:me.ch,leit:me.role==="leit",typ:me.typ||null});onDisconnect(cref).remove();
   $("#radio").hidden=false;
-  onValue(ref(db,"clients"),s=>{C=s.val()||{}});
+  onValue(ref(db,"clients"),s=>{C=s.val()||{};if(typeof fillTg==="function"&&!talk)fillTg()});
   let prev=null;
-  onValue(tref,s=>{T=s.val();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
+  const sel=$("#ch");sel.innerHTML=CH.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("");sel.value=me.ch;
+  const upd=()=>{const k=me.role==="leit"&&tg?"dm_"+tg:me.ch;T=(R[k]||{}).talker||null;
+    if(me.role!=="leit"&&!T){const d=(R["dm_"+me.cid]||{}).talker;if(d)T={...d,name:d.name+" (Einzelruf)"}}};
+  const tgs=$("#tg");tgs.hidden=me.role!=="leit";
+  const fillTg=()=>{if(me.role!=="leit")return;if(tg&&!C[tg])tg="";
+    tgs.innerHTML='<option value="">Anruf: alle auf Kanal</option>'+Object.entries(C).filter(([k,v])=>!v.leit).map(([k,v])=>`<option value="${k}">Einzelruf: ${esc(v.name)}</option>`).join("");tgs.value=tg};
+  tgs.onchange=()=>{tg=tgs.value;upd();prev=T;ui()};
+  sel.onchange=()=>{me.ch=sel.value;try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}update(cref,{ch:me.ch});upd();prev=T;ui()};
+  onValue(ref(db,"radio"),s=>{R=s.val()||{};upd();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
   onValue(ref(db,"sig/"+me.cid),async s=>{
     const all=s.val()||{};
     for(const [from,o] of Object.entries(all)){
       if(pcs["in"+from]||o.type!=="offer")continue;
       const pc=new RTCPeerConnection(ICE);pcs["in"+from]=pc;
-      pc.ontrack=e=>{const a=$("#rx");a.srcObject=e.streams[0];a.play().catch(()=>{})};
+      pc.ontrack=e=>{let a=document.getElementById("rx"+from);if(!a){a=document.createElement("audio");a.id="rx"+from;a.autoplay=true;document.body.appendChild(a)}a.srcObject=e.streams[0];a.play().catch(()=>{})};
       try{
         await pc.setRemoteDescription({type:"offer",sdp:o.sdp});
         await pc.setLocalDescription(await pc.createAnswer());await gather(pc);
         await set(ref(db,`ans/${from}/${me.cid}`),{sdp:pc.localDescription.sdp});
       }catch(e){console.warn(e)}
     }
-    Object.keys(pcs).forEach(k=>{if(k.startsWith("in")&&!all[k.slice(2)]){pcs[k].close();delete pcs[k]}});
+    Object.keys(pcs).forEach(k=>{if(k.startsWith("in")&&!all[k.slice(2)]){pcs[k].close();delete pcs[k];const a=document.getElementById("rx"+k.slice(2));a&&a.remove()}});
   });
   onValue(ref(db,"ans/"+me.cid),async s=>{
     for(const [from,o] of Object.entries(s.val()||{})){
