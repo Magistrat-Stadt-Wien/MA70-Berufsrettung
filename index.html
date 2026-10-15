@@ -469,24 +469,27 @@ async function fahrzeug(){
 }
 
 /* ---------- Sprechfunk (WebRTC, Push-to-Talk, ein Sprecher gleichzeitig) ---------- */
-const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
+const ICE={iceServers:[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302","stun:stun.cloudflare.com:3478"]},{urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]};
 const pcs={};let C={},T=null,talk=0,seq=0,stream=null,od=null;
 const PC={"Notfall – Sondersignal":"#e2001a","Dringend":"#e0a100","Planbar / Transport":"#1e66b0"};
 const hm=t=>new Date(t).toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"});
 const CH=[["rtw","RTW"],["nef","NEF / NAW"],["ktw","KTW / NKTW"],["son1","Sonderlage 1"],["son2","Sonderlage 2"]];
 let R={},lk=null,tg="";const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
-const tref=()=>ref(db,"radio/"+(me.role==="leit"&&tg?"dm_"+tg:me.ch)+"/talker");
+const tref=()=>ref(db,"radio/"+(me.role==="leit"&&tg?"dm_"+(tg==="*"?"all":tg):me.ch)+"/talker");
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const myName=()=>me.role==="leit"?"Leitstelle":me.call;
-const peers=()=>me.role==="leit"&&tg?(C[tg]?[tg]:[]):Object.keys(C).filter(k=>k!==me.cid&&(C[k].leit||C[k].ch===me.ch));
-const gather=pc=>new Promise(r=>{if(pc.iceGatheringState==="complete")return r();
-  pc.addEventListener("icegatheringstatechange",()=>pc.iceGatheringState==="complete"&&r());setTimeout(r,2000)});
+const peers=()=>me.role==="leit"&&tg?(tg==="*"?Object.keys(C).filter(k=>!C[k].leit):C[tg]?[tg]:[]):Object.keys(C).filter(k=>k!==me.cid&&(C[k].leit||C[k].ch===me.ch));
+const gather=pc=>new Promise(r=>{const t0=Date.now();let sAt=0;
+  const tick=()=>{const d=pc.localDescription?pc.localDescription.sdp:"";
+    if(pc.iceGatheringState==="complete")return r();
+    if(d.includes(" typ srflx")){sAt=sAt||Date.now();if(Date.now()-sAt>250)return r()}
+    if(Date.now()-t0>1800)return r();setTimeout(tick,40)};tick()});
 const freeLock=()=>runTransaction(lk||tref(),c=>c&&c.cid===me.cid?null:c);
 function ui(){
   const mine=T&&T.cid===me.cid,r=$("#radio");
   r.classList.toggle("tx",!!(talk||mine));r.classList.toggle("busy",!!T&&!mine);
   const oth=me.role==="leit"?Object.entries(R).filter(([k,v])=>(tg||k!==me.ch)&&v&&v.talker&&CH.some(c=>c[0]===k)).map(([k,v])=>chName(k)+": "+v.talker.name):[];
-  $("#rst").textContent=(talk&&!mine?"Verbindung wird aufgebaut …":mine?(tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"");
+  $("#rst").textContent=(talk&&!mine?"Verbindung wird aufgebaut …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"");
   $("#ch").disabled=$("#tg").disabled=!!(talk||mine);
 }
 async function pttDown(){
@@ -501,7 +504,7 @@ async function pttDown(){
   stream.getAudioTracks().forEach(t=>t.enabled=true);
   let ready=false;const ok=()=>{if(!ready&&talk===id){ready=true;tetraBeep()}};
   const ps=peers();if(!ps.length)ok();
-  setTimeout(ok,3000);
+  setTimeout(ok,1500);
   await Promise.all(ps.map(async k=>{try{
     const pc=new RTCPeerConnection(ICE);pcs["out"+k]=pc;
     stream.getTracks().forEach(t=>pc.addTrack(t,stream));
@@ -528,11 +531,11 @@ function radioInit(){
   onValue(ref(db,"clients"),s=>{C=s.val()||{};if(typeof fillTg==="function"&&!talk)fillTg()});
   let prev=null;
   const sel=$("#ch");sel.innerHTML=CH.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("");sel.value=me.ch;
-  const upd=()=>{const k=me.role==="leit"&&tg?"dm_"+tg:me.ch;T=(R[k]||{}).talker||null;
-    if(me.role!=="leit"&&!T){const d=(R["dm_"+me.cid]||{}).talker;if(d)T={...d,name:d.name+" (Einzelruf)"}}};
+  const upd=()=>{const k=me.role==="leit"&&tg?"dm_"+(tg==="*"?"all":tg):me.ch;T=(R[k]||{}).talker||null;
+    if(me.role!=="leit"&&!T){const d=(R["dm_"+me.cid]||{}).talker,a=(R.dm_all||{}).talker;if(d)T={...d,name:d.name+" (Einzelruf)"};else if(a)T={...a,name:a.name+" (Rundruf)"}}};
   const tgs=$("#tg");tgs.hidden=me.role!=="leit";
-  const fillTg=()=>{if(me.role!=="leit")return;if(tg&&!C[tg])tg="";
-    tgs.innerHTML='<option value="">Anruf: alle auf Kanal</option>'+Object.entries(C).filter(([k,v])=>!v.leit).map(([k,v])=>`<option value="${k}">Einzelruf: ${esc(v.name)}</option>`).join("");tgs.value=tg};
+  const fillTg=()=>{if(me.role!=="leit")return;if(tg&&tg!=="*"&&!C[tg])tg="";
+    tgs.innerHTML='<option value="">Anruf: alle auf Kanal</option><option value="*">Rundruf: alle Fahrzeuge</option>'+Object.entries(C).filter(([k,v])=>!v.leit).map(([k,v])=>`<option value="${k}">Einzelruf: ${esc(v.name)}</option>`).join("");tgs.value=tg};
   tgs.onchange=()=>{tg=tgs.value;upd();prev=T;ui()};
   sel.onchange=()=>{me.ch=sel.value;try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}update(cref,{ch:me.ch});upd();prev=T;ui()};
   onValue(ref(db,"radio"),s=>{R=s.val()||{};upd();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
@@ -556,6 +559,8 @@ function radioInit(){
       if(pc&&pc.signalingState==="have-local-offer")await pc.setRemoteDescription({type:"answer",sdp:o.sdp}).catch(()=>{});
     }
   });
+  ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,async function w(){removeEventListener(ev,w);if(stream)return;
+    try{const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});if(!stream){stream=st;stream.getAudioTracks().forEach(t=>t.enabled=false)}else st.getTracks().forEach(t=>t.stop())}catch{}}));
   const b=$("#ptt");
   b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);pttDown()};
   b.onpointerup=b.onpointercancel=pttUp;
