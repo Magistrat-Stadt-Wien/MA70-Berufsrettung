@@ -562,8 +562,10 @@ function ui(){
 const P={};
 const mic=()=>stream&&stream.getAudioTracks()[0];
 function drop(k){const o=P[k];if(!o)return;delete P[k];try{o.pc.close()}catch{}const a=document.getElementById("rx"+k);a&&a.remove()}
-function mk(k,gen){const pc=new RTCPeerConnection(ICE),snd=pc.addTransceiver("audio",{direction:"sendrecv"}).sender,o={pc,snd,gen,on:false};P[k]=o;
-  pc.ontrack=e=>{let a=document.getElementById("rx"+k);if(!a){a=document.createElement("audio");a.id="rx"+k;a.autoplay=true;document.body.appendChild(a)}a.srcObject=new MediaStream([e.track]);a.play().catch(()=>{})};
+function mk(k,gen,answer){const pc=new RTCPeerConnection(ICE),o={pc,snd:null,gen,on:false};
+  if(!answer)o.snd=pc.addTransceiver("audio",{direction:"sendrecv"}).sender;
+  P[k]=o;
+  pc.ontrack=e=>{let a=document.getElementById("rx"+k);if(!a){a=document.createElement("audio");a.id="rx"+k;a.autoplay=true;document.body.appendChild(a)}a.srcObject=new MediaStream([e.track]);a.play().catch(()=>addEventListener("pointerdown",()=>a.play().catch(()=>{}),{once:true}))};
   pc.onconnectionstatechange=()=>{const st=pc.connectionState;ui();if(st==="connected")feed();if((st==="failed"||st==="closed")&&P[k]===o){drop(k);if(C[k])syncPeers()}};
   setTimeout(()=>{if(P[k]===o&&pc.connectionState!=="connected"){drop(k);if(C[k])syncPeers()}},20000);
   return o}
@@ -573,8 +575,8 @@ async function link(k){if(P[k])return;const gen=String(Date.now()),o=mk(k,gen);
 function syncPeers(){if(!me.cid)return;
   Object.keys(P).forEach(k=>{if(!C[k]){drop(k);set(ref(db,`rtc/${me.cid}/${k}`),null);set(ref(db,`rtc/${k}/${me.cid}`),null)}});
   Object.keys(C).forEach(k=>{if(k!==me.cid&&me.cid<k&&!P[k])link(k)})}
-function feed(){const t=mic();if(!talk||!t)return;peers().forEach(k=>{const o=P[k];if(o&&!o.on&&o.pc.connectionState==="connected"){o.on=true;o.snd.replaceTrack(t).catch(()=>{})}})}
-function mute(){Object.values(P).forEach(o=>{if(o.on){o.on=false;o.snd.replaceTrack(null).catch(()=>{})}})}
+function feed(){const t=mic();if(!talk||!t)return;peers().forEach(k=>{const o=P[k];if(o&&o.snd&&!o.on&&o.pc.connectionState==="connected"){o.on=true;o.snd.replaceTrack(t).catch(()=>{})}})}
+function mute(){Object.values(P).forEach(o=>{if(o.on&&o.snd){o.on=false;o.snd.replaceTrack(null).catch(()=>{})}})}
 async function pttDown(){
   if(talk)return;const id=++seq;talk=id;ui();
   try{stream=stream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
@@ -615,8 +617,10 @@ function radioInit(){
     for(const [from,m] of Object.entries(s.val()||{})){
       if(m.t==="offer"){
         if(P[from]&&P[from].gen===m.gen)continue;
-        drop(from);const o=mk(from,m.gen);
-        try{await o.pc.setRemoteDescription({type:"offer",sdp:m.sdp});await o.pc.setLocalDescription(await o.pc.createAnswer());await gather(o.pc);
+        drop(from);const o=mk(from,m.gen,true);
+        try{await o.pc.setRemoteDescription({type:"offer",sdp:m.sdp});
+          const tr=o.pc.getTransceivers()[0];tr.direction="sendrecv";o.snd=tr.sender;
+          await o.pc.setLocalDescription(await o.pc.createAnswer());await gather(o.pc);
           if(P[from]===o)await set(ref(db,`rtc/${from}/${me.cid}`),{t:"answer",gen:m.gen,sdp:o.pc.localDescription.sdp})}catch(e){console.warn(e)}
       }else if(m.t==="answer"){
         const o=P[from];if(o&&o.gen===m.gen&&o.pc.signalingState==="have-local-offer")await o.pc.setRemoteDescription({type:"answer",sdp:m.sdp}).catch(()=>{})
