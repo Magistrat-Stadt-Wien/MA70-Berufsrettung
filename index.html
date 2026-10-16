@@ -641,6 +641,10 @@ function radioInit(){
 }
 
 
+/* Abspielen absichern: blockierte Audio-Elemente laufend neu starten, auch per Taste/Klick */
+{const kick=()=>document.querySelectorAll("audio[id^=rx]").forEach(a=>{if(a.srcObject){a.muted=false;a.volume=1;if(a.paused)a.play().catch(()=>{})}});
+ setInterval(kick,700);["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,kick,true))}
+
 /* ---------- Diagnose ---------- */
 {const el=document.getElementById("dbg");
  document.getElementById("dbgb").onclick=()=>{el.hidden=!el.hidden};
@@ -658,7 +662,9 @@ function radioInit(){
         if(r.type==="outbound-rtp"&&r.kind==="audio")tx=r.bytesSent;
         if(r.type==="candidate-pair"&&(r.nominated||r.selected)&&r.state==="succeeded")pair=r});
       if(pair){loc=cand[pair.localCandidateId]||"?";rem=cand[pair.remoteCandidateId]||"?"}}catch{}
-    L.push(nm+": "+o.pc.connectionState+" | ICE "+o.pc.iceConnectionState+" | Rolle: "+o.role+" | Sender hat Mikro: "+(o.snd&&o.snd.track?"ja":"nein")+" | Weg: "+loc+"/"+rem+" | gesendet "+tx+" B | empfangen "+rx+" B");
+    const au=document.getElementById("rx"+k),tk=au&&au.srcObject&&au.srcObject.getAudioTracks()[0];
+    const play=au?((au.paused?"PAUSIERT/BLOCKIERT":"spielt")+(au.muted?" STUMM":"")+" Vol "+au.volume+" | Track "+(tk?tk.readyState+(tk.muted?" (kein Signal)":" (Signal)"):"keiner")):"KEIN Audio-Element";
+    L.push(nm+": "+o.pc.connectionState+" | ICE "+o.pc.iceConnectionState+" | Rolle: "+o.role+" | Sender hat Mikro: "+(o.snd&&o.snd.track?"ja":"nein")+" | Weg: "+loc+"/"+rem+" | gesendet "+tx+" B | empfangen "+rx+" B\n    Abspielen: "+play);
   }
   el.textContent=L.join("\n");
  },1000)}
