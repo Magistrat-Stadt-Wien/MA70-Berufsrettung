@@ -213,6 +213,7 @@ footer.ft{padding-bottom:130px}
 header{border-bottom:3px solid var(--red)}
 @media print{.card{border-top-width:1px}.card>h2:first-child{border-bottom-color:#000}}
 #rst{flex:1;min-width:0}#vu{flex:none;width:84px;height:10px;margin-left:14px;border-radius:2px;background:linear-gradient(90deg,#7dffa8 var(--l,0%),#1c3a28 var(--l,0%))}#radio.tx #vu{background:linear-gradient(90deg,#fff var(--l,0%),#ffffff33 var(--l,0%))}#radio.busy #vu{background:linear-gradient(90deg,#ff9a9a var(--l,0%),#3a1c1c var(--l,0%))}#vol{padding:0;border:0;background:transparent;accent-color:var(--red);min-width:110px}
+#fset{align-self:center;padding:8px 14px;font-size:1.3rem}#mtest{height:14px;margin:6px 0 12px;border-radius:2px;background:color-mix(in srgb,var(--ink) 12%,transparent);overflow:hidden}#vu2{display:block;height:100%;background:linear-gradient(90deg,var(--red) var(--l,0%),transparent var(--l,0%))}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
@@ -248,7 +249,8 @@ header{border-bottom:3px solid var(--red)}
 <section id="app" hidden></section>
 </main>
 
-<div id="radio" hidden><div class="rg"><span class="rl">Funkkanal</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div><div id="rdisp"><div id="rst" role="status" aria-live="polite">Funkkanal frei</div><i id="vu"></i></div><div class="rg" style="min-width:120px"><span class="rl">Lautstärke</span><input id="vol" type="range" min="0" max="150" value="100" aria-label="Lautstärke"></div><button id="ptt" type="button"><b>Sprechen</b><small>F1 gedrückt halten</small></button></div>
+<dialog id="fdlg" class="card"><h2>Funk-Einstellungen</h2><label for="mic-sel">Mikrofon</label><select id="mic-sel"></select><label>Pegel</label><div id="mtest"><i id="vu2"></i></div><div class="row"><button id="mtest-b" class="alt" type="button">Mikrofon testen</button><button id="spk-b" class="alt" type="button">Lautsprecher testen</button><button id="fdlg-x" type="button">Schließen</button></div><p class="hint" id="mic-info"></p></dialog>
+<div id="radio" hidden><div class="rg"><span class="rl">Funkkanal</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div><div id="rdisp"><div id="rst" role="status" aria-live="polite">Funkkanal frei</div><i id="vu"></i></div><div class="rg" style="min-width:120px"><span class="rl">Lautstärke</span><input id="vol" type="range" min="0" max="150" value="100" aria-label="Lautstärke"></div><button id="fset" class="alt" type="button" title="Funk-Einstellungen" aria-label="Funk-Einstellungen">⚙</button><button id="ptt" type="button"><b>Sprechen</b><small>F1 gedrückt halten</small></button></div>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 import {getDatabase,ref,set,update,onValue,get,onDisconnect,runTransaction,onChildAdded,onChildChanged} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
@@ -276,7 +278,7 @@ const STATUS = [
   ["s6","Patient aufgenommen","#8e24aa"],
   ["s7","Am Zielort","#1e66b0"]
 ];
-const sInfo = k => STATUS.find(s => s[0] === k) || STATUS[0];
+const sInfo = k => k === "aus" ? ["aus", "Außer Dienst", "#6b7178"] : STATUS.find(s => s[0] === k) || STATUS[0];
 let me = null, actx = null, lastAnn = null, firstAnn = true;
 
 /* ---------- Login ---------- */
@@ -345,7 +347,7 @@ async function start() {
   $("#login").hidden = true; $("#app").hidden = false;
   $("#who").innerHTML = esc(me.name) + (me.role === "fzg" ? " · " + esc(me.call) : " · Leitstelle") + ' <button class="alt" id="out">Abmelden</button>';
   $("#out").onclick = async () => {
-    if (me.role === "fzg") await update(ref(db, "vehicles/" + me.vid), {status: "aus"});
+    if (me.role === "fzg") { try { await set(ref(db, `crew/${me.vid}/${me.pid}`), null); const left = (await get(ref(db, "crew/" + me.vid))).val(); if (!left) await update(ref(db, "vehicles/" + me.vid), {status: "aus", crew: ""}); } catch {} }
     sessionStorage.removeItem("me"); location.reload();
   };
   beep();
@@ -453,7 +455,7 @@ function leitstelle(){
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
     $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>m.vid===id&&!m.done);
       return `<div class="v${v.status==='s4'?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div><div class="row"><button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
-    {const vs=Object.values(V),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
+    {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
      const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!m.vid).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>m.vid&&!(m.ack&&m.ack.vid===m.vid)).length,"#8e24aa"]];
      $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
     const PR=m=>m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?1:2;
@@ -507,7 +509,7 @@ async function fahrzeug(){
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>m.vid===me.vid&&!m.done);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
     $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${m.ack&&m.ack.vid===me.vid?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(m.ack.ts)}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
-  onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
+  onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
   onValue(vref,s=>{const v=s.val()||{};$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
   $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();update(ref(db,"missions/"+fin),{done:true,doneTs:Date.now()});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{ack:{vid:me.vid,ts:Date.now()},t:{s2:Date.now()}});update(vref,{status:"s2"})};
@@ -540,17 +542,19 @@ const CH=[["rtw","RTW"],["nef","NEF / NAW"],["ktw","KTW / NKTW"],["son1","Sonder
 const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const myName=()=>me.role==="leit"?"Leitstelle":me.call;
-const SR=8000,CHUNK=1280,RING=16; /* 8 kHz, 160 ms pro Paket, 16 Slots Ringpuffer pro Kanal */
+const SR=16000,CHUNK=1920,RING=16; /* 16 kHz Breitband, 120 ms pro Paket, 16 Slots Ringpuffer pro Kanal */
 let C={},R={},T=null,tg="",talk=0,seq=0,tail=0,live=false,capOn=false;
 let stream=null,gr=null,msrc=null,micP=null,od=null,lk=null,txk="",txid="",nseq=0,ob=[],rp=0,pv=0,hb=0;
-let srvOff=0,errMsg="",micErr="",outG=null,vv=1,nextT=0,seen={},subs=[],vt=0;
+let srvOff=0,errMsg="",micErr="",outG=null,vv=1,nextT=0,seen={},subs=[],vt=0,jb=.25,hist=new Float32Array(3),ph=0,plx="",wl=null,testOn=false,micId="";
 const sNow=()=>Date.now()+srvOff;
 
 function getCtx(){
   if(!actx){const A=window.AudioContext||window.webkitAudioContext;actx=new A();actx.onstatechange=()=>{if(me&&me.cid)ui()}}
   if(actx.state!=="running")actx.resume().catch(()=>{});
   return actx}
-const outNode=()=>{const c=getCtx();if(!outG){outG=c.createGain();outG.gain.value=vv;outG.connect(c.destination)}return outG};
+const outNode=()=>{const c=getCtx();if(!outG){outG=c.createGain();outG.gain.value=vv;
+  const hp=c.createBiquadFilter(),l1=c.createBiquadFilter(),l2=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=90;l1.type=l2.type="lowpass";l1.frequency.value=l2.frequency.value=7400;
+  outG.connect(hp);hp.connect(l1);l1.connect(l2);l2.connect(c.destination)}return outG};
 function onErr(e){errMsg="Funkfehler: "+(e&&e.code==="PERMISSION_DENIED"?"Firebase-Regeln blockieren den Pfad audio oder radio":(e&&e.message)||e);ui();setTimeout(()=>{errMsg="";ui()},9000)}
 
 /* µ-law (8 Bit) */
@@ -558,8 +562,8 @@ const MU=(()=>{const t=new Float32Array(256);for(let i=0;i<256;i++){const u=~i&2
 function ulaw(x){let p=Math.round(x*32767),s=0;if(p<0){p=-p;s=128}if(p>32635)p=32635;p+=132;
   let e=7;for(let m=0x4000;(p&m)===0&&e>0;m>>=1)e--;return ~(s|(e<<4)|((p>>(e+3))&15))&255}
 
-function vu(x){const e=$("#vu");if(!e)return;let s=0;for(let i=0;i<x.length;i++)s+=x[i]*x[i];
-  e.style.setProperty("--l",Math.min(100,Math.sqrt(s/x.length)*350)+"%");clearTimeout(vt);vt=setTimeout(()=>e.style.setProperty("--l","0%"),400)}
+function vu(x){const es=[$("#vu"),$("#vu2")].filter(Boolean);if(!es.length)return;let s=0;for(let i=0;i<x.length;i++)s+=x[i]*x[i];
+  const l=Math.min(100,Math.sqrt(s/x.length)*350)+"%";es.forEach(e=>e.style.setProperty("--l",l));clearTimeout(vt);vt=setTimeout(()=>es.forEach(e=>e.style.setProperty("--l","0%")),400)}
 
 /* ----- Senden: Mikrofon -> Bandpass -> 8 kHz -> µ-law -> Pakete in die Datenbank ----- */
 const openMic=()=>micP||(micP=openMic2().finally(()=>{micP=null}));
@@ -568,42 +572,51 @@ const micMsg=()=>micErr==="Insecure"?"Mikrofon gesperrt: Die Seite muss über ht
 async function openMic3(){
   const t=stream&&stream.getAudioTracks()[0];if(t&&t.readyState==="live")return true;
   if(!window.isSecureContext||!navigator.mediaDevices){micErr="Insecure";return false}
-  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(e){stream=null;micErr=(e&&e.name)||"Fehler";return false}
+  const base={echoCancellation:me.role==="leit",noiseSuppression:true,autoGainControl:true,channelCount:1};
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:micId?{...base,deviceId:{exact:micId}}:base})}
+  catch(e){stream=null;
+    if(micId&&(e.name==="OverconstrainedError"||e.name==="NotFoundError")){micId="";try{stream=await navigator.mediaDevices.getUserMedia({audio:base})}catch(e2){stream=null;micErr=(e2&&e2.name)||"Fehler";return false}}
+    else{micErr=(e&&e.name)||"Fehler";return false}}
   const c=getCtx();
   if(!gr){
-    const hp=c.createBiquadFilter(),lp=c.createBiquadFilter(),mute=c.createGain();
-    hp.type="highpass";hp.frequency.value=300;lp.type="lowpass";lp.frequency.value=3400;mute.gain.value=0;
+    const hp=c.createBiquadFilter(),lp=c.createBiquadFilter(),lq=c.createBiquadFilter(),mute=c.createGain();
+    hp.type="highpass";hp.frequency.value=100;lp.type=lq.type="lowpass";lp.frequency.value=lq.frequency.value=6800;mute.gain.value=0;
     let nd;
-    try{await c.audioWorklet.addModule(URL.createObjectURL(new Blob([`class P extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(1024);this.n=0}process(i){const c=i[0]&&i[0][0];if(c){for(let k=0;k<c.length;k++){this.b[this.n++]=c[k];if(this.n===1024){this.port.postMessage(this.b.slice(0));this.n=0}}}return true}}registerProcessor("pcm",P)`],{type:"application/javascript"})));
+    try{if(c.createScriptProcessor)throw 0;await c.audioWorklet.addModule(URL.createObjectURL(new Blob([`class P extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(1024);this.n=0}process(i){const c=i[0]&&i[0][0];if(c){for(let k=0;k<c.length;k++){this.b[this.n++]=c[k];if(this.n===1024){this.port.postMessage(this.b.slice(0));this.n=0}}}return true}}registerProcessor("pcm",P)`],{type:"application/javascript"})));
       nd=new AudioWorkletNode(c,"pcm");nd.port.onmessage=e=>pcm(e.data)}
     catch(e){nd=c.createScriptProcessor(2048,1,1);nd.onaudioprocess=e=>pcm(e.inputBuffer.getChannelData(0))}
-    hp.connect(lp);lp.connect(nd);nd.connect(mute);mute.connect(c.destination);gr=hp}
+    hp.connect(lp);lp.connect(lq);lq.connect(nd);nd.connect(mute);mute.connect(c.destination);gr=hp}
   try{msrc&&msrc.disconnect()}catch(e){}
   msrc=c.createMediaStreamSource(stream);msrc.connect(gr);
   stream.getAudioTracks().forEach(x=>x.enabled=false);
   return true}
 function pcm(buf){
-  if(!capOn){rp=0;pv=0;return}
-  vu(buf);const st=actx.sampleRate/SR;
+  if(!capOn&&!testOn){rp=0;pv=0;return}
+  vu(buf);if(!capOn)return;const st=actx.sampleRate/SR;
   while(rp<buf.length-1){const i=Math.floor(rp),a=i<0?pv:buf[i];ob.push(ulaw(a+(buf[i+1]-a)*(rp-i)));rp+=st}
   rp-=buf.length;pv=buf[buf.length-1];
   if(live)pump();else if(ob.length>SR*1.2)ob.splice(0,ob.length-SR*1.2)}
 function sendChunk(c){
-  set(ref(db,"audio/"+txk+"/"+(nseq%RING)),{s:me.cid,x:txid,n:nseq,d:btoa(String.fromCharCode.apply(null,c))}).catch(onErr);nseq++}
+  set(ref(db,"audio/"+txk+"/"+(nseq%RING)),{s:me.cid,x:txid,n:nseq,t:sNow(),d:btoa(String.fromCharCode.apply(null,c))}).catch(onErr);nseq++}
 const pump=()=>{while(live&&ob.length>=CHUNK)sendChunk(ob.splice(0,CHUNK))};
 
 /* ----- Empfangen: Pakete aus der Datenbank -> Jitter-Puffer -> Lautsprecher ----- */
 function play(d,k){
   if(!d||d.s===me.cid)return;
-  const t=(R[k]||{}).talker;if(!t||t.x!==d.x)return;            /* nur Pakete der aktuellen Sendung */
+  const t=(R[k]||{}).talker;if(!(t&&t.x===d.x)&&!(d.t&&sNow()-d.t<2000))return;   /* aktuelle Sendung: Sperre passt oder Paket ist frisch */
   if((seen[d.x]??-1)>=d.n)return;if(Object.keys(seen).length>30)seen={};seen[d.x]=d.n;
   const c=getCtx(),b=atob(d.d),n=b.length,f=new Float32Array(n);
   for(let i=0;i<n;i++)f[i]=MU[b.charCodeAt(i)];
   vu(f);
-  const r=c.sampleRate,m=Math.round(n*r/SR),buf=c.createBuffer(1,m,r),o=buf.getChannelData(0);
-  for(let i=0;i<m;i++){const p=i*SR/r,j=p|0;o[i]=f[j]+(f[Math.min(j+1,n-1)]-f[j])*(p-j)}
+  const first=plx!==d.x;if(first){plx=d.x;hist.fill(f[0]);ph=3;jb=.25}
+  const N=n+3,x=new Float32Array(N);x.set(hist);x.set(f,3);hist.set(x.subarray(n));     /* letzte 3 Samples fürs nächste Paket */
+  const r=c.sampleRate,st=SR/r,tmp=new Float32Array(Math.ceil(n*r/SR)+4);let m=0;
+  for(;;){const j=ph|0;if(j>N-3)break;const t=ph-j,a=x[j-1],b0=x[j],c0=x[j+1],e=x[j+2];   /* kubisch, fortlaufend über Paketgrenzen */
+    tmp[m++]=.5*(2*b0+(c0-a)*t+(2*a-5*b0+4*c0-e)*t*t+(3*b0-a-3*c0+e)*t*t*t);ph+=st}
+  ph-=n;if(m<1)return;
+  const buf=c.createBuffer(1,m,r);buf.getChannelData(0).set(tmp.subarray(0,m));
   const at=c.currentTime;
-  if(nextT<at+.02)nextT=at+.2;else if(nextT>at+.9)return;     /* Puffer neu aufbauen / Rückstau kappen */
+  if(nextT<at+.02){if(!first)jb=Math.min(.8,jb+.15);nextT=at+jb}else if(nextT>at+jb+1.2)return;   /* bei Aussetzern Puffer vergrößern */
   const s=c.createBufferSource();s.buffer=buf;s.connect(outNode());s.start(nextT);nextT+=m/r}
 
 /* ----- Sperre: nur ein Sprecher gleichzeitig ----- */
@@ -612,8 +625,9 @@ const freeLock=()=>runTransaction(lk,c=>c&&c.cid===me.cid?null:c).catch(()=>{});
 function ui(){
   const mine=T&&T.cid===me.cid,r=$("#radio");
   r.classList.toggle("tx",!!(talk||mine));r.classList.toggle("busy",!!T&&!mine);
+  const nb=Object.entries(C).filter(([k,v])=>k!==me.cid&&(me.role==="leit"?!v.leit&&v.ch===me.ch:v.leit||v.ch===me.ch)).length;
   const oth=me.role==="leit"?Object.entries(R).filter(([k,v])=>(tg||k!==me.ch)&&v&&v.talker&&CH.some(c=>c[0]===k)).map(([k,v])=>chName(k)+": "+v.talker.name):[];
-  $("#rst").textContent=errMsg||((talk&&!mine?"Sperre wird angefordert …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"")+(actx&&actx.state!=="running"?" · Ton gesperrt: einmal irgendwo klicken":""));
+  $("#rst").textContent=errMsg||((talk&&!mine?"Sperre wird angefordert …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei · "+chName(me.ch)+" · "+nb+(nb===1?" weiteres Gerät":" weitere Geräte")+" erreichbar")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"")+(actx&&actx.state!=="running"?" · Ton gesperrt: einmal irgendwo klicken":""));
   $("#ch").disabled=$("#tg").disabled=!!(talk||mine)}
 async function pttDown(){try{await pttDown2()}catch(e){capOn=false;live=false;talk=0;ob=[];clearInterval(hb);ui();onErr(e)}}
 async function pttDown2(){
@@ -652,11 +666,11 @@ function radioInit(){
   /* Hören: Leitstelle auf allen Kanälen, Fahrzeuge auf ihrem Kanal + Einzelruf + Rundruf */
   const tune=()=>{subs.splice(0).forEach(f=>f());
     (me.role==="leit"?CH.map(c=>c[0]):[me.ch,"dm_"+me.cid,"dm_all"]).forEach(k=>{
-      const h=s=>play(s.val(),k),r=ref(db,"audio/"+k);subs.push(onChildAdded(r,h),onChildChanged(r,h))})};
+      const h=s=>play(s.val(),k),r=ref(db,"audio/"+k);subs.push(onChildAdded(r,h,onErr),onChildChanged(r,h,onErr))})};
   onValue(ref(db,"clients"),s=>{C=s.val()||{};if(!talk)fillTg()});
   tgs.onchange=()=>{tg=tgs.value;upd();prev=T;ui()};
   sel.onchange=()=>{me.ch=sel.value;try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}update(cref,{ch:me.ch});tune();upd();prev=T;ui()};
-  onValue(ref(db,"radio"),s=>{R=s.val()||{};upd();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
+  onValue(ref(db,"radio"),s=>{R=s.val()||{};upd();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()},onErr);
   tune();
   /* Ton entsperren (Autoplay-Regeln) und Mikrofon beim ersten Klick freigeben lassen */
   ["pointerdown","keydown","touchstart"].forEach(ev=>addEventListener(ev,()=>{if(actx&&actx.state!=="running")getCtx()},true));
@@ -668,7 +682,21 @@ function radioInit(){
   addEventListener("keydown",e=>{if(e.code==="F1"){e.preventDefault();if(!e.repeat)pttDown()}});
   addEventListener("keyup",e=>{if(e.code==="F1"){e.preventDefault();pttUp()}});
   addEventListener("blur",()=>pttUp());
-  $("#vol").oninput=e=>{vv=e.target.value/100;if(outG)outG.gain.value=vv};
+  try{const v=localStorage.getItem("vol");if(v!==null){vv=Math.min(1.5,Math.max(0,+v||0));$("#vol").value=vv*100}}catch(e){}
+  $("#vol").oninput=e=>{vv=e.target.value/100;if(outG)outG.gain.value=vv;try{localStorage.setItem("vol",vv)}catch(e2){}};
+  const keepAwake=async()=>{try{if(navigator.wakeLock&&document.visibilityState==="visible"&&!(wl&&!wl.released))wl=await navigator.wakeLock.request("screen")}catch(e){}};
+  keepAwake();addEventListener("visibilitychange",keepAwake);
+  try{micId=localStorage.getItem("mic")||""}catch(e){}
+  const stopTest=()=>{testOn=false;$("#mtest-b").textContent="Mikrofon testen";if(!talk&&!live&&stream)stream.getAudioTracks().forEach(x=>x.enabled=false)};
+  const fillMics=async()=>{try{const d=(await navigator.mediaDevices.enumerateDevices()).filter(x=>x.kind==="audioinput"),sel=$("#mic-sel");
+    sel.innerHTML='<option value="">Standard-Mikrofon</option>'+d.map((x,i)=>`<option value="${esc(x.deviceId)}">${esc(x.label||"Mikrofon "+(i+1))}</option>`).join("");sel.value=micId}catch(e){}};
+  $("#fset").onclick=async()=>{const ok=await openMic();await fillMics();$("#mic-info").textContent=ok?"":micMsg();$("#fdlg").showModal()};
+  $("#fdlg-x").onclick=()=>$("#fdlg").close();$("#fdlg").onclose=stopTest;
+  $("#mic-sel").onchange=async e=>{if(talk||live)return;micId=e.target.value;try{localStorage.setItem("mic",micId)}catch(e2){}
+    stopTest();if(stream)stream.getTracks().forEach(x=>x.stop());stream=null;const ok=await openMic();$("#mic-info").textContent=ok?"Mikrofon gewechselt.":micMsg();await fillMics()};
+  $("#mtest-b").onclick=async()=>{if(testOn)return stopTest();if(talk||live)return;if(!await openMic()){$("#mic-info").textContent=micMsg();return}
+    testOn=true;stream.getAudioTracks().forEach(x=>x.enabled=true);$("#mtest-b").textContent="Test beenden";$("#mic-info").textContent="Sprich jetzt. Schlägt der Balken aus, funktioniert dein Mikrofon.";setTimeout(()=>{if(testOn)stopTest()},15000)};
+  $("#spk-b").onclick=()=>{getCtx();beep()};
 }
 
 if(me&&me.role)start();
