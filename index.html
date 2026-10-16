@@ -183,6 +183,35 @@ button:active{transform:translateY(1px)}
 #radio.tx #ptt{background:#fff;color:var(--red-dk);transform:translateY(3px);box-shadow:0 1px 0 #999}
 footer.ft{padding-bottom:130px}
 @media(max-width:700px){#radio{flex-wrap:wrap;padding:10px 12px;gap:10px}#rdisp{order:-1;flex:1 1 100%}.rg{flex:1 1 40%;min-width:120px}#ptt{flex:1 1 55%;min-width:0;padding:8px 12px}}
+/* ===== Lagebild und Druck ===== */
+.lage{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.lg{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c,var(--ink));padding:8px 14px;box-shadow:var(--sh)}
+.lg b{display:block;font:700 2.1rem/1.05 var(--fc);font-variant-numeric:tabular-nums}
+.lg span{font-size:.82rem;color:var(--sub);font-weight:600}
+.phead{display:flex;align-items:center;gap:16px;padding-bottom:10px;margin-bottom:12px;border-bottom:3px solid var(--red)}
+.plogo{height:72px;width:auto;background:#fff;padding:4px;border:1px solid var(--line)}
+.phead b{font:700 1.5rem var(--fc)}
+@media print{.plogo{height:64px}.phead{border-bottom-color:#000}.lage{display:none}}
+/* ===== Redesign 2 ===== */
+:root{--bg:#e6eaf0;--ph:#1b2a41;--r:6px}
+:root[data-theme=dark]{--bg:#0e1116}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.hint{color:var(--sub);margin:0 0 12px}
+.br{display:grid;grid-template-columns:minmax(90px,170px) 1fr 36px;gap:10px;align-items:center;margin:8px 0}
+.br span{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br i{height:18px;background:linear-gradient(90deg,var(--c) var(--w),color-mix(in srgb,var(--ink) 9%,transparent) var(--w))}
+.br b{text-align:right;font:700 1.1rem var(--fc)}
+.card{border-radius:var(--r);border-left-width:1px;border-top:4px solid var(--red)}
+.card>h2:first-child{background:none;color:var(--ink);border-bottom:1px solid var(--line);margin:-16px -16px 14px;padding:12px 16px;font-size:1.3rem}
+.card>h2:first-child::before{background:var(--red);width:6px;height:22px}
+.tabs{border-bottom:0;gap:6px;background:var(--card);padding:6px;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.tabs button{border:0;border-radius:4px;background:transparent}
+.tabs button.on{background:var(--ph);color:#fff;border-top:0;box-shadow:inset 0 -3px 0 var(--red)}
+.lg{border-radius:var(--r);border-left-width:1px;border-top:4px solid var(--c,var(--ink))}
+.v{border-radius:var(--r)}
+header{border-bottom:3px solid var(--red)}
+@media print{.card{border-top-width:1px}.card>h2:first-child{border-bottom-color:#000}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
@@ -211,14 +240,14 @@ footer.ft{padding-bottom:130px}
   <label for="l-role">Rolle</label>
   <select id="l-role"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select>
   <label for="l-name">Dein Name</label><input id="l-name" autocomplete="off">
-  <div id="l-call-w"><label for="l-typ">Fahrzeugtyp</label><select id="l-typ"><option value="rtw">RTW</option><option value="nef">NEF / NAW</option><option value="ktw">KTW / NKTW</option></select><label for="l-call">Funkrufname des Fahrzeugs (z. B. RTW 1)</label><input id="l-call" autocomplete="off"></div>
+  <div id="l-call-w"><label for="l-st">Fahrzeug aus dem Stamm wählen</label><select id="l-st"><option value="">– frei eintragen –</option></select><label for="l-typ">Fahrzeugtyp</label><select id="l-typ"><option value="rtw">RTW</option><option value="nef">NEF / NAW</option><option value="ktw">KTW / NKTW</option></select><label for="l-call">Funkrufname des Fahrzeugs (z. B. RTW 1)</label><input id="l-call" autocomplete="off"></div>
   <div class="row"><button id="l-go">Anmelden</button></div>
   <p id="l-err" style="color:var(--red)"></p>
 </section>
 <section id="app" hidden></section>
 </main>
 
-<div id="radio" hidden><div class="rg"><span class="rl">Funkkanal</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div><div id="rdisp"><div id="rst">Funkkanal frei</div></div><button id="ptt" type="button"><b>Sprechen</b><small>F1 gedrückt halten</small></button></div>
+<div id="radio" hidden><div class="rg"><span class="rl">Funkkanal</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div><div id="rdisp"><div id="rst" role="status" aria-live="polite">Funkkanal frei</div></div><button id="ptt" type="button"><b>Sprechen</b><small>F1 gedrückt halten</small></button></div>
 <audio id="rx" autoplay></audio>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
@@ -251,6 +280,11 @@ const sInfo = k => STATUS.find(s => s[0] === k) || STATUS[0];
 let me = null, actx = null, lastAnn = null, firstAnn = true;
 
 /* ---------- Login ---------- */
+let STM={},CRW={};
+const slug=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),crewOf=id=>Object.values(CRW[id]||{}).map(x=>x.name);
+const drawLogin=()=>{const e=$("#l-st");if(!e)return;const cur=e.value;e.innerHTML='<option value="">– frei eintragen –</option>'+Object.entries(STM).sort((a,b)=>a[1].name.localeCompare(b[1].name,"de",{numeric:true})).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");e.value=cur};
+onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
+$("#l-st").onchange=e=>{const v=STM[e.target.value];if(v){$("#l-call").value=v.name;$("#l-typ").value=v.typ||"rtw"}};
 $("#l-role").onchange = e => $("#l-call-w").hidden = e.target.value === "leit";
 $("#l-go").onclick = () => {
   const role = $("#l-role").value, name = $("#l-name").value.trim(), call = $("#l-call").value.trim();
@@ -334,6 +368,7 @@ const SEC=[
 ["BFAST – Schlaganfall-Schnelltest",[["bf_b","B – Balance"],["bf_f","F – Face (Gesicht)"],["bf_a","A – Arms (Arme)"],["bf_s","S – Speech (Sprache)"],["bf_t","T – Time (letzter symptomfreier Zeitpunkt)"]],"stroke"],
 ["Vitalwerte im Verlauf","vit"],
 ["Maßnahmen und Medikamente",[["mass","Durchgeführte Maßnahmen","area"],["med","Verabreichte Medikamente (Name, Dosis, Uhrzeit)","area"]]],
+["Besatzung",[["b_san1","Sanitäter/in (Name, Qualifikation, z. B. RS / NFS)"],["b_san2","Fahrer/in oder 2. Sanitäter/in"],["b_na","Notarzt / Notärztin (falls vorhanden)"]]],
 ["Einschätzung und Transport",[["naca","NACA-Score",["","0 – keine Verletzung/Erkrankung","I – geringfügige Störung","II – ambulante Abklärung","III – stationäre Behandlung","IV – akute Lebensgefahr nicht auszuschließen","V – akute Lebensgefahr","VI – Reanimation","VII – Tod"]],["tprio","Transport",["","mit Sondersignal","ohne Sondersignal","kein Transport, Verbleib vor Ort","Transportverweigerung (Revers)"]],["na","Notarzt (NEF/NAW) nachgefordert",["","nein","ja"]]]],
 ["Übergabe",[["ziel","Zielklinik"],["ueb","Übergeben an"],["uebtxt","Übergabebericht (ISBAR: Identifikation, Situation, Beobachtung, Anamnese, Empfehlung)","area"]]]
 ];
@@ -368,7 +403,7 @@ function archive(box,edit){
       const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
       return l?`<h3>${t}</h3>${l}`:"";
     }).join("");
-    $("#adet").innerHTML=`<div class="card" id="print"><h2>Patientenprotokoll</h2><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
+    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>Patientenprotokoll</b><br>Berufsrettung Wien · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-AT")} · Gedruckt ${new Date().toLocaleString("de-AT")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
     $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";
     $("#adet").scrollIntoView();
   };
@@ -382,9 +417,9 @@ function archive(box,edit){
 
 /* ---------- Leitstelle ---------- */
 function leitstelle(){
-  const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv"]);
+  const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv","Statistik","Fahrzeugstamm"]);
   let V={},M={},editId=null;
-  panes[0].innerHTML=`<div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields">
+  panes[0].innerHTML=`<div class="lage" id="lage"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields">
    <div><label for="m-art">Einsatzart</label><select id="m-art"><option>Notfallrettung</option><option>Notarzteinsatz</option><option>Krankentransport</option></select></div>
    <div><label for="m-prio">Priorität</label><select id="m-prio"><option>Notfall – Sondersignal</option><option>Dringend</option><option>Planbar / Transport</option></select></div>
   <div><label for="m-sw">Stichwort</label><input id="m-sw" placeholder="z. B. Brustschmerz"></div>
@@ -418,12 +453,39 @@ function leitstelle(){
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
     $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>m.vid===id&&!m.done);
       return `<div class="v${v.status==='s4'?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div><div class="row"><button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
-    const rows=Object.entries(M).sort((a,b)=>(a[1].done-b[1].done)||b[1].ts-a[1].ts);
+    {const vs=Object.values(V),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
+     const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!m.vid).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>m.vid&&!(m.ack&&m.ack.vid===m.vid)).length,"#8e24aa"]];
+     $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
+    const PR=m=>m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?1:2;
+    const rows=Object.entries(M).sort((a,b)=>(Number(!!a[1].done)-Number(!!b[1].done))||(a[1].done?0:PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
     $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const st=m.done?["Abgeschlossen","#6b7178"]:m.vid?(m.ack&&m.ack.vid===m.vid?["Bestätigt","#2e8b57"]:["Zugewiesen","#e0a100"]):["Offen","#e2001a"];
       return `<div class="card"><b>${esc(m.nr)}</b> <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>sInfo(k)[1]+" "+hm(v)).join(" · ")+"</div>":""}<div>Fahrzeug: ${m.vid&&V[m.vid]?esc(V[m.vid].name):"–"}</div>${m.vid&&!m.done?(m.ack&&m.ack.vid===m.vid?"<div>✔ Von der Besatzung bestätigt um "+hm(m.ack.ts)+"</div>":"<div>Wartet auf Bestätigung durch das Fahrzeug</div>"):""}${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):"<p>Noch keine Einsätze. Lege oben den ersten an.</p>";
   };
   onValue(ref(db,"vehicles"),s=>{V=s.val()||{};draw()});
   onValue(ref(db,"missions"),s=>{M=s.val()||{};draw()});
+  let PRT={};
+  panes[3].innerHTML=`<div class="lage" id="kpi"></div><div class="grid2"><div class="card"><h2>Einsätze nach Art</h2><div id="b-art"></div></div><div class="card"><h2>Einsätze nach Priorität</h2><div id="b-prio"></div></div><div class="card"><h2>Einsätze pro Fahrzeug</h2><div id="b-fz"></div></div><div class="card"><h2>NACA-Verteilung (Protokolle)</h2><div id="b-naca"></div></div><div class="card"><h2>Transportart (Protokolle)</h2><div id="b-tr"></div></div></div>`;
+  const bars=(o,c)=>{const mx=Math.max(1,...Object.values(o));return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="br"><span>${esc(k)}</span><i style="--w:${v/mx*100}%;--c:${c}"></i><b>${v}</b></div>`).join("")||"<p>Noch keine Daten.</p>"};
+  const cnt=(arr,f)=>arr.reduce((o,x)=>{const k=f(x);if(k)o[k]=(o[k]||0)+1;return o},{});
+  const avg=a=>a.length?(Math.round(a.reduce((x,y)=>x+y,0)/a.length/6000)/10)+" min":"–";
+  function drawStat(){const ms=Object.values(M),d0=new Date().setHours(0,0,0,0),pr=Object.values(PRT);
+    const k=[["Einsätze gesamt",ms.length,"#1e66b0"],["Heute",ms.filter(m=>m.ts>=d0).length,"#2e8b57"],["Abgeschlossen",ms.filter(m=>m.done).length,"#6b7178"],["Offen",ms.filter(m=>!m.done).length,"#e2001a"],
+      ["Ø bis Bestätigung",avg(ms.filter(m=>m.ack&&m.ack.ts>m.ts).map(m=>m.ack.ts-m.ts)),"#e0a100"],["Ø bis Eintreffen",avg(ms.filter(m=>m.t&&m.t.s3>m.ts).map(m=>m.t.s3-m.ts)),"#00897b"],["Ø Einsatzdauer",avg(ms.filter(m=>m.doneTs>m.ts).map(m=>m.doneTs-m.ts)),"#8e24aa"],["Protokolle",pr.length,"#1e66b0"]];
+    $("#kpi").innerHTML=k.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("");
+    $("#b-art").innerHTML=bars(cnt(ms,m=>m.art),"#1e66b0");$("#b-prio").innerHTML=bars(cnt(ms,m=>m.prio),"#e2001a");
+    $("#b-fz").innerHTML=bars(cnt(ms,m=>m.vid&&(V[m.vid]?V[m.vid].name:m.vid)),"#2e8b57");
+    $("#b-naca").innerHTML=bars(cnt(pr,p=>p.naca),"#e0a100");$("#b-tr").innerHTML=bars(cnt(pr,p=>p.tprio),"#8e24aa")}
+  panes[4].innerHTML=`<div class="card"><h2>Fahrzeugstamm</h2><p class="hint">Alle Fahrzeuge, die sich beim Anmelden auswählen lassen. Mehrere Personen können sich auf dasselbe Fahrzeug anmelden, hier siehst du, wer gerade in welchem Fahrzeug sitzt.</p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th>Besatzung (angemeldet)</th><th>Status</th><th></th></tr></thead><tbody id="stl"></tbody></table></div></div>
+  <div class="card"><h2>Fahrzeuge hinzufügen</h2><label for="st-in">Ein Funkrufname pro Zeile. Optional mit Typ dahinter, zum Beispiel "RTW 1;rtw", "NEF 2;nef" oder "KTW 3;ktw".</label><textarea id="st-in" rows="6"></textarea><div class="row"><button id="st-add">Zum Stamm hinzufügen</button><button class="alt" id="st-clr">Ganzen Stamm löschen</button></div></div>`;
+  function drawStamm(){const TY={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW"};
+    $("#stl").innerHTML=Object.entries(STM).sort((a,b)=>a[1].name.localeCompare(b[1].name,"de",{numeric:true})).map(([id,v])=>{const c=crewOf(id),st=V[id]&&c.length?sInfo(V[id].status):null;
+      return `<tr><td><b>${esc(v.name)}</b></td><td>${TY[v.typ]||"–"}</td><td>${c.length?c.map(esc).join(", "):"<i>niemand angemeldet</i>"}</td><td>${st?`<span class="badge" style="background:${st[2]}">${st[1]}</span>`:"–"}</td><td><button class="alt" data-del="${id}">Entfernen</button></td></tr>`}).join("")||'<tr><td colspan="5">Der Stamm ist leer. Füge unten Fahrzeuge hinzu.</td></tr>'}
+  $("#stl").onclick=e=>{const id=e.target.dataset.del;if(id&&confirm("Fahrzeug aus dem Stamm entfernen?"))set(ref(db,"stamm/"+id),null)};
+  $("#st-add").onclick=()=>{const o={};$("#st-in").value.split("\n").forEach(l=>{const [n,t]=l.split(";").map(x=>x.trim());if(!n)return;o[slug(n)]={name:n,typ:["rtw","nef","ktw"].includes((t||"").toLowerCase())?t.toLowerCase():/nef|naw/i.test(n)?"nef":/ktw/i.test(n)?"ktw":"rtw"}});
+    if(Object.keys(o).length){update(ref(db,"stamm"),o);$("#st-in").value=""}};
+  $("#st-clr").onclick=()=>{if(confirm("Den gesamten Fahrzeugstamm löschen?"))set(ref(db,"stamm"),null)};
+  const rd=()=>{drawStat();drawStamm()};
+  onValue(ref(db,"missions"),rd);onValue(ref(db,"vehicles"),rd);onValue(ref(db,"stamm"),rd);onValue(ref(db,"crew"),rd);onValue(ref(db,"protocols"),s=>{PRT=s.val()||{};rd()});
   archive(panes[2],false);
 }
 
@@ -431,7 +493,10 @@ function leitstelle(){
 async function fahrzeug(){
   const {panes,go}=tabs(["Einsatz und Status","Protokoll","Archiv"]);
   const vref=ref(db,"vehicles/"+me.vid),cur=(await get(vref)).val();
-  await update(vref,{name:me.call,crew:me.name,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
+  me.pid=me.pid||Math.random().toString(36).slice(2,8);
+  {const cr=ref(db,`crew/${me.vid}/${me.pid}`);set(cr,{name:me.name});onDisconnect(cr).remove();
+   onValue(ref(db,"crew/"+me.vid),s=>update(vref,{crew:Object.values(s.val()||{}).map(x=>x.name).join(", ")}))}
+  await update(vref,{name:me.call,typ:me.typ||null,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
   panes[0].innerHTML=`<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
   panes[1].innerHTML=`<form onsubmit="return false">${SEC.map(sec).join("")}</form><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div>`;
   const svOk=v=>{if(!/^\d{10}$/.test(v))return false;const d=[...v].map(Number),r=(3*d[0]+7*d[1]+9*d[2]+5*d[4]+8*d[5]+4*d[6]+2*d[7]+d[8]+6*d[9])%11;return r!==10&&r===d[3]};
@@ -442,7 +507,7 @@ async function fahrzeug(){
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>m.vid===me.vid&&!m.done);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
     $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${m.ack&&m.ack.vid===me.vid?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(m.ack.ts)}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
-  onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
+  onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
   onValue(vref,s=>{const v=s.val()||{};$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
   $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();update(ref(db,"missions/"+fin),{done:true,doneTs:Date.now()});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{ack:{vid:me.vid,ts:Date.now()},t:{s2:Date.now()}});update(vref,{status:"s2"})};
@@ -469,7 +534,8 @@ async function fahrzeug(){
 }
 
 /* ---------- Sprechfunk (WebRTC, Push-to-Talk, ein Sprecher gleichzeitig) ---------- */
-const ICE={iceServers:[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302","stun:stun.cloudflare.com:3478"]},{urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]};
+/* Eigener TURN-Server (empfohlen bei verschiedenen Netzen): hier Zugangsdaten eintragen */
+const ICE={iceServers:[{urls:["stun:stun.relay.metered.ca:80","stun:stun.l.google.com:19302","stun:stun.cloudflare.com:3478"]},{urls:"turn:global.relay.metered.ca:80",username:"a0133a8efe184ff702568d9c",credential:"IOomA37Vuai3Rddw"},{urls:"turn:global.relay.metered.ca:80?transport=tcp",username:"a0133a8efe184ff702568d9c",credential:"IOomA37Vuai3Rddw"},{urls:"turn:global.relay.metered.ca:443",username:"a0133a8efe184ff702568d9c",credential:"IOomA37Vuai3Rddw"},{urls:"turns:global.relay.metered.ca:443?transport=tcp",username:"a0133a8efe184ff702568d9c",credential:"IOomA37Vuai3Rddw"}]};
 const pcs={};let C={},T=null,talk=0,seq=0,stream=null,od=null;
 const PC={"Notfall – Sondersignal":"#e2001a","Dringend":"#e0a100","Planbar / Transport":"#1e66b0"};
 const hm=t=>new Date(t).toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"});
@@ -482,16 +548,33 @@ const peers=()=>me.role==="leit"&&tg?(tg==="*"?Object.keys(C).filter(k=>!C[k].le
 const gather=pc=>new Promise(r=>{const t0=Date.now();let sAt=0;
   const tick=()=>{const d=pc.localDescription?pc.localDescription.sdp:"";
     if(pc.iceGatheringState==="complete")return r();
-    if(d.includes(" typ srflx")){sAt=sAt||Date.now();if(Date.now()-sAt>250)return r()}
-    if(Date.now()-t0>1800)return r();setTimeout(tick,40)};tick()});
+    if(d.includes(" typ srflx")&&d.includes(" typ relay"))return r();
+    if(d.includes(" typ srflx")){sAt=sAt||Date.now();if(Date.now()-sAt>1500)return r()}
+    if(Date.now()-t0>3500)return r();setTimeout(tick,40)};tick()});
 const freeLock=()=>runTransaction(lk||tref(),c=>c&&c.cid===me.cid?null:c);
 function ui(){
   const mine=T&&T.cid===me.cid,r=$("#radio");
   r.classList.toggle("tx",!!(talk||mine));r.classList.toggle("busy",!!T&&!mine);
   const oth=me.role==="leit"?Object.entries(R).filter(([k,v])=>(tg||k!==me.ch)&&v&&v.talker&&CH.some(c=>c[0]===k)).map(([k,v])=>chName(k)+": "+v.talker.name):[];
-  $("#rst").textContent=(talk&&!mine?"Verbindung wird aufgebaut …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"");
+  $("#rst").textContent=(talk&&!mine?"Verbindung wird aufgebaut …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"")+" · Verbindungen "+Object.values(P).filter(o=>o.pc.connectionState==="connected").length+"/"+Object.keys(C).filter(k=>k!==me.cid).length;
   $("#ch").disabled=$("#tg").disabled=!!(talk||mine);
 }
+const P={};
+const mic=()=>stream&&stream.getAudioTracks()[0];
+function drop(k){const o=P[k];if(!o)return;delete P[k];try{o.pc.close()}catch{}const a=document.getElementById("rx"+k);a&&a.remove()}
+function mk(k,gen){const pc=new RTCPeerConnection(ICE),snd=pc.addTransceiver("audio",{direction:"sendrecv"}).sender,o={pc,snd,gen,on:false};P[k]=o;
+  pc.ontrack=e=>{let a=document.getElementById("rx"+k);if(!a){a=document.createElement("audio");a.id="rx"+k;a.autoplay=true;document.body.appendChild(a)}a.srcObject=new MediaStream([e.track]);a.play().catch(()=>{})};
+  pc.onconnectionstatechange=()=>{const st=pc.connectionState;ui();if(st==="connected")feed();if((st==="failed"||st==="closed")&&P[k]===o){drop(k);if(C[k])syncPeers()}};
+  setTimeout(()=>{if(P[k]===o&&pc.connectionState!=="connected"){drop(k);if(C[k])syncPeers()}},20000);
+  return o}
+async function link(k){if(P[k])return;const gen=String(Date.now()),o=mk(k,gen);
+  try{await o.pc.setLocalDescription(await o.pc.createOffer());await gather(o.pc);if(P[k]!==o)return;
+    await set(ref(db,`rtc/${k}/${me.cid}`),{t:"offer",gen,sdp:o.pc.localDescription.sdp})}catch(e){console.warn(e)}}
+function syncPeers(){if(!me.cid)return;
+  Object.keys(P).forEach(k=>{if(!C[k]){drop(k);set(ref(db,`rtc/${me.cid}/${k}`),null);set(ref(db,`rtc/${k}/${me.cid}`),null)}});
+  Object.keys(C).forEach(k=>{if(k!==me.cid&&me.cid<k&&!P[k])link(k)})}
+function feed(){const t=mic();if(!talk||!t)return;peers().forEach(k=>{const o=P[k];if(o&&!o.on&&o.pc.connectionState==="connected"){o.on=true;o.snd.replaceTrack(t).catch(()=>{})}})}
+function mute(){Object.values(P).forEach(o=>{if(o.on){o.on=false;o.snd.replaceTrack(null).catch(()=>{})}})}
 async function pttDown(){
   if(talk)return;const id=++seq;talk=id;ui();
   try{stream=stream||await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}
@@ -502,24 +585,12 @@ async function pttDown(){
   if(talk!==id){await freeLock();return}
   od=onDisconnect(lk);od.remove();
   stream.getAudioTracks().forEach(t=>t.enabled=true);
-  let ready=false;const ok=()=>{if(!ready&&talk===id){ready=true;tetraBeep()}};
-  const ps=peers();if(!ps.length)ok();
-  setTimeout(ok,1500);
-  await Promise.all(ps.map(async k=>{try{
-    const pc=new RTCPeerConnection(ICE);pcs["out"+k]=pc;
-    stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-    pc.onconnectionstatechange=()=>pc.connectionState==="connected"&&ok();
-    await pc.setLocalDescription(await pc.createOffer());await gather(pc);
-    if(talk!==id)return;
-    await set(ref(db,`sig/${k}/${me.cid}`),{type:"offer",sdp:pc.localDescription.sdp});
-  }catch(e){console.warn(e)}}));
+  feed();tetraBeep();
 }
 async function pttUp(){
-  if(!talk)return;talk=0;ui();
-  stream&&stream.getAudioTracks().forEach(t=>t.enabled=false);
-  tetraBeep();await sleep(400);
-  Object.keys(pcs).filter(k=>k.startsWith("out")).forEach(k=>{pcs[k].close();delete pcs[k];set(ref(db,`sig/${k.slice(3)}/${me.cid}`),null)});
-  set(ref(db,"ans/"+me.cid),null);
+  if(!talk)return;talk=0;ui();tetraBeep();await sleep(300);
+  if(talk)return;
+  mute();stream&&stream.getAudioTracks().forEach(t=>t.enabled=false);
   if(od){od.cancel();od=null}
   await freeLock();
 }
@@ -528,7 +599,7 @@ function radioInit(){
   const cref=ref(db,"clients/"+me.cid);
   set(cref,{name:myName(),ch:me.ch,leit:me.role==="leit",typ:me.typ||null});onDisconnect(cref).remove();
   $("#radio").hidden=false;
-  onValue(ref(db,"clients"),s=>{C=s.val()||{};if(typeof fillTg==="function"&&!talk)fillTg()});
+  onValue(ref(db,"clients"),s=>{C=s.val()||{};syncPeers();if(typeof fillTg==="function"&&!talk)fillTg()});
   let prev=null;
   const sel=$("#ch");sel.innerHTML=CH.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("");sel.value=me.ch;
   const upd=()=>{const k=me.role==="leit"&&tg?"dm_"+(tg==="*"?"all":tg):me.ch;T=(R[k]||{}).talker||null;
@@ -539,24 +610,17 @@ function radioInit(){
   tgs.onchange=()=>{tg=tgs.value;upd();prev=T;ui()};
   sel.onchange=()=>{me.ch=sel.value;try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}update(cref,{ch:me.ch});upd();prev=T;ui()};
   onValue(ref(db,"radio"),s=>{R=s.val()||{};upd();if(prev&&!T&&prev.cid!==me.cid)tetraBeep();prev=T;ui()});
-  onValue(ref(db,"sig/"+me.cid),async s=>{
-    const all=s.val()||{};
-    for(const [from,o] of Object.entries(all)){
-      if(pcs["in"+from]||o.type!=="offer")continue;
-      const pc=new RTCPeerConnection(ICE);pcs["in"+from]=pc;
-      pc.ontrack=e=>{let a=document.getElementById("rx"+from);if(!a){a=document.createElement("audio");a.id="rx"+from;a.autoplay=true;document.body.appendChild(a)}a.srcObject=e.streams[0];a.play().catch(()=>{})};
-      try{
-        await pc.setRemoteDescription({type:"offer",sdp:o.sdp});
-        await pc.setLocalDescription(await pc.createAnswer());await gather(pc);
-        await set(ref(db,`ans/${from}/${me.cid}`),{sdp:pc.localDescription.sdp});
-      }catch(e){console.warn(e)}
-    }
-    Object.keys(pcs).forEach(k=>{if(k.startsWith("in")&&!all[k.slice(2)]){pcs[k].close();delete pcs[k];const a=document.getElementById("rx"+k.slice(2));a&&a.remove()}});
-  });
-  onValue(ref(db,"ans/"+me.cid),async s=>{
-    for(const [from,o] of Object.entries(s.val()||{})){
-      const pc=pcs["out"+from];
-      if(pc&&pc.signalingState==="have-local-offer")await pc.setRemoteDescription({type:"answer",sdp:o.sdp}).catch(()=>{});
+  onDisconnect(ref(db,"rtc/"+me.cid)).remove();
+  onValue(ref(db,"rtc/"+me.cid),async s=>{
+    for(const [from,m] of Object.entries(s.val()||{})){
+      if(m.t==="offer"){
+        if(P[from]&&P[from].gen===m.gen)continue;
+        drop(from);const o=mk(from,m.gen);
+        try{await o.pc.setRemoteDescription({type:"offer",sdp:m.sdp});await o.pc.setLocalDescription(await o.pc.createAnswer());await gather(o.pc);
+          if(P[from]===o)await set(ref(db,`rtc/${from}/${me.cid}`),{t:"answer",gen:m.gen,sdp:o.pc.localDescription.sdp})}catch(e){console.warn(e)}
+      }else if(m.t==="answer"){
+        const o=P[from];if(o&&o.gen===m.gen&&o.pc.signalingState==="have-local-offer")await o.pc.setRemoteDescription({type:"answer",sdp:m.sdp}).catch(()=>{})
+      }
     }
   });
   ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,async function w(){removeEventListener(ev,w);if(stream)return;
