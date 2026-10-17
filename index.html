@@ -159,7 +159,20 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
 @keyframes ring{from{outline:0 solid rgba(255,74,96,.7)}to{outline:12px solid rgba(255,74,96,0)}}
 .rbody.min .rsel,.rbody.min .soft,.rbody.min .pad{display:none}
 .rbody.min{border-radius:0 0 24px 24px}
-@media(max-width:700px){#radio{width:260px;right:10px;bottom:10px}}
+@media(max-width:700px){#radio{width:260px}}
+.rsel{display:none}
+.pad button.on{color:#06201c;background:linear-gradient(#5cf0da,#1fb59f);border-color:#0b4a41}
+.pad button.on small{color:#06201c}
+.pad button:disabled{opacity:.3;pointer-events:none}
+/* Fester Platz: rechte Spalte, Seiteninhalt weicht aus */
+#radio{left:auto!important;right:16px!important;top:12px!important;bottom:auto!important;max-height:calc(100vh - 24px);overflow-y:auto;overflow-x:hidden;filter:none}
+#rbar{cursor:default}
+#rhome{display:none}
+@media(min-width:1100px){body:has(#radio:not([hidden])){padding-right:344px}}
+@media(max-width:1099px){
+ #radio{top:auto!important;bottom:8px!important;right:8px!important}
+ body:has(#radio:not([hidden]) .rbody.min){padding-bottom:300px}
+ body:has(#radio:not([hidden]) .rbody:not(.min)){padding-bottom:660px}}
 .logo{height:40px!important;width:auto!important;max-width:none}
 #login .logo{height:auto!important;width:auto!important;max-width:120px!important;max-height:120px!important}
 .plogo{height:56px!important;width:auto!important}
@@ -201,7 +214,7 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
 
 <dialog id="fdlg" class="card"><h2>Funk-Einstellungen</h2><label for="mic-sel">Mikrofon</label><select id="mic-sel"></select><label>Pegel</label><div id="mtest"><i id="vu2"></i></div><div class="row"><button id="mtest-b" class="alt" type="button">Mikrofon testen</button><button id="spk-b" class="alt" type="button">Lautsprecher testen</button><button id="fdlg-x" type="button">Schließen</button></div><p class="hint" id="mic-info"></p></dialog>
 <div id="radio" hidden>
-<div id="rbar"><span class="rtitle">⠿ TETRA BOS · Funk</span><button id="rmin" class="alt" type="button" title="Verkleinern / Vergrößern">–</button><button id="rhome" class="alt" type="button" title="Zurück an den Standardplatz">⌂</button></div>
+<div id="rbar"><span class="rtitle">TETRA BOS · Funk</span><button id="rmin" class="alt" type="button" title="Verkleinern / Vergrößern">–</button><button id="rhome" class="alt" type="button" title="Zurück an den Standardplatz">⌂</button></div>
 <div class="rbody" id="rbody">
  <div class="rtop"><i class="led"></i><span class="brand">BERUFSRETTUNG WIEN<small>TETRA · BOS</small></span><div class="knob" id="kvol" role="slider" tabindex="0" aria-label="Lautstärke" aria-valuemin="0" aria-valuemax="150" aria-valuenow="100" title="Lautstärke: am Knopf drehen (ziehen), Mausrad oder Pfeiltasten"><i></i></div></div>
  <div id="rdisp">
@@ -212,7 +225,7 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
  </div>
  <div class="rsel"><span class="rl">Gruppe / Ruf</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div>
  <div class="soft"><button id="fset" class="alt" type="button" title="Funk-Einstellungen" aria-label="Funk-Einstellungen">Menü</button><span class="navc"></span><button id="rmute" type="button" title="Stumm schalten">Stumm</button></div>
- <div class="pad"><button type="button" data-k="1"><b>1</b><small>RTW</small></button><button type="button" data-k="2"><b>2</b><small>NEF</small></button><button type="button" data-k="3"><b>3</b><small>KTW</small></button><button type="button" data-k="4"><b>4</b><small>SL 1</small></button><button type="button" data-k="5"><b>5</b><small>SL 2</small></button><button type="button" data-k="6"><b>6</b><small>MNO</small></button><button type="button" data-k="7"><b>7</b><small>PQRS</small></button><button type="button" data-k="8"><b>8</b><small>TUV</small></button><button type="button" data-k="9"><b>9</b><small>WXYZ</small></button><button type="button"><b>✱</b><small>&nbsp;</small></button><button type="button"><b>0</b><small>+</small></button><button type="button"><b>#</b><small>&nbsp;</small></button></div>
+ <div class="pad"><button type="button" data-k="1" title="Gruppe RTW"><b>1</b><small>RTW</small></button><button type="button" data-k="2" title="Gruppe NEF / NAW"><b>2</b><small>NEF</small></button><button type="button" data-k="3" title="Gruppe KTW / NKTW"><b>3</b><small>KTW</small></button><button type="button" data-k="4" title="Sonderlage 1"><b>4</b><small>SON 1</small></button><button type="button" data-k="5" title="Sonderlage 2"><b>5</b><small>SON 2</small></button><button type="button" data-a="all" title="Rundruf an alle Fahrzeuge"><b>6</b><small>RUNDRUF</small></button><button type="button" data-a="grp" title="Anruf an alle auf dem Kanal"><b>7</b><small>KANAL</small></button><button type="button" data-a="prev" title="Einzelruf: voriges Fahrzeug"><b>8</b><small>◀ EINZEL</small></button><button type="button" data-a="next" title="Einzelruf: nächstes Fahrzeug"><b>9</b><small>EINZEL ▶</small></button></div>
  <input id="vol" type="range" min="0" max="150" value="100" aria-label="Lautstärke">
  <button id="ptt" type="button"><b>PTT</b><small>Sprechtaste · F1 gedrückt halten</small></button>
 </div>
@@ -677,6 +690,7 @@ function setV(v,show){v=Math.max(0,Math.min(150,Math.round(v)));if(v!==+vol.valu
 function sync(){var o=ch.selectedOptions&&ch.selectedOptions[0],t=o?o.text:"–",r=tg&&!tg.hidden&&tg.value&&tg.selectedOptions[0]?tg.selectedOptions[0].text:"";
  q("#rch").textContent=r?"→ "+r.replace(/^(Einzelruf|Rundruf): /,""):t;
  q("#rclk").textContent=new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"});
+ [].forEach.call(R.querySelectorAll(".pad button"),function(b){var a=b.dataset.a,on=false;if(b.dataset.k)on=+b.dataset.k-1===ch.selectedIndex&&!(r||tg.value);else if(a==="all")on=tg.value==="*";else if(a==="grp")on=!tg.hidden&&!tg.value;if(a)b.disabled=tg.hidden||tg.disabled;b.classList.toggle("on",on)});
  paint();if(R.style.left)put(parseFloat(R.style.left),parseFloat(R.style.top))}
 function setCh(i){if(ch.disabled||!ch.options.length)return;i=Math.max(0,Math.min(ch.options.length-1,i));if(i!==ch.selectedIndex){ch.selectedIndex=i;ch.dispatchEvent(new Event("change"))}sync()}
 function ang(e){var r=knob.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),a=Math.atan2(x,-y)*180/Math.PI;if(Math.abs(a)>135)a=pa>=0?135:-135;pa=a;return(a+135)/270*150}
@@ -686,15 +700,17 @@ knob.addEventListener("pointerup",function(){kd=0});knob.addEventListener("point
 knob.addEventListener("wheel",function(e){e.preventDefault();setV(+vol.value+(e.deltaY<0?10:-10))},{passive:false});
 knob.addEventListener("keydown",function(e){var k=e.key,v=+vol.value;if(k==="ArrowRight"||k==="ArrowUp")v+=10;else if(k==="ArrowLeft"||k==="ArrowDown")v-=10;else if(k==="Home")v=0;else if(k==="End")v=150;else return;e.preventDefault();setV(v)});
 mute.addEventListener("click",function(){if(+vol.value>0){last=+vol.value;setV(0)}else setV(last||100)});
-R.addEventListener("click",function(e){var b=e.target.closest("[data-k]");if(b)setCh(+b.dataset.k-1)});
-bar.addEventListener("pointerdown",function(e){if(e.target.closest("button"))return;var r=R.getBoundingClientRect();dx=e.clientX-r.left;dy=e.clientY-r.top;drag=1;bar.setPointerCapture(e.pointerId);bar.style.cursor="grabbing"});
+function setTg(v){if(tg.hidden||tg.disabled)return;tg.value=v;if(tg.value!==v)return;tg.dispatchEvent(new Event("change"));sync()}
+function stepTg(d){if(tg.hidden||tg.disabled)return;var o=[].slice.call(tg.options).filter(function(x){return x.value&&x.value!=="*"});if(!o.length)return;var i=-1;o.forEach(function(x,n){if(x.value===tg.value)i=n});i=i<0?(d>0?0:o.length-1):(i+d+o.length)%o.length;setTg(o[i].value)}
+R.addEventListener("click",function(e){var b=e.target.closest("[data-k],[data-a]");if(!b)return;if(b.dataset.k){setCh(+b.dataset.k-1);if(!tg.hidden&&tg.value)setTg("")}else{var a=b.dataset.a;if(a==="all")setTg("*");else if(a==="grp")setTg("");else stepTg(a==="next"?1:-1)}});
+bar.addEventListener("pointerdown",function(e){return;var r=R.getBoundingClientRect();dx=e.clientX-r.left;dy=e.clientY-r.top;drag=1;bar.setPointerCapture(e.pointerId);bar.style.cursor="grabbing"});
 bar.addEventListener("pointermove",function(e){if(drag)put(e.clientX-dx,e.clientY-dy)});
 function end(){if(!drag)return;drag=0;bar.style.cursor="";try{localStorage.setItem("rpos",JSON.stringify([parseFloat(R.style.left),parseFloat(R.style.top)]))}catch(e){}}
 bar.addEventListener("pointerup",end);bar.addEventListener("pointercancel",end);
 q("#rhome").onclick=function(){["left","top","right","bottom"].forEach(function(p){R.style[p]=""});try{localStorage.removeItem("rpos")}catch(e){}};
 function mini(on){body.classList.toggle("min",on);q("#rmin").textContent=on?"▢":"–";try{localStorage.setItem("rmin",on?"1":"0")}catch(e){}}
 q("#rmin").onclick=function(){mini(!body.classList.contains("min"))};
-try{if(localStorage.getItem("rmin")==="1")mini(true);var p=JSON.parse(localStorage.getItem("rpos")||"null");if(p){R.style.left=p[0]+"px";R.style.top=p[1]+"px";R.style.right="auto";R.style.bottom="auto"}}catch(e){}
+try{if(localStorage.getItem("rmin")==="1"||(localStorage.getItem("rmin")===null&&innerWidth<1100))mini(true);var p=JSON.parse(localStorage.getItem("rpos")||"null");if(p){R.style.left=p[0]+"px";R.style.top=p[1]+"px";R.style.right="auto";R.style.bottom="auto"}}catch(e){}
 setInterval(sync,250);sync();
 })();
 </script>
