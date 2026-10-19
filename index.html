@@ -362,6 +362,7 @@ function listenAnnouncements() {
 }
 
 /* ---------- Start ---------- */
+let vcur = {};
 async function start() {
   me.ch = me.ch || "rtw";
   $("#login").hidden = true; $("#app").hidden = false;
@@ -485,7 +486,8 @@ function leitstelle(){
   };
   let swFirst=true;const swSeen={};
   const confirmSw=async id=>{if(!V[id])return;
-    await update(ref(db,"vehicles/"+id),{swAck:Date.now()});
+    const old=V[id].swPrev||"s1";
+    await update(ref(db,"vehicles/"+id),{status:old==="s4"?"s1":old,swAck:null,swTs:null,swPrev:null});
     await set(ref(db,"announcements/latest"),{id:Date.now(),text:"Sprechwunsch bestätigt. Bitte kommen.",target:id,von:me.name});
     const b=$("#banner");if(b.dataset.sw===id)b.hidden=true};
   onValue(ref(db,"vehicles"),s=>{V=s.val()||{};
@@ -547,9 +549,9 @@ async function fahrzeug(){
     $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${m.ack&&m.ack.vid===me.vid?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(m.ack.ts)}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
-  onValue(vref,s=>{const v=s.val()||{};$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
+  onValue(vref,s=>{const v=s.val()||{};vcur=v;$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
   $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();update(ref(db,"missions/"+fin),{done:true,doneTs:Date.now()});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{ack:{vid:me.vid,ts:Date.now()},t:{s2:Date.now()}});update(vref,{status:"s2"})};
-  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[s]:Date.now()})}};
+  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[s]:Date.now()})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
     r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
