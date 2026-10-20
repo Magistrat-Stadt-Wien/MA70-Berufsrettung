@@ -218,6 +218,8 @@ html[data-eff=handy] #banner{padding:12px 44px 12px 14px;font-size:1rem}
 html[data-eff=handy] #radio{width:min(300px,calc(100vw - 16px))}
 html[data-eff=tablet] header button,html[data-eff=handy] header button{min-height:38px}
 #banner button{margin-left:14px;padding:5px 14px;color:#fff;background:#111;border:0;border-radius:3px;font:600 .9rem var(--sans);cursor:pointer}
+.vsel{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 14px;max-height:230px;overflow:auto;padding:8px 10px;border:1px solid var(--line);border-radius:3px}
+.vsel .chk{margin:3px 0;font-size:.9rem}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -353,7 +355,7 @@ function listenAnnouncements() {
     if (firstAnn) { firstAnn = false; lastAnn = a && a.id; return; }
     if (!a || a.id === lastAnn) return;
     lastAnn = a.id;
-    if (a.target === "alle" || a.target === me.vid) {
+    if (a.target === "alle" || a.target === me.vid || (a.targets && a.targets[me.vid])) {
       const b = $("#banner"); b.hidden = false;
       b.textContent = "Leitstelle: " + a.text;
       say(a.text);
@@ -441,29 +443,34 @@ function archive(box,edit){
 /* ---------- Leitstelle ---------- */
 function leitstelle(){
   const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv","Statistik","Fahrzeugstamm"]);
-  let V={},M={},editId=null;
+  let V={},M={},editId=null;const selV=new Set();
   panes[0].innerHTML=`<div class="lage" id="lage"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields">
    <div><label for="m-art">Einsatzart</label><select id="m-art"><option>Notfallrettung</option><option>Notarzteinsatz</option><option>Krankentransport</option></select></div>
-   <div><label for="m-prio">Priorität</label><select id="m-prio"><option>Notfall – Sondersignal</option><option>Dringend</option><option>Planbar / Transport</option></select></div>
-  <div><label for="m-sw">Stichwort</label><input id="m-sw" placeholder="z. B. Brustschmerz"></div>
-   <div><label for="m-adr">Einsatzort</label><input id="m-adr"></div>
-   <div><label for="m-v">Fahrzeug</label><select id="m-v"></select></div></div>
+   <div><label for="m-code">Stichwort (Einsatzcode)</label><select id="m-code"><option value="">– Stichwort wählen –</option>${CODES.map(c=>`<option value="${c[0]}">${esc(codeTxt(c))}</option>`).join("")}</select></div>
+   <div><label for="m-prio">Priorität (Alpha-Code)</label><select id="m-prio">${ALPHA.map(a=>`<option value="${a}"${a==="Bravo"?" selected":""}>${ALTXT[a]}</option>`).join("")}</select></div>
+   <div><label for="m-adr">Einsatzort</label><input id="m-adr"></div></div>
+   <div class="hint" id="m-hint"></div>
+   <label>Fahrzeuge (mehrere möglich)</label><div class="vsel" id="m-vs"></div>
+   <label class="chk"><input type="checkbox" id="m-auto" checked>Passende Fahrzeuge automatisch auswählen (nach Alpha-Code)</label>
    <label for="m-info">Meldung / Bemerkung</label><textarea id="m-info"></textarea>
    <label class="chk"><input type="checkbox" id="m-ann" checked>Zuweisung per Funk durchsagen</label>
    <div class="row"><button id="m-save">Einsatz speichern</button><button class="alt" id="m-cancel" hidden>Abbrechen</button></div></div><div id="mlist"></div>`;
   panes[1].innerHTML=`<div class="card"><h2>Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div><h2>Fahrzeuge</h2><div id="vlist" class="grid"></div>`;
-  const reset=()=>{editId=null;$("#mt").textContent="Neuer Einsatz";$("#m-cancel").hidden=true;["sw","adr","info"].forEach(k=>$("#m-"+k).value="");$("#m-v").value=""};
+  const reset=()=>{editId=null;$("#mt").textContent="Neuer Einsatz";$("#m-cancel").hidden=true;["adr","info"].forEach(k=>$("#m-"+k).value="");$("#m-code").value="";$("#m-prio").value="Bravo";selV.clear();$("#m-hint").textContent="";draw()};
   $("#m-cancel").onclick=reset;
   $("#m-save").onclick=async()=>{
-    const sw=$("#m-sw").value.trim(),adr=$("#m-adr").value.trim();
-    if(!sw||!adr){alert("Bitte Stichwort und Einsatzort eingeben.");return}
-    const id=editId||"e"+Date.now(),old=M[id]||{},vid=$("#m-v").value,art=$("#m-art").value;
-    await set(ref(db,"missions/"+id),{nr:old.nr||"E-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(100+Math.random()*900),art,prio:$("#m-prio").value,sw,adr,info:$("#m-info").value,vid,t:old.t||null,done:!!old.done,ts:old.ts||Date.now(),ack:old.vid===vid?old.ack||null:null});
-    if(vid&&vid!==old.vid&&$("#m-ann").checked)await set(ref(db,"announcements/latest"),{id:Date.now(),text:`${V[vid].name}, ${art}, ${sw}, ${adr}.`,target:vid,von:me.name});
+    const cs=CODES.find(c=>c[0]===$("#m-code").value),adr=$("#m-adr").value.trim();
+    if(!cs||!adr){alert("Bitte Stichwort und Einsatzort eingeben.");return}
+    const sw=codeTxt(cs),id=editId||"e"+Date.now(),old=M[id]||{},art=$("#m-art").value,prio=$("#m-prio").value,nv=[...selV],ov=vl(old),vids={},acks={},fin={};
+    nv.forEach(v=>{vids[v]=true;const t=ackT(old,v);if(t)acks[v]=t;if(old.fin&&old.fin[v])fin[v]=old.fin[v]});
+    await set(ref(db,"missions/"+id),{nr:old.nr||"E-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(100+Math.random()*900),art,prio,code:cs[0],sw,adr,info:$("#m-info").value,vids:nv.length?vids:null,vid:null,acks:Object.keys(acks).length?acks:null,ack:null,fin:Object.keys(fin).length?fin:null,t:old.t||null,done:!!old.done,ts:old.ts||Date.now()});
+    const added=nv.filter(v=>!ov.includes(v));
+    if(added.length&&$("#m-ann").checked){const targets={};added.forEach(v=>targets[v]=true);
+      await set(ref(db,"announcements/latest"),{id:Date.now(),text:`${added.map(v=>V[v]?V[v].name:v).join(", ")}: ${art}, ${prio}, ${sw}, ${adr}.`,target:"multi",targets,von:me.name})}
     reset();
   };
   $("#mlist").onclick=e=>{const b=e.target.closest("button");if(!b)return;const id=b.dataset.id,m=M[id];
-    if(b.dataset.a==="e"){editId=id;$("#mt").textContent="Einsatz bearbeiten: "+m.nr;$("#m-art").value=m.art;$("#m-prio").value=m.prio||"Dringend";$("#m-sw").value=m.sw;$("#m-adr").value=m.adr;$("#m-info").value=m.info||"";$("#m-v").value=m.vid||"";$("#m-cancel").hidden=false;scrollTo(0,0)}
+    if(b.dataset.a==="e"){editId=id;$("#mt").textContent="Einsatz bearbeiten: "+m.nr;$("#m-art").value=m.art;$("#m-code").value=m.code||"";$("#m-prio").value=ALPHA.includes(m.prio)?m.prio:"Bravo";selV.clear();vl(m).forEach(v=>selV.add(v));$("#m-adr").value=m.adr;$("#m-info").value=m.info||"";draw();hint();$("#m-cancel").hidden=false;scrollTo(0,0)}
     if(b.dataset.a==="f")update(ref(db,"missions/"+id),{done:!m.done});
     if(b.dataset.a==="d"&&confirm("Einsatz "+m.nr+" löschen?"))set(ref(db,"missions/"+id),null)};
   $("#a-send").onclick=async()=>{const text=$("#a-text").value.trim();if(!text)return;
@@ -471,19 +478,28 @@ function leitstelle(){
   $("#vlist").onclick=e=>{const b=e.target.closest("button");if(b&&b.dataset.sw){confirmSw(b.dataset.sw);return}if(b&&b.dataset.id&&confirm("Fahrzeug aus der Liste entfernen?"))set(ref(db,"vehicles/"+b.dataset.id),null)};
   const draw=()=>{
     const opts=Object.entries(V).map(([id,v])=>`<option value="${id}">${esc(v.name)}</option>`).join("");
-    const cv=$("#m-v").value,ct=$("#a-target").value;
-    $("#m-v").innerHTML='<option value="">– nicht zugewiesen –</option>'+opts;$("#m-v").value=cv;
+    const ct=$("#a-target").value;
+    $("#m-vs").innerHTML=Object.entries(V).filter(([id,v])=>v.status!=="aus").map(([id,v])=>`<label class="chk"><input type="checkbox" data-v="${esc(id)}"${selV.has(id)?" checked":""}>${esc(v.name)} · ${TYL[typOf(v)]} · ${sInfo(v.status)[1]}</label>`).join("")||'<p class="hint">Noch kein Fahrzeug im Dienst.</p>';
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
-    $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>m.vid===id&&!m.done);
+    $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>vl(m).includes(id)&&!m.done);
       return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div><div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#2e8b57">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
     {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
-     const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!m.vid).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>m.vid&&!(m.ack&&m.ack.vid===m.vid)).length,"#8e24aa"]];
+     const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!vl(m).length).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>vl(m).some(v=>!ackT(m,v))).length,"#8e24aa"]];
      $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
-    const PR=m=>m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?1:2;
+    const PR=m=>{const i=["Echo","Delta","Charlie","Bravo","Alpha","Omega"].indexOf(m.prio);return i>=0?i:m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?2:5};
     const rows=Object.entries(M).sort((a,b)=>(Number(!!a[1].done)-Number(!!b[1].done))||(a[1].done?0:PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
-    $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const st=m.done?["Abgeschlossen","#6b7178"]:m.vid?(m.ack&&m.ack.vid===m.vid?["Bestätigt","#2e8b57"]:["Zugewiesen","#e0a100"]):["Offen","#e2001a"];
-      return `<div class="card"><b>${esc(m.nr)}</b> <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>sInfo(k)[1]+" "+hm(v)).join(" · ")+"</div>":""}<div>Fahrzeug: ${m.vid&&V[m.vid]?esc(V[m.vid].name):"–"}</div>${m.vid&&!m.done?(m.ack&&m.ack.vid===m.vid?"<div>✔ Von der Besatzung bestätigt um "+hm(m.ack.ts)+"</div>":"<div>Wartet auf Bestätigung durch das Fahrzeug</div>"):""}${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):"<p>Noch keine Einsätze. Lege oben den ersten an.</p>";
+    $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b7178"]:!vs_.length?["Offen","#e2001a"]:na===0?["Bestätigt","#2e8b57"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#e0a100"];
+      return `<div class="card"><b>${esc(m.nr)}</b> <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):"<p>Noch keine Einsätze. Lege oben den ersten an.</p>";
   };
+  const autoSel=()=>{selV.clear();const need=ALRM[$("#m-prio").value]||[];
+    need.forEach(t=>{const pick=ty=>Object.entries(V).filter(([id,v])=>v.crew&&v.status==="s1"&&typOf(v)===ty&&!selV.has(id)).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}))[0];
+      const p=pick(t)||(t==="ktw"?pick("rtw"):null);if(p)selV.add(p[0])});draw();hint()};
+  const hint=()=>{const need=ALRM[$("#m-prio").value]||[],have={};[...selV].forEach(id=>{if(V[id])have[typOf(V[id])]=(have[typOf(V[id])]||0)+1});
+    const miss=need.filter(t=>!have[t]&&!(t==="ktw"&&have.rtw));
+    $("#m-hint").textContent="Ausrückeordnung laut Alpha-Code: "+need.map(t=>TYL[t]).join(" + ")+" · gewählt: "+(selV.size?[...selV].map(id=>V[id]?V[id].name:id).join(", "):"keine")+(miss.length?" · Achtung, kein freies Fahrzeug: "+miss.map(t=>TYL[t]).join(", "):"")};
+  $("#m-code").onchange=()=>{const c=CODES.find(x=>x[0]===$("#m-code").value);if(c)$("#m-prio").value=AL[c[2]];if($("#m-auto").checked)autoSel();else hint()};
+  $("#m-prio").onchange=()=>{if($("#m-auto").checked)autoSel();else hint()};
+  $("#m-vs").onchange=e=>{const c=e.target;if(c.dataset.v){c.checked?selV.add(c.dataset.v):selV.delete(c.dataset.v);hint()}};
   let swFirst=true;const swSeen={};
   const confirmSw=async id=>{if(!V[id])return;
     const old=V[id].swPrev||"s1";
@@ -510,19 +526,20 @@ function leitstelle(){
   const avg=a=>a.length?(Math.round(a.reduce((x,y)=>x+y,0)/a.length/6000)/10)+" min":"–";
   function drawStat(){const ms=Object.values(M),d0=new Date().setHours(0,0,0,0),pr=Object.values(PRT);
     const k=[["Einsätze gesamt",ms.length,"#1e66b0"],["Heute",ms.filter(m=>m.ts>=d0).length,"#2e8b57"],["Abgeschlossen",ms.filter(m=>m.done).length,"#6b7178"],["Offen",ms.filter(m=>!m.done).length,"#e2001a"],
-      ["Ø bis Bestätigung",avg(ms.filter(m=>m.ack&&m.ack.ts>m.ts).map(m=>m.ack.ts-m.ts)),"#e0a100"],["Ø bis Eintreffen",avg(ms.filter(m=>m.t&&m.t.s3>m.ts).map(m=>m.t.s3-m.ts)),"#00897b"],["Ø Einsatzdauer",avg(ms.filter(m=>m.doneTs>m.ts).map(m=>m.doneTs-m.ts)),"#8e24aa"],["Protokolle",pr.length,"#1e66b0"]];
+      ["Ø bis Bestätigung",avg(ms.filter(m=>ackMin(m)>m.ts).map(m=>ackMin(m)-m.ts)),"#e0a100"],["Ø bis Eintreffen",avg(ms.filter(m=>tMin(m,"s3")>m.ts).map(m=>tMin(m,"s3")-m.ts)),"#00897b"],["Ø Einsatzdauer",avg(ms.filter(m=>m.doneTs>m.ts).map(m=>m.doneTs-m.ts)),"#8e24aa"],["Protokolle",pr.length,"#1e66b0"]];
     $("#kpi").innerHTML=k.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("");
     $("#b-art").innerHTML=bars(cnt(ms,m=>m.art),"#1e66b0");$("#b-prio").innerHTML=bars(cnt(ms,m=>m.prio),"#e2001a");
-    $("#b-fz").innerHTML=bars(cnt(ms,m=>m.vid&&(V[m.vid]?V[m.vid].name:m.vid)),"#2e8b57");
+    $("#b-fz").innerHTML=bars(cnt(ms.flatMap(m=>vl(m).map(v=>({v}))),x=>V[x.v]?V[x.v].name:x.v),"#2e8b57");
     $("#b-naca").innerHTML=bars(cnt(pr,p=>p.naca),"#e0a100");$("#b-tr").innerHTML=bars(cnt(pr,p=>p.tprio),"#8e24aa")}
   panes[4].innerHTML=`<div class="card"><h2>Fahrzeugstamm</h2><p class="hint">Alle Fahrzeuge, die sich beim Anmelden auswählen lassen. Mehrere Personen können sich auf dasselbe Fahrzeug anmelden, hier siehst du, wer gerade in welchem Fahrzeug sitzt.</p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th>Besatzung (angemeldet)</th><th>Status</th><th></th></tr></thead><tbody id="stl"></tbody></table></div></div>
-  <div class="card"><h2>Fahrzeuge hinzufügen</h2><label for="st-in">Ein Funkrufname pro Zeile. Optional mit Typ dahinter, zum Beispiel "RTW 1;rtw", "NEF 2;nef" oder "KTW 3;ktw".</label><textarea id="st-in" rows="6"></textarea><div class="row"><button id="st-add">Zum Stamm hinzufügen</button><button class="alt" id="st-clr">Ganzen Stamm löschen</button></div></div>`;
+  <div class="card"><h2>Fahrzeuge hinzufügen</h2><label for="st-in">Ein Funkrufname pro Zeile. Optional mit Typ dahinter, zum Beispiel "RTW 1;rtw", "NEF 2;nef" oder "KTW 3;ktw".</label><textarea id="st-in" rows="6"></textarea><div class="row"><button id="st-add">Zum Stamm hinzufügen</button><button class="alt" id="st-off">Offizielle Funkrufnamen laden (Berufsrettung Wien)</button><button class="alt" id="st-clr">Ganzen Stamm löschen</button></div></div>`;
   function drawStamm(){const TY={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW"};
     $("#stl").innerHTML=Object.entries(STM).sort((a,b)=>a[1].name.localeCompare(b[1].name,"de",{numeric:true})).map(([id,v])=>{const c=crewOf(id),st=V[id]&&c.length?sInfo(V[id].status):null;
       return `<tr><td><b>${esc(v.name)}</b></td><td>${TY[v.typ]||"–"}</td><td>${c.length?c.map(esc).join(", "):"<i>niemand angemeldet</i>"}</td><td>${st?`<span class="badge" style="background:${st[2]}">${st[1]}</span>`:"–"}</td><td><button class="alt" data-del="${id}">Entfernen</button></td></tr>`}).join("")||'<tr><td colspan="5">Der Stamm ist leer. Füge unten Fahrzeuge hinzu.</td></tr>'}
   $("#stl").onclick=e=>{const id=e.target.dataset.del;if(id&&confirm("Fahrzeug aus dem Stamm entfernen?"))set(ref(db,"stamm/"+id),null)};
   $("#st-add").onclick=()=>{const o={};$("#st-in").value.split("\n").forEach(l=>{const [n,t]=l.split(";").map(x=>x.trim());if(!n)return;o[slug(n)]={name:n,typ:["rtw","nef","ktw"].includes((t||"").toLowerCase())?t.toLowerCase():/nef|naw/i.test(n)?"nef":/ktw/i.test(n)?"ktw":"rtw"}});
     if(Object.keys(o).length){update(ref(db,"stamm"),o);$("#st-in").value=""}};
+  $("#st-off").onclick=()=>{const o={};OFFIZIELL.split("|").forEach(x=>{const [n,t]=x.split(";");o[slug(n)]={name:n,typ:t}});update(ref(db,"stamm"),o)};
   $("#st-clr").onclick=()=>{if(confirm("Den gesamten Fahrzeugstamm löschen?"))set(ref(db,"stamm"),null)};
   const rd=()=>{drawStat();drawStamm()};
   onValue(ref(db,"missions"),rd);onValue(ref(db,"vehicles"),rd);onValue(ref(db,"stamm"),rd);onValue(ref(db,"crew"),rd);onValue(ref(db,"protocols"),s=>{PRT=s.val()||{};rd()});
@@ -543,15 +560,15 @@ async function fahrzeug(){
   {const sv=$("#f-p_svnr"),h=document.createElement("small");sv.after(h);sv.maxLength=10;sv.inputMode="numeric";
    const chk=()=>{const v=sv.value.trim();h.textContent=!v?"":svOk(v)?"✔ Gültige Versicherungsnummer (Prüfziffer stimmt)":"Ungültig: 10 Ziffern mit korrekter Prüfziffer, Geburtsdatum als TTMMJJ am Ende";h.style.color=svOk(v)?"#2e8b57":"var(--red)"};
    sv.addEventListener("input",chk);sv.addEventListener("change",chk)}
-  let cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
+  let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
-  onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>m.vid===me.vid&&!m.done);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
-    $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${m.ack&&m.ack.vid===me.vid?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(m.ack.ts)}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
+  onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
+    $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${ackT(m,me.vid)?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(ackT(m,me.vid))}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
   onValue(vref,s=>{const v=s.val()||{};vcur=v;$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
-  $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();update(ref(db,"missions/"+fin),{done:true,doneTs:Date.now()});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{ack:{vid:me.vid,ts:Date.now()},t:{s2:Date.now()}});update(vref,{status:"s2"})};
-  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[s]:Date.now()})}};
+  $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz für dein Fahrzeug abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();const m=MC[fin]||{},fs={...(m.fin||{}),[me.vid]:1},all=vl(m).every(v=>fs[v]);update(ref(db,"missions/"+fin),{["fin/"+me.vid]:Date.now(),...(all?{done:true,doneTs:Date.now()}:{})});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{["acks/"+me.vid]:Date.now(),["t/"+me.vid+"_s2"]:Date.now()});update(vref,{status:"s2"})};
+  $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[me.vid+"_"+s]:Date.now()})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
     r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
@@ -574,7 +591,19 @@ async function fahrzeug(){
 }
 
 /* ---------- Sprechfunk über Firebase: Audio-Pakete laufen über die Datenbank (kein WebRTC, daher egal welches WLAN / Browser) ---------- */
-const PC={"Notfall – Sondersignal":"#e2001a","Dringend":"#e0a100","Planbar / Transport":"#1e66b0"};
+const ALPHA=["Omega","Alpha","Bravo","Charlie","Delta","Echo"],AL={O:"Omega",A:"Alpha",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo"};
+const ALTXT={Omega:"Omega – niedrigste Priorität (KTW)",Alpha:"Alpha – niedrig (N-KTW)",Bravo:"Bravo – niedrig (RTW)",Charlie:"Charlie – höher (RTW)",Delta:"Delta – Notarztindikation (RTW)",Echo:"Echo – Notarztindikation (NEF + RTW)"};
+const ALRM={Omega:["ktw"],Alpha:["ktw"],Bravo:["rtw"],Charlie:["rtw"],Delta:["rtw"],Echo:["nef","rtw"]};
+const PC={Omega:"#6b7178",Alpha:"#2e8b57",Bravo:"#1e66b0",Charlie:"#e0a100",Delta:"#e2001a",Echo:"#8e24aa","Notfall – Sondersignal":"#e2001a","Dringend":"#e0a100","Planbar / Transport":"#1e66b0"};
+const CODES="1|Bauchschmerzen|B;2|Allergie|C;3|Tierbiss/Tierangriff|B;4|Verbrechen/Überfall/Sexualdelikt|C;5|Rückenschmerzen|A;6|Atembeschwerden|D;7|Feuer/Verbrennung|D;8|Gefahrengutunfall|D;9|Atem-Kreislaufstillstand|E;10|Brustschmerzen|D;11|Ersticken|E;12|Krampfanfall/Epileptiker|C;13|Blutzuckerentgleisung|C;14|Ertrinken|E;15|Stromunfall|D;16|Augenverletzung|B;17|Sturz|B;18|Kopfschmerzen|B;19|Herzbeschwerden|D;20|Kälte/Hitzeproblem|C;21|Blutung|C;22|Person in Zwangslage|C;23|Überdosis/Vergiftung|D;24|Schwangerschaft|C;25|Psychiatrie/Selbstmordgefährdet|C;26|Kranke Person|B;27|Stich-, Schnitt-, Schussverletzung|D;28|Schlaganfall|D;29|Verkehrsunfall|D;30|Verletzung|B;31|Ohnmachtsanfall/Bewusstlosigkeit|D;32|Hilflose Person|B;33|Anforderung durch Arzt/Versorgungseinrichtung|B;34|Automatische Unfallmeldung|C;37|Transfer|O;42|Anforderung durch anderes Rettungsmittel|C".split(";").map(x=>x.split("|"));
+const codeTxt=c=>"RD-"+c[0]+" "+c[1]+(c[0]==="9"?" (REA)":"");
+const TYL={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW"};
+const typOf=v=>v.typ||(/nef|naw|oberarzt/i.test(v.name)?"nef":/ktw/i.test(v.name)?"ktw":"rtw");
+const vl=m=>m.vids?Object.keys(m.vids):(m.vid?[m.vid]:[]);
+const ackT=(m,v)=>(m.acks&&m.acks[v])||(m.ack&&m.ack.vid===v?m.ack.ts:0);
+const ackMin=m=>{const a=vl(m).map(v=>ackT(m,v)).filter(Boolean);return a.length?Math.min(...a):0};
+const tMin=(m,k)=>{const a=Object.entries(m.t||{}).filter(([x])=>x===k||x.endsWith("_"+k)).map(x=>x[1]);return a.length?Math.min(...a):0};
+const OFFIZIELL="Arsenal-1-Tag;rtw|Arsenal-1-Nacht;rtw|Arsenal-2-Tag;rtw|Arsenal-2-Nacht;rtw|Arsenal-4;rtw|K5;rtw|Arsenal-AIT;rtw|Arsenal-BIT;rtw|Aspern-1-Tag;rtw|Aspern-1-Nacht;rtw|Aspern-2;rtw|Atzgersdorf-1-Tag;rtw|Atzgersdorf-1-Nacht;rtw|Atzgersdorf-2-Tag;rtw|Atzgersdorf-2-Nacht;rtw|Brigittenau-1-Tag;rtw|Brigittenau-1-Nacht;rtw|Brigittenau-2-Tag;rtw|Brigittenau-2-Nacht;rtw|Brigittenau-3-Tag;rtw|Brigittenau-3-Nacht;rtw|Brigittenau-4;rtw|Favoriten-1-Tag;rtw|Favoriten-1-Nacht;rtw|Favoriten-2-Tag;rtw|Favoriten-2-Nacht;rtw|Favoriten-3;rtw|Floridsdorf-1-Tag;rtw|Floridsdorf-1-Nacht;rtw|Floridsdorf-2-Tag;rtw|Floridsdorf-2-Nacht;rtw|Floridsdorf-3;rtw|Floridsdorf-FISU;rtw|Floridsdorf-AIT;rtw|Hernals-1-Tag;rtw|Hernals-1-Nacht;rtw|Hernals-2-Tag;rtw|Hernals-2-Nacht;rtw|Hernals-3-Tag;rtw|Hernals-3-Nacht;rtw|Leopoldau-1-Tag;rtw|Leopoldau-1-Nacht;rtw|Leopoldau-2-Tag;rtw|Leopoldau-2-Nacht;rtw|Leopoldau-3-Tag;rtw|Leopoldau-3-Nacht;rtw|Mariahilf-1-Tag;rtw|Mariahilf-1-Nacht;rtw|Mariahilf-2-Tag;rtw|Mariahilf-2-Nacht;rtw|Mariahilf-3-Tag;rtw|Mariahilf-3-Nacht;rtw|Mariahilf-4-Tag;rtw|Mariahilf-4-Nacht;rtw|Mariahilf-5-Tag;rtw|Mariahilf-5-Nacht;rtw|Mariahilf-FISU;rtw|Penzing-1-Tag;rtw|Penzing-1-Nacht;rtw|Penzing-2-Tag;rtw|Penzing-2-Nacht;rtw|Penzing-3;rtw|Penzing-AIT;rtw|Simmering-1-Tag;rtw|Simmering-1-Nacht;rtw|Simmering-2-Tag;rtw|Simmering-2-Nacht;rtw|RAK-1-Tag;rtw|Simmering-FISU;rtw|Zentrale-1-Tag;rtw|Zentrale-1-Nacht;rtw|Zentrale-2-Tag;rtw|Zentrale-2-Nacht;rtw|Zentrale-3-Tag;rtw|Zentrale-3-Nacht;rtw|Zentrale-4-Tag;rtw|Zentrale-4-Nacht;rtw|Zentrale-5;rtw|K1;rtw|K2;rtw|K3;rtw|K6;rtw|K7;rtw|K8;rtw|Favoriten-Nef-1-Tag;nef|Favoriten-Nef-1-Nacht;nef|Floridsdorf-Nef-1-Tag;nef|Floridsdorf-Nef-1-Nacht;nef|Floridsdorf-Nef-2-Tag;nef|Floridsdorf-Nef-2-Nacht;nef|Zentrale-Oberarzt;nef|AKH-Nef-1-Tag;nef|AKH-Nef-1-Nacht;nef|AKH-Nef-2-Tag;nef|AKH-Nef-2-Nacht;nef|Hietzing-Nef-1-Tag;nef|Hietzing-Nef-1-Nacht;nef|Hietzing-Nef-2-Tag;nef|Hietzing-Nef-2-Nacht;nef|Donauspital-Nef-1-Tag;nef|Donauspital-Nef-1-Nacht;nef|Wilhelminenspital-Nef-1-Tag;nef|Wilhelminenspital-Nef-1-Nacht;nef";
 const hm=t=>new Date(t).toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"});
 const CH=[["rtw","RTW"],["nef","NEF / NAW"],["ktw","KTW / NKTW"],["son1","Sonderlage 1"],["son2","Sonderlage 2"]];
 const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
