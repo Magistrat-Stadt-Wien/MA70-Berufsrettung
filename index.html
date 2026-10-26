@@ -160,20 +160,12 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
 @keyframes ring{from{outline:0 solid rgba(255,74,96,.7)}to{outline:12px solid rgba(255,74,96,0)}}
 .rbody.min .rsel,.rbody.min .soft,.rbody.min .pad{display:none}
 .rbody.min{border-radius:0 0 24px 24px}
-@media(max-width:700px){#radio{width:260px}}
 .rsel{display:none}
 .pad button.on{color:#06201c;background:linear-gradient(#5cf0da,#1fb59f);border-color:#0b4a41}
 .pad button.on small{color:#06201c}
 .pad button:disabled{opacity:.3;pointer-events:none}
-/* Fester Platz: rechte Spalte, Seiteninhalt weicht aus */
-#radio{left:auto!important;right:16px!important;top:12px!important;bottom:auto!important;max-height:calc(100vh - 24px);overflow-y:auto;overflow-x:hidden;filter:none}
 #rbar{cursor:default}
 #rhome{display:none}
-@media(min-width:1100px){body:has(#radio:not([hidden])){padding-right:344px}}
-@media(max-width:1099px){
- #radio{top:auto!important;bottom:8px!important;right:8px!important}
- body:has(#radio:not([hidden]) .rbody.min){padding-bottom:300px}
- body:has(#radio:not([hidden]) .rbody:not(.min)){padding-bottom:660px}}
 .logo{height:40px!important;width:auto!important;max-width:none}
 #login .logo{height:auto!important;width:auto!important;max-width:120px!important;max-height:120px!important}
 .plogo{height:56px!important;width:auto!important}
@@ -185,14 +177,6 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
 #lay button+button{border-left:1px solid #3a475c}
 #lay button.on{color:var(--ac-ink);background:var(--ac)}
 #lay i{margin-right:5px;font-style:normal}
-html[data-eff=laptop] #radio{top:12px!important;bottom:auto!important;right:16px!important}
-html[data-eff=laptop] body:has(#radio:not([hidden])){padding-right:344px}
-html[data-eff=laptop] body:has(#radio:not([hidden]) .rbody.min),html[data-eff=laptop] body:has(#radio:not([hidden]) .rbody:not(.min)){padding-bottom:30px}
-html[data-eff=tablet] #radio,html[data-eff=handy] #radio{top:auto!important;bottom:8px!important;right:8px!important}
-html[data-eff=tablet] body:has(#radio:not([hidden])),html[data-eff=handy] body:has(#radio:not([hidden])){padding-right:0}
-html[data-eff=tablet] body:has(#radio:not([hidden]) .rbody.min),html[data-eff=handy] body:has(#radio:not([hidden]) .rbody.min){padding-bottom:300px}
-html[data-eff=tablet] body:has(#radio:not([hidden]) .rbody:not(.min)),html[data-eff=handy] body:has(#radio:not([hidden]) .rbody:not(.min)){padding-bottom:660px}
-html[data-eff=tablet] body{max-width:920px;margin:0 auto}
 html[data-eff=tablet] main{max-width:none;margin:0;padding:0 16px 16px}
 html[data-eff=tablet] button,html[data-eff=handy] button{min-height:44px}
 html[data-eff=tablet] #lay button,html[data-eff=handy] #lay button,html[data-eff=tablet] #rbar button,html[data-eff=handy] #rbar button{min-height:0}
@@ -216,7 +200,6 @@ html[data-eff=handy] .vrow{grid-template-columns:repeat(4,1fr)}
 html[data-eff=handy] .dt{font-size:.85rem}
 html[data-eff=handy] #login{margin:20px auto}
 html[data-eff=handy] #banner{padding:12px 44px 12px 14px;font-size:1rem}
-html[data-eff=handy] #radio{width:min(300px,calc(100vw - 16px))}
 html[data-eff=tablet] header button,html[data-eff=handy] header button{min-height:38px}
 #banner button{margin-left:14px;padding:5px 14px;color:#fff;background:#111;border:0;border-radius:3px;font:600 .9rem var(--sans);cursor:pointer}
 .vsel{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 14px;max-height:230px;overflow:auto;padding:8px 10px;border:1px solid var(--line);border-radius:3px}
@@ -243,7 +226,7 @@ label{font:600 .8rem var(--sans);letter-spacing:.01em;text-transform:none;color:
 input,select,textarea{min-height:42px;padding:10px 12px;border-radius:6px}
 button{min-height:40px;padding:10px 18px;border-radius:6px}
 button.alt{border-color:var(--inb)}
-.tabs{position:sticky;top:0;z-index:20;gap:4px;margin:0 -4px 18px;padding:8px 4px;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tabs{position:sticky;top:var(--qh,0px);z-index:21;gap:4px;margin:0 -4px 18px;padding:8px 4px;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .tabs button{padding:9px 16px;border-bottom:0;border-radius:6px}
 .tabs button.on{color:var(--bg);background:var(--ink)}
 .badge{padding:3px 10px;border-radius:99px;font:600 .75rem/1.4 var(--sans);letter-spacing:.01em;text-shadow:0 1px 0 rgba(0,0,0,.25)}
@@ -285,6 +268,82 @@ header{background:linear-gradient(180deg,#1e2733,#141a23)}
 #adlg .tabs{position:static;margin:0 0 14px;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .dt button{min-height:34px;padding:6px 12px}
 .dt select{width:auto;min-height:36px;padding:6px 10px}
+
+/* ===== Layout v4: eine saubere Rasterstruktur statt übereinanderliegender Fenster ===== */
+:root{--qh:0px}
+/* Kopfzeile: nichts wird mehr verdeckt, nichts bricht mehrzeilig um */
+header{flex-wrap:wrap;row-gap:8px}
+.htxt,#who,#clk,.n144{flex:none}
+.htxt b{display:block;white-space:nowrap}
+#who{white-space:nowrap}
+@media(max-width:1500px){.htxt small,#lay span{display:none}}
+@media(max-width:1180px){.n144{display:none}#clk{margin-left:auto}}
+html[data-eff=tablet] .n144,html[data-eff=tablet] .htxt small,html[data-eff=tablet] #lay span{display:none}
+html[data-eff=tablet] #clk{margin-left:auto}
+
+/* Laptop: Seite = Inhalt + Funkgerät als feste rechte Spalte unterhalb der Kopfzeile */
+body{display:grid;grid-template-columns:minmax(12px,1fr) minmax(0,1180px) 336px minmax(12px,1fr);align-items:start;padding-bottom:0}
+body:has(#radio[hidden]){grid-template-columns:minmax(12px,1fr) minmax(0,1180px) minmax(12px,1fr)}
+body>header,body>#banner,body>footer{grid-column:1/-1}
+body>main{grid-column:2;min-width:0;max-width:none;margin:0}
+body>#radio{grid-column:3;position:sticky;top:12px;align-self:start;left:auto;right:auto;bottom:auto;width:auto;margin:0 0 0 20px;max-height:calc(100vh - 24px);overflow-x:hidden;overflow-y:auto;filter:drop-shadow(0 12px 20px rgba(0,0,0,.35))}
+body>footer{padding-top:8px}
+
+/* Tablet und Handy: Funkgerät als Dock am unteren Rand, Inhalt bekommt Platz darüber */
+html:is([data-eff=tablet],[data-eff=handy]) body{display:block;padding-bottom:128px}
+html:is([data-eff=tablet],[data-eff=handy]) body>#radio{position:fixed;left:8px;right:8px;bottom:8px;top:auto;width:auto;max-width:460px;margin:0 auto;z-index:60;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);overflow-y:auto}
+html[data-eff=tablet] main{max-width:920px;margin:0 auto}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border-radius:0 0 22px 22px}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min .rtop,html:is([data-eff=tablet],[data-eff=handy]) .rbody.min .rsb{display:none}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min #rdisp{padding:7px 10px}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min #rch{min-height:0;font-size:1.15rem}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min .rrow{margin-top:2px}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min #rst{min-height:0;font-size:.68rem}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min #ptt{width:116px;margin:0;padding:16px 8px}
+html:is([data-eff=tablet],[data-eff=handy]) .rbody.min #ptt small{display:none}
+
+/* Handy-Kopfzeile: drei ruhige Zeilen */
+html[data-eff=handy] header{gap:8px 10px}
+html[data-eff=handy] .htxt{flex:1;min-width:0}
+html[data-eff=handy] .htxt b{font-size:1rem;overflow:hidden;text-overflow:ellipsis}
+html[data-eff=handy] #clk{margin-left:0;padding:0 0 0 10px;border-right:0}
+html[data-eff=handy] #who{order:5;flex:1 1 100%}
+html[data-eff=handy] #theme,html[data-eff=handy] #lay,html[data-eff=handy] #adm{order:6}
+html[data-eff=handy] #theme{margin-right:auto}
+
+/* Kennzahlen und Formulare: gleichmäßige Raster ohne einzelne Reste */
+html[data-eff=laptop] #lage{grid-template-columns:repeat(6,minmax(0,1fr))}
+html[data-eff=laptop] #kpi,html[data-eff=tablet] #kpi{grid-template-columns:repeat(4,minmax(0,1fr))}
+html[data-eff=tablet] #lage{grid-template-columns:repeat(3,minmax(0,1fr))}
+html[data-eff=laptop] .fields.f3,html[data-eff=tablet] .fields.f3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fields .wide{grid-column:1/-1}
+.sech{margin:20px 0 10px}
+.mut{color:var(--sub);font-size:.85em}
+.v .row button{min-height:34px;padding:6px 12px;font-size:.85rem}
+.vq{margin:8px 0 0}
+.vq button{min-height:32px;padding:5px 10px;font-size:.82rem}
+
+/* ===== Schnellfunk der Leitstelle ===== */
+.qbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0;padding:8px 12px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--red);border-radius:var(--r);box-shadow:var(--sh)}
+.qt{font:600 .74rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--sub);white-space:nowrap}
+.qbar select{width:auto;min-width:150px;max-width:210px;min-height:36px;padding:6px 10px}
+.qbtns{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.qbar button,.qmore summary{min-height:36px;padding:6px 12px;font-size:.86rem;white-space:nowrap}
+.qmore{position:relative}
+.qmore summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;color:var(--ink);font-weight:600;border:1px solid var(--inb);border-radius:6px}
+.qmore summary::-webkit-details-marker{display:none}
+.qmore summary::after{content:"▾"}
+.qmore[open] summary{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.qpop{position:absolute;right:0;top:calc(100% + 6px);z-index:40;display:flex;flex-direction:column;gap:6px;min-width:250px;padding:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 14px 30px rgba(0,0,0,.3)}
+.qpop button{text-align:left}
+.qtxt{display:flex;gap:6px;margin-top:4px}.qtxt input{min-height:36px;padding:6px 10px}
+.qbar .dng{color:#fff;background:#b3001a;border-color:#b3001a}
+.qres{margin-left:auto;font:500 .78rem var(--mono);color:var(--sub)}
+html[data-eff=laptop] .qbar{position:sticky;top:0;z-index:22}
+html[data-eff=handy] .qbar{padding:8px 10px}
+html[data-eff=handy] .qbar select{flex:1 1 140px;max-width:none}
+html[data-eff=handy] .qpop{right:auto;left:0}
+html[data-eff=handy] .qres{margin-left:0;flex:1 1 100%}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -319,6 +378,7 @@ header{background:linear-gradient(180deg,#1e2733,#141a23)}
 
 <dialog id="fdlg" class="card"><h2>Funk-Einstellungen</h2><label for="mic-sel">Mikrofon</label><select id="mic-sel"></select><label>Pegel</label><div id="mtest"><i id="vu2"></i></div><div class="row"><button id="mtest-b" class="alt" type="button">Mikrofon testen</button><button id="spk-b" class="alt" type="button">Lautsprecher testen</button><button id="fdlg-x" type="button">Schließen</button></div><p class="hint" id="mic-info"></p></dialog>
 <dialog id="adlg" class="card"><h2>Administration</h2><div id="adbody"></div><div class="row"><button type="button" class="alt" id="adx">Schließen</button></div></dialog>
+<dialog id="qdlg" class="card"><h2>Standortabfrage der Leitstelle</h2><p class="hint">Die Leitstelle fragt deinen Standort ab. Gib ihn ein oder übernimm ihn per GPS.</p><label for="q-loc">Aktueller Standort</label><input id="q-loc" autocomplete="off" placeholder="Straße Hausnr., PLZ Wien oder Landmarke"><div class="row"><button id="q-send" type="button">Standort senden</button><button id="q-gps" class="alt" type="button">GPS verwenden</button><button id="q-x" class="alt" type="button">Später</button></div><p class="hint" id="q-err" role="status"></p></dialog>
 <datalist id="dl-ziel"><option value="AKH Wien"><option value="Klinik Favoriten"><option value="Klinik Donaustadt"><option value="Klinik Floridsdorf"><option value="Klinik Hietzing"><option value="Klinik Landstraße"><option value="Klinik Ottakring"><option value="Klinik Penzing"><option value="Hanusch-Krankenhaus"><option value="UKH Meidling (AUVA)"><option value="UKH Lorenz Böhler (AUVA)"><option value="Barmherzige Brüder Wien"><option value="Herz-Jesu Krankenhaus"><option value="Krankenhaus Göttlicher Heiland"><option value="St. Josef Krankenhaus"><option value="Evangelisches Krankenhaus"><option value="Orthopädisches Spital Speising"><option value="St. Anna Kinderspital"></datalist>
 <div id="radio" hidden>
 <div id="rbar"><span class="rtitle">TETRA BOS · Funk</span><button id="rmin" class="alt" type="button" title="Verkleinern / Vergrößern">–</button><button id="rhome" class="alt" type="button" title="Zurück an den Standardplatz">⌂</button></div>
@@ -472,13 +532,45 @@ function listenAnnouncements() {
     if (firstAnn) { firstAnn = false; lastAnn = a && a.id; return; }
     if (!a || a.id === lastAnn) return;
     lastAnn = a.id;
+    if (me.role !== "fzg") return;
     if (a.target === "alle" || a.target === me.vid || (a.targets && a.targets[me.vid])) {
       const b = $("#banner"); b.hidden = false;
       b.textContent = "Leitstelle: " + a.text;
       say(a.text);
+      if (a.q) answerQuery(a);
     }
   });
 }
+/* Abfragen der Leitstelle: Status wird automatisch gemeldet, beim Standort öffnet sich eine Eingabe */
+let qPend = null;
+function answerQuery(a) {
+  if (a.q === "status") {
+    const st = (vcur && vcur.status) || "s1";
+    update(ref(db, "vehicles/" + me.vid), {rep: {qid: a.id, st, ts: Date.now()}});
+    $("#banner").textContent = "Leitstelle: " + a.text + " Dein Status (" + sInfo(st)[1] + ") wurde übermittelt.";
+  } else if (a.q === "standort") {
+    qPend = a.id;
+    $("#q-loc").value = (vcur && vcur.loc && vcur.loc.text) || "";
+    $("#q-err").textContent = "";
+    const d = $("#qdlg"); if (!d.open) d.showModal();
+    $("#q-loc").focus();
+  }
+}
+$("#q-send").onclick = () => {
+  const t = $("#q-loc").value.trim();
+  if (!t) { $("#q-err").textContent = "Bitte einen Standort eingeben."; return; }
+  update(ref(db, "vehicles/" + me.vid), {loc: {qid: qPend, text: t, ts: Date.now()}});
+  tetraBeep(); qPend = null; $("#qdlg").close();
+};
+$("#q-x").onclick = () => $("#qdlg").close();
+$("#q-gps").onclick = () => {
+  const e = $("#q-err");
+  if (!navigator.geolocation) { e.textContent = "GPS ist auf diesem Gerät nicht verfügbar."; return; }
+  e.textContent = "GPS wird ermittelt …";
+  navigator.geolocation.getCurrentPosition(p => {
+    $("#q-loc").value = "GPS " + p.coords.latitude.toFixed(5) + ", " + p.coords.longitude.toFixed(5); e.textContent = "";
+  }, () => { e.textContent = "GPS nicht möglich (keine Berechtigung oder keine https-Verbindung). Bitte den Standort eintippen."; }, {enableHighAccuracy: true, timeout: 8000});
+};
 
 /* ---------- Start ---------- */
 let vcur = {};
@@ -560,19 +652,50 @@ function archive(box,edit){
 /* ---------- Leitstelle ---------- */
 function leitstelle(){
   const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv","Statistik","Fahrzeugstamm"]);
-  let V={},M={},editId=null;const selV=new Set();
-  panes[0].innerHTML=`<div class="lage" id="lage"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields">
+  let V={},M={},Q=null,editId=null;const selV=new Set();
+  panes[0].innerHTML=`<div class="lage" id="lage"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields f3">
    <div><label for="m-art">Einsatzart</label><select id="m-art"><option>Notfallrettung</option><option>Notarzteinsatz</option><option>Krankentransport</option></select></div>
    <div><label for="m-code">Stichwort (Einsatzcode)</label><select id="m-code"><option value="">– Stichwort wählen –</option>${CODES.map(c=>`<option value="${c[0]}">${esc(codeTxt(c))}</option>`).join("")}</select></div>
    <div><label for="m-prio">Priorität (Alpha-Code)</label><select id="m-prio">${ALPHA.map(a=>`<option value="${a}"${a==="Bravo"?" selected":""}>${ALTXT[a]}</option>`).join("")}</select></div>
-   <div><label for="m-adr">Einsatzort</label><input id="m-adr" placeholder="Straße Hausnr., PLZ Wien, z. B. Praterstern 1, 1020 Wien" autocomplete="off"></div></div>
+   <div class="wide"><label for="m-adr">Einsatzort</label><input id="m-adr" placeholder="Straße Hausnr., PLZ Wien, z. B. Praterstern 1, 1020 Wien" autocomplete="off"></div></div>
    <div class="hint" id="m-hint"></div>
    <label>Fahrzeuge (mehrere möglich)</label><div class="vsel" id="m-vs"></div>
    <label class="chk"><input type="checkbox" id="m-auto" checked>Passende Fahrzeuge automatisch auswählen (nach Alpha-Code)</label>
    <label for="m-info">Meldung / Bemerkung</label><textarea id="m-info"></textarea>
    <label class="chk"><input type="checkbox" id="m-ann" checked>Zuweisung per Funk durchsagen</label>
    <div class="row"><button id="m-save">Einsatz speichern</button><button class="alt" id="m-cancel" hidden>Abbrechen</button></div></div><div id="mlist"></div>`;
-  panes[1].innerHTML=`<div class="card"><h2>Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div><h2>Fahrzeuge</h2><div id="vlist" class="grid"></div>`;
+  panes[1].innerHTML=`<div class="card" id="q-card" hidden><h2>Rückmeldungen auf die letzte Abfrage</h2><p class="hint" id="q-sub"></p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Antwort</th><th>Zeit</th></tr></thead><tbody id="q-body"></tbody></table></div></div><h2 class="sech" style="margin-top:0">Fahrzeuge</h2><div id="vlist" class="grid"></div><div class="card" style="margin-top:20px"><h2>Eigene Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div>`;
+  /* ---- Schnellfunk: Abfragen und Standardrufe an ein Fahrzeug oder alle ---- */
+  $("#app").insertAdjacentHTML("afterbegin",`<div class="qbar" id="qbar" role="group" aria-label="Schnellfunk"><b class="qt">Schnellfunk</b><select id="q-to" aria-label="Empfänger"></select><div class="qbtns"><button type="button" data-q="status">Status abfragen</button><button type="button" data-q="standort">Standort abfragen</button><button type="button" class="alt" data-q="melden">Bitte melden</button><button type="button" class="alt" data-q="bestaetigen">Einsatz bestätigen</button><details class="qmore" id="q-more"><summary>Mehr</summary><div class="qpop"><button type="button" class="alt" data-q="wiederholen">Einsatz wiederholen</button><button type="button" class="alt" data-q="warten">Bitte warten</button><button type="button" class="alt dng" data-q="funkstille">Funkstille</button><div class="qtxt"><input id="q-txt" maxlength="160" placeholder="Eigener Kurztext" aria-label="Eigener Kurztext"><button type="button" data-q="text">Senden</button></div></div></details></div><span class="qres" id="q-res" role="status" aria-live="polite"></span></div>`);
+  {const qb=$("#qbar"),setQh=()=>document.documentElement.style.setProperty("--qh",getComputedStyle(qb).position==="sticky"?qb.offsetHeight+"px":"0px");
+   if(window.ResizeObserver)new ResizeObserver(setQh).observe(qb);addEventListener("resize",setQh);setQh()}
+  const QTX={status:"Statusabfrage. Bitte Status melden.",standort:"Standortabfrage. Bitte Standort melden.",melden:"Bitte bei der Leitstelle melden.",bestaetigen:"Bitte Einsatz bestätigen.",warten:"Bitte warten, die Leitstelle meldet sich.",funkstille:"Achtung Funkstille. Notruf läuft, bitte Funkdisziplin."};
+  let qTm=0;
+  const qMsg=t=>{$("#q-res").textContent=t;clearTimeout(qTm);qTm=setTimeout(drawQ,4000)};
+  const sendQ=async(kind,to)=>{to=to||"alle";let text;
+    if(kind==="text"){text=$("#q-txt").value.trim();if(!text)return}
+    else if(kind==="wiederholen"){
+      if(to==="alle")return qMsg("Für die Wiederholung bitte ein einzelnes Fahrzeug wählen.");
+      const ms=Object.values(M).filter(m=>vl(m).includes(to)&&!m.done);
+      if(!ms.length)return qMsg((V[to]?V[to].name:to)+" hat keinen offenen Einsatz.");
+      text="Einsatz zur Wiederholung: "+ms.map(m=>[m.art,m.prio,m.sw,m.adr].filter(Boolean).join(", ")).join(". Weiterer Einsatz: ")+"."}
+    else text=QTX[kind];
+    if(to!=="alle"&&V[to])text=V[to].name+": "+text;
+    const id=Date.now(),isQ=kind==="status"||kind==="standort";
+    try{await set(ref(db,"announcements/latest"),{id,text,target:to,von:me.name,...(isQ?{q:kind}:{})})}catch(e){return qMsg("Senden fehlgeschlagen: "+(e&&e.message||e))}
+    if(isQ){Q={id,q:kind,target:to,ts:id};draw()}else qMsg("Gesendet "+hm(id)+": "+text);
+    if(kind==="text")$("#q-txt").value=""};
+  const qAns=v=>!Q?null:Q.q==="status"?(v.rep&&v.rep.qid===Q.id?v.rep:null):(v.loc&&v.loc.qid===Q.id?v.loc:null);
+  const drawQ=()=>{const card=$("#q-card");if(!Q){card.hidden=true;return}
+    const tg=Object.entries(V).filter(([id,v])=>v.status!=="aus"&&v.crew&&(Q.target==="alle"||Q.target===id)).sort(byName),ok=tg.filter(([,v])=>qAns(v)).length,lbl=Q.q==="status"?"Statusabfrage":"Standortabfrage";
+    $("#q-res").textContent=lbl+" "+hm(Q.ts)+": "+ok+" von "+tg.length+" geantwortet";
+    card.hidden=false;$("#q-sub").textContent=lbl+" von "+hm(Q.ts)+" an "+(Q.target==="alle"?"alle Fahrzeuge im Dienst":(V[Q.target]?V[Q.target].name:Q.target))+".";
+    $("#q-body").innerHTML=tg.length?tg.map(([id,v])=>{const a=qAns(v);
+      return `<tr><td><b>${esc(v.name)}</b></td><td>${a?(Q.q==="status"?`<span class="badge" style="background:${sInfo(a.st)[2]}">${sInfo(a.st)[1]}</span>`:esc(a.text)):"<i>keine Antwort</i>"}</td><td>${a?hm(a.ts):"–"}</td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'};
+  $("#qbar").onclick=e=>{const b=e.target.closest("button[data-q]");if(!b)return;sendQ(b.dataset.q,$("#q-to").value);$("#q-more").open=false};
+  $("#q-txt").onkeydown=e=>{if(e.key==="Enter"){sendQ("text",$("#q-to").value);$("#q-more").open=false}};
+  document.addEventListener("click",e=>{const m=$("#q-more");if(m&&!e.target.closest("#q-more"))m.open=false});
+  onValue(ref(db,"announcements/latest"),s=>{const a=s.val();if(a&&a.q&&(!Q||Q.id!==a.id)){Q={id:a.id,q:a.q,target:a.target,ts:a.id};draw()}});
   const reset=()=>{editId=null;$("#mt").textContent="Neuer Einsatz";$("#m-cancel").hidden=true;["adr","info"].forEach(k=>$("#m-"+k).value="");$("#m-code").value="";$("#m-prio").value="Bravo";selV.clear();$("#m-hint").textContent="";draw()};
   $("#m-cancel").onclick=reset;
   $("#m-save").onclick=async()=>{
@@ -592,14 +715,14 @@ function leitstelle(){
     if(b.dataset.a==="d"&&confirm("Einsatz "+m.nr+" löschen?"))set(ref(db,"missions/"+id),null)};
   $("#a-send").onclick=async()=>{const text=$("#a-text").value.trim();if(!text)return;
     await set(ref(db,"announcements/latest"),{id:Date.now(),text,target:$("#a-target").value,von:me.name});$("#a-text").value=""};
-  $("#vlist").onclick=e=>{const b=e.target.closest("button");if(b&&b.dataset.sw){confirmSw(b.dataset.sw);return}if(b&&b.dataset.id&&confirm("Fahrzeug aus der Liste entfernen?"))set(ref(db,"vehicles/"+b.dataset.id),null)};
+  $("#vlist").onclick=e=>{const b=e.target.closest("button");if(b&&b.dataset.sw){confirmSw(b.dataset.sw);return}if(b&&b.dataset.q){sendQ(b.dataset.q,b.dataset.v);return}if(b&&b.dataset.call){window.radioCall(b.dataset.call);return}if(b&&b.dataset.id&&confirm("Fahrzeug aus der Liste entfernen?"))set(ref(db,"vehicles/"+b.dataset.id),null)};
   const draw=()=>{
     const opts=Object.entries(V).map(([id,v])=>`<option value="${id}">${esc(v.name)}</option>`).join("");
     const ct=$("#a-target").value;
     $("#m-vs").innerHTML=Object.entries(V).filter(([id,v])=>v.status!=="aus").map(([id,v])=>`<label class="chk"><input type="checkbox" data-v="${esc(id)}"${selV.has(id)?" checked":""}>${esc(v.name)} · ${TYL[typOf(v)]} · ${sInfo(v.status)[1]}</label>`).join("")||'<p class="hint">Noch kein Fahrzeug im Dienst.</p>';
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
     $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>vl(m).includes(id)&&!m.done);
-      return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div><div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#2e8b57">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
+      return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div><div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div>${v.loc?`<div>Standort: ${esc(v.loc.text)} <span class="mut">(${hm(v.loc.ts)})</span></div>`:""}${v.status!=="aus"?`<div class="row vq"><button class="alt" data-q="status" data-v="${esc(id)}">Status?</button><button class="alt" data-q="standort" data-v="${esc(id)}">Standort?</button><button class="alt" data-call="${esc(v.name)}">Rufen</button></div>`:""}<div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#2e8b57">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
     {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
      const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!vl(m).length).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>vl(m).some(v=>!ackT(m,v))).length,"#8e24aa"]];
      $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
@@ -607,6 +730,9 @@ function leitstelle(){
     const rows=Object.entries(M).sort((a,b)=>(Number(!!a[1].done)-Number(!!b[1].done))||(a[1].done?0:PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
     $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b7178"]:!vs_.length?["Offen","#e2001a"]:na===0?["Bestätigt","#2e8b57"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#e0a100"];
       return `<div class="card"><b>${esc(m.nr)}</b> <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):"<p>Noch keine Einsätze. Lege oben den ersten an.</p>";
+    {const qt=$("#q-to"),cq=qt.value;qt.innerHTML='<option value="alle">Alle Fahrzeuge</option>'+Object.entries(V).filter(([id,v])=>v.status!=="aus"&&v.crew).sort(byName).map(([id,v])=>`<option value="${esc(id)}">${esc(v.name)}</option>`).join("");
+     qt.value=[...qt.options].some(o=>o.value===cq)?cq:"alle"}
+    drawQ();
   };
   const autoSel=()=>{selV.clear();const need=ALRM[$("#m-prio").value]||[];
     need.forEach(t=>{const pick=ty=>Object.entries(V).filter(([id,v])=>v.crew&&v.status==="s1"&&typOf(v)===ty&&!selV.has(id)).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}))[0];
@@ -677,7 +803,7 @@ async function fahrzeug(){
     $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${ackT(m,me.vid)?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(ackT(m,me.vid))}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
-  onValue(vref,s=>{const v=s.val()||{};vcur=v;$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
+  onValue(vref,s=>{const v=s.val()||{};vcur=v;if(qPend&&v.loc&&v.loc.qid===qPend){qPend=null;const d=$("#qdlg");if(d.open)d.close()}$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
   $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz für dein Fahrzeug abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();const m=MC[fin]||{},fs={...(m.fin||{}),[me.vid]:1},all=vl(m).every(v=>fs[v]);update(ref(db,"missions/"+fin),{["fin/"+me.vid]:Date.now(),...(all?{done:true,doneTs:Date.now()}:{})});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{["acks/"+me.vid]:Date.now(),["t/"+me.vid+"_s2"]:Date.now()});update(vref,{status:"s2"})};
   $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[me.vid+"_"+s]:Date.now()})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
@@ -890,7 +1016,7 @@ function sync(){var o=ch.selectedOptions&&ch.selectedOptions[0],t=o?o.text:"–"
  q("#rch").textContent=r?"→ "+r.replace(/^(Einzelruf|Rundruf): /,""):t;
  q("#rclk").textContent=new Date().toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"});
  [].forEach.call(R.querySelectorAll(".pad button"),function(b){var a=b.dataset.a,on=false;if(b.dataset.k)on=+b.dataset.k-1===ch.selectedIndex&&!(r||tg.value);else if(a==="all")on=tg.value==="*";else if(a==="grp")on=!tg.hidden&&!tg.value;if(a)b.disabled=tg.hidden||tg.disabled;b.classList.toggle("on",on)});
- paint();if(R.style.left)put(parseFloat(R.style.left),parseFloat(R.style.top))}
+ paint()}
 function setCh(i){if(ch.disabled||!ch.options.length)return;i=Math.max(0,Math.min(ch.options.length-1,i));if(i!==ch.selectedIndex){ch.selectedIndex=i;ch.dispatchEvent(new Event("change"))}sync()}
 function ang(e){var r=knob.getBoundingClientRect(),x=e.clientX-(r.left+r.width/2),y=e.clientY-(r.top+r.height/2),a=Math.atan2(x,-y)*180/Math.PI;if(Math.abs(a)>135)a=pa>=0?135:-135;pa=a;return(a+135)/270*150}
 knob.addEventListener("pointerdown",function(e){e.preventDefault();knob.setPointerCapture(e.pointerId);kd=1;pa=+vol.value/150*270-135;setV(ang(e))});
@@ -909,7 +1035,8 @@ bar.addEventListener("pointerup",end);bar.addEventListener("pointercancel",end);
 q("#rhome").onclick=function(){["left","top","right","bottom"].forEach(function(p){R.style[p]=""});try{localStorage.removeItem("rpos")}catch(e){}};
 function mini(on){body.classList.toggle("min",on);q("#rmin").textContent=on?"▢":"–";try{localStorage.setItem("rmin",on?"1":"0")}catch(e){}}
 q("#rmin").onclick=function(){mini(!body.classList.contains("min"))};
-try{if(localStorage.getItem("rmin")==="1"||(localStorage.getItem("rmin")===null&&innerWidth<1100))mini(true);var p=JSON.parse(localStorage.getItem("rpos")||"null");if(p){R.style.left=p[0]+"px";R.style.top=p[1]+"px";R.style.right="auto";R.style.bottom="auto"}}catch(e){}
+try{if(localStorage.getItem("rmin")==="1"||(localStorage.getItem("rmin")===null&&innerWidth<1100))mini(true);localStorage.removeItem("rpos")}catch(e){}
+window.radioCall=function(name){var o=[].filter.call(tg.options,function(x){return x.text==="Einzelruf: "+name})[0];if(!o){alert(name+" ist per Funk gerade nicht erreichbar (kein Gerät angemeldet).");return}if(tg.disabled)return;setTg(o.value)};
 setInterval(sync,250);sync();
 })();
 </script>
