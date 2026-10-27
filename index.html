@@ -478,6 +478,15 @@ dialog.card{max-height:92vh;overflow:auto}
 .arow .row{margin-top:0}
 .tbadge{background:var(--brand)}
 #adoc :disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent}
+
+/* ===== Voranmeldung weiterleiten ===== */
+.vorfwd{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:color-mix(in srgb,var(--brand) 7%,var(--card))}
+.vorfwd .chk{margin:0}
+.vorfwd .vp-l{width:100%;font:600 .8rem var(--sans);color:var(--sub)}
+.vorfwd .row{margin-top:0;width:100%}
+.vor-fwd{margin-top:4px;font:600 .82rem var(--sans);color:var(--brand)}
+#vorfz{border-left:5px solid var(--ac)}
+#vorfz h2{color:var(--ac)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -1042,12 +1051,37 @@ function leitstelle(){
     });
     swFirst=false;draw()});
   onValue(ref(db,"missions"),s=>{M=s.val()||{};draw()});
-  onValue(ref(db,"voranmeldungen"),s=>{const rows=Object.entries(s.val()||{}).sort((a,b)=>b[1].ts-a[1].ts);
-    $("#vor").innerHTML=rows.length?`<div class="card"><h2>Voranmeldungen (${rows.length})</h2><p class="hint">Patienten, die andere Rettungsdienste ohne Anmeldung vorab angekündigt haben.</p>${rows.map(([id,v])=>`<div class="vorrow"><div><b>${esc(v.pat)}</b>${v.sex?" · "+esc(v.sex):""}${v.gebdat?" · geb. "+esc(v.gebdat):""}<br><span class="mut">${esc(v.org)}${v.fz?" · "+esc(v.fz):""} · eingegangen ${hm(v.ts)}</span></div><div><div>Ankunft: <b>${esc(v.ank)}</b> · Stichwort: ${esc(v.stich)}</div>${v.vit?`<div>Vitals: ${esc(v.vit)}</div>`:""}${v.hin?`<div>Hinweis: ${esc(v.hin)}</div>`:""}${v.kontakt?`<div>Rückfragen: ${esc(v.kontakt)}</div>`:""}</div><div class="row">${v.ack?`<span class="vor-ack">✔ Aufnahme vorbereitet ${hm(v.ack)}</span>`:`<button class="alt" data-vok="${id}">Aufnahme vorbereitet</button>`}<button class="alt" data-vd="${id}">Erledigt</button></div></div>`).join("")}</div>`:"";
-  });
-  $("#vor").onclick=e=>{const b=e.target.closest("button");if(!b)return;
-    if(b.dataset.vok)update(ref(db,"voranmeldungen/"+b.dataset.vok),{ack:Date.now()});
-    if(b.dataset.vd&&confirm("Voranmeldung abschließen und aus der Liste entfernen?"))set(ref(db,"voranmeldungen/"+b.dataset.vd),null)};
+  /* Voranmeldungen: Liste, Weiterleitung an Fahrzeuge, Bestätigung (gemeinsamer Stand über die Datenbank) */
+  let VOR_ROWS=[],VOR_OPEN=null,VOR_SEL=new Set();
+  const drawVor=()=>{
+    const fz=Object.entries(V).filter(([,x])=>x.status!=="aus"&&x.crew).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
+    $("#vor").innerHTML=VOR_ROWS.length?`<div class="card"><h2>Voranmeldungen (${VOR_ROWS.length})</h2><p class="hint">Patienten, die andere Rettungsdienste ohne Anmeldung vorab angekündigt haben.</p>${VOR_ROWS.map(([id,v])=>{
+      const wl=Object.values(v.weiter||{});
+      const panel=VOR_OPEN===id?`<div class="vorfwd"><span class="vp-l">An welche Fahrzeuge weiterleiten?</span>${fz.length?fz.map(([fid,x])=>`<label class="chk"><input type="checkbox" data-vfz="${esc(fid)}"${VOR_SEL.has(fid)?" checked":""}>${esc(x.name)} · ${esc(sInfo(x.status)[1])}</label>`).join(""):'<span class="mut">Kein Fahrzeug im Dienst.</span>'}<div class="row"><button type="button" data-vsend="${esc(id)}">Weiterleiten</button><button type="button" class="alt" data-vclose="1">Abbrechen</button></div></div>`:"";
+      return `<div class="vorrow"><div><b>${esc(v.pat)}</b>${v.sex?" · "+esc(v.sex):""}${v.gebdat?" · geb. "+esc(v.gebdat):""}<br><span class="mut">${esc(v.org)}${v.fz?" · "+esc(v.fz):""} · eingegangen ${hm(v.ts)}</span>${wl.length?`<div class="vor-fwd">➜ Weitergeleitet an: ${wl.map(esc).join(", ")}</div>`:""}</div>`+
+        `<div><div>Ankunft: <b>${esc(v.ank)}</b> · Stichwort: ${esc(v.stich)}</div>${v.vit?`<div>Vitals: ${esc(v.vit)}</div>`:""}${v.hin?`<div>Hinweis: ${esc(v.hin)}</div>`:""}${v.kontakt?`<div>Rückfragen: ${esc(v.kontakt)}</div>`:""}</div>`+
+        `<div class="row">${v.ack?`<span class="vor-ack">✔ Aufnahme vorbereitet ${hm(v.ack)}</span>`:`<button class="alt" data-vok="${esc(id)}">Aufnahme vorbereitet</button>`}<button class="alt" data-vfwd="${esc(id)}">An Fahrzeug weiterleiten</button><button class="alt" data-vd="${esc(id)}">Erledigt</button></div>${panel}</div>`}).join("")}</div>`:"";
+  };
+  onValue(ref(db,"voranmeldungen"),s=>{VOR_ROWS=Object.entries(s.val()||{}).sort((a,b)=>b[1].ts-a[1].ts);drawVor()});
+  onValue(ref(db,"vehicles"),()=>{if(VOR_OPEN)drawVor()});
+  $("#vor").onchange=e=>{const c=e.target;if(c.dataset.vfz){c.checked?VOR_SEL.add(c.dataset.vfz):VOR_SEL.delete(c.dataset.vfz)}};
+  $("#vor").onclick=async e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.vok){update(ref(db,"voranmeldungen/"+b.dataset.vok),{ack:Date.now()});return}
+    if(b.dataset.vd){if(confirm("Voranmeldung abschließen und aus der Liste entfernen?"))set(ref(db,"voranmeldungen/"+b.dataset.vd),null);return}
+    if(b.dataset.vfwd){VOR_OPEN=VOR_OPEN===b.dataset.vfwd?null:b.dataset.vfwd;VOR_SEL=new Set();drawVor();return}
+    if(b.dataset.vclose){VOR_OPEN=null;drawVor();return}
+    if(b.dataset.vsend){
+      const id=b.dataset.vsend,row=VOR_ROWS.find(([i])=>i===id);if(!row)return;const v=row[1];
+      const ids=[...VOR_SEL].filter(f=>V[f]);
+      if(!ids.length){alert("Bitte mindestens ein Fahrzeug auswählen.");return}
+      const info={id,org:v.org||"",pat:v.pat||"",gebdat:v.gebdat||"",sex:v.sex||"",ank:v.ank||"",stich:v.stich||"",vit:v.vit||"",hin:v.hin||"",kontakt:v.kontakt||"",ts:Date.now()};
+      const targets={},upd={};
+      ids.forEach(f=>{targets[f]=true;upd["vehicles/"+f+"/vor"]=info;upd["voranmeldungen/"+id+"/weiter/"+f]=V[f].name});
+      await update(ref(db),upd);
+      await set(ref(db,"announcements/latest"),{id:Date.now(),text:"Voranmeldung weitergeleitet: "+v.pat+", Ankunft "+v.ank+", Stichwort "+v.stich+".",target:"multi",targets,von:me.name});
+      VOR_OPEN=null;VOR_SEL=new Set();drawVor();
+    }
+  };
   /* Neue Voranmeldung: Ansage und Hinweis in der Leitstelle (nur Voranmeldungen, die nach dem Öffnen eingehen) */
   const bootT=Date.now();
   onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!v||!v.ts||v.ts<bootT-2000)return;
@@ -1089,7 +1123,7 @@ async function fahrzeug(){
   {const cr=ref(db,`crew/${me.vid}/${me.pid}`);onValue(ref(db,".info/connected"),s=>{if(s.val()===true){set(cr,{name:me.name});onDisconnect(cr).remove()}});
    onValue(ref(db,"crew/"+me.vid),s=>update(vref,{crew:Object.values(s.val()||{}).map(x=>x.name).join(", ")}))}
   await update(vref,{name:me.call,typ:me.typ||null,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
-  panes[0].innerHTML=`<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
+  panes[0].innerHTML=`<div class="card" id="vorfz" hidden></div><div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
   panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${AKTEN.map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
   let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
@@ -1097,6 +1131,11 @@ async function fahrzeug(){
     $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<p><b>${esc(m.nr)}</b> ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}<br>${ackT(m,me.vid)?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(ackT(m,me.vid))}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></p>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
+  /* Von der Leitstelle weitergeleitete Voranmeldung, bleibt sichtbar bis zum Ausblenden */
+  onValue(ref(db,"vehicles/"+me.vid+"/vor"),s=>{const x=s.val(),c=$("#vorfz");if(!c)return;
+    if(!x){c.hidden=true;c.innerHTML="";return}
+    c.hidden=false;c.innerHTML=`<h2>Voranmeldung von der Leitstelle</h2><div><b>${esc(x.pat)}</b>${x.sex?" · "+esc(x.sex):""}${x.gebdat?" · geb. "+esc(x.gebdat):""}<br><span class="mut">${esc(x.org)} · eingegangen ${hm(x.ts)}</span></div><div>Ankunft: <b>${esc(x.ank)}</b> · Stichwort: ${esc(x.stich)}</div>${x.vit?`<div>Vitals: ${esc(x.vit)}</div>`:""}${x.hin?`<div>Hinweis: ${esc(x.hin)}</div>`:""}${x.kontakt?`<div>Rückfragen: ${esc(x.kontakt)}</div>`:""}<div class="row"><button class="alt" id="vfz-ok">Gelesen, ausblenden</button></div>`;
+    $("#vfz-ok").onclick=()=>update(vref,{vor:null})});
   onValue(vref,s=>{const v=s.val()||{};vcur=v;if(qPend&&v.loc&&v.loc.qid===qPend){qPend=null;const d=$("#qdlg");if(d.open)d.close()}$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
   $("#mission").onclick=e=>{const fin=e.target.dataset.fin;if(fin){if(confirm("Einsatz für dein Fahrzeug abschließen? Das Fahrzeug wird wieder einsatzbereit gemeldet.")){tetraBeep();const m=MC[fin]||{},fs={...(m.fin||{}),[me.vid]:1},all=vl(m).every(v=>fs[v]);update(ref(db,"missions/"+fin),{["fin/"+me.vid]:Date.now(),...(all?{done:true,doneTs:Date.now()}:{})});update(vref,{status:"s1"})}return}const id=e.target.dataset.ack;if(!id)return;tetraBeep();update(ref(db,"missions/"+id),{["acks/"+me.vid]:Date.now(),["t/"+me.vid+"_s2"]:Date.now()});update(vref,{status:"s2"})};
   $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[me.vid+"_"+s]:Date.now()})}};
