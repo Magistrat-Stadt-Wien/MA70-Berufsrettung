@@ -449,6 +449,9 @@ button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));borde
  .docprint .dnote{background:none;border:1px solid #000}
  .docprint .dochead .plogo{background:none!important;filter:invert(1);padding:0;border:0}
 }
+
+/* Funk-Tastatur: zwei Reihen à vier Tasten */
+.pad{grid-template-columns:repeat(4,1fr)}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -508,7 +511,7 @@ button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));borde
  </div>
  <div class="rsel"><span class="rl">Gruppe / Ruf</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div>
  <div class="soft"><button id="fset" class="alt" type="button" title="Funk-Einstellungen" aria-label="Funk-Einstellungen">Menü</button><span class="navc"></span><button id="rmute" type="button" title="Stumm schalten">Stumm</button></div>
- <div class="pad"><button type="button" data-k="1" title="Betriebsgruppe 1 (Tagesgeschäft)"><b>1</b><small>BG 1</small></button><button type="button" data-k="2" title="Betriebsgruppe 2 (Ausweich)"><b>2</b><small>BG 2</small></button><button type="button" data-k="3" title="Führungsgruppe"><b>3</b><small>FG</small></button><button type="button" data-k="4" title="Sonderlage 1"><b>4</b><small>RS 1</small></button><button type="button" data-k="5" title="Sonderlage 2"><b>5</b><small>RS 2</small></button><button type="button" data-a="all" title="Rundruf an alle Fahrzeuge"><b>6</b><small>RUNDRUF</small></button><button type="button" data-a="grp" title="Anruf an alle auf dem Kanal"><b>7</b><small>KANAL</small></button><button type="button" data-a="prev" title="Einzelruf: voriges Fahrzeug"><b>8</b><small>◀ EINZEL</small></button><button type="button" data-a="next" title="Einzelruf: nächstes Fahrzeug"><b>9</b><small>EINZEL ▶</small></button></div>
+ <div class="pad"><button type="button" data-k="1" title="Rettungsdienst (alle Fahrzeuge)"><b>1</b><small>RD</small></button><button type="button" data-k="2" title="Leitstelle"><b>2</b><small>LST</small></button><button type="button" data-k="3" title="Uniklinik-Abteilungen"><b>3</b><small>ABT</small></button><button type="button" data-k="4" title="Führungspositionen"><b>4</b><small>FÜHR</small></button><button type="button" data-a="all" title="Rundruf an alle Fahrzeuge"><b>5</b><small>RUNDRUF</small></button><button type="button" data-a="grp" title="Anruf an alle auf dem Kanal"><b>6</b><small>KANAL</small></button><button type="button" data-a="prev" title="Einzelruf: voriges Fahrzeug"><b>7</b><small>◀ EINZEL</small></button><button type="button" data-a="next" title="Einzelruf: nächstes Fahrzeug"><b>8</b><small>EINZEL ▶</small></button></div>
  <input id="vol" type="range" min="0" max="150" value="100" aria-label="Lautstärke">
  <button id="ptt" type="button"><b>PTT</b><small>Sprechtaste · F1 gedrückt halten</small></button>
 </div>
@@ -564,7 +567,7 @@ const drawLogin=()=>{const e=$("#l-st");if(!e)return;const cur=e.value;
   e.innerHTML='<option value="" disabled>– Fahrzeug wählen –</option>'+Object.entries(STM).sort(byName).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");
   e.value=STM[cur]?cur:""};
 onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin();admList()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
-const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,call,typ,ch:"bg1",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
+const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,call,typ,ch:lgAcc.role==="leit"?"lst":"rd",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
 $("#l-go").onclick=async()=>{lgErr();const u=uid($("#l-user").value),pw=$("#l-pw").value;
   if(!u||!pw)return lgErr("Bitte Zugangsname und Passwort eingeben.");
   try{const r=(await get(ref(db,"accounts/"+u))).val();
@@ -695,7 +698,7 @@ $("#q-gps").onclick = () => {
 /* ---------- Start ---------- */
 let vcur = {};
 async function start() {
-  me.ch = CH.some(c => c[0] === me.ch) ? me.ch : "bg1";
+  me.ch = CH.some(c => c[0] === me.ch) ? me.ch : (me.role === "leit" ? "lst" : "rd");
   $("#login").hidden = true; $("#app").hidden = false;
   $("#who").innerHTML = esc(me.name) + (me.role === "fzg" ? " · " + esc(me.call) : " · Leitstelle") + ' <button class="alt" id="out">Abmelden</button>';
   $("#out").onclick = async () => {
@@ -1053,7 +1056,7 @@ const ackMin=m=>{const a=vl(m).map(v=>ackT(m,v)).filter(Boolean);return a.length
 const tMin=(m,k)=>{const a=Object.entries(m.t||{}).filter(([x])=>x===k||x.endsWith("_"+k)).map(x=>x[1]);return a.length?Math.min(...a):0};
 const OFFIZIELL="RTW-1;rtw|RTW-2;rtw|RTW-3;rtw|RTW-4;rtw|RTW-5;rtw|Oberarzt-NEF;nef|UKB-NEF-1;nef|UKB-NEF-2;nef";
 const hm=t=>new Date(t).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
-const CH=[["bg1","RD BE BG1 · Betriebsgruppe 1"],["bg2","RD BE BG2 · Betriebsgruppe 2"],["fg","RD BE FG · Führungsgruppe"],["rs1","RD BE RS1 · Sonderlage 1"],["rs2","RD BE RS2 · Sonderlage 2"],["rs3","RD BE RS3 · Sonderlage 3"],["rs4","RD BE RS4 · Sonderlage 4"],["rs5","RD BE RS5 · Sonderlage 5"],["ho1","HO BE 01 SB1 · San./Betreuung (Hilfsorg.)"]];
+const CH=[["rd","RD · Rettungsdienst"],["lst","LST · Leitstelle"],["abt","ABT · Uniklinik-Abteilungen"],["fuehr","FÜHR · Führungspositionen"]];
 const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const myName=()=>me.role==="leit"?"Leitstelle":me.call;
