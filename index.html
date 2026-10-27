@@ -387,6 +387,68 @@ dialog#docdlg{max-width:860px;max-height:92vh;overflow:auto}
  #docdlg h3{border-color:#000!important}
  #docdlg .dnote{background:none;border:1px solid #000}
 }
+
+/* ===== Design v5: ruhig, einheitlich, Uniklinikum-Blau ===== */
+body{background:var(--bg);font-size:15px;line-height:1.5}
+header{padding:12px 24px;gap:18px;margin-bottom:28px;box-shadow:0 6px 18px rgba(7,40,80,.28)}
+header::after{display:none}
+.htxt b{font:700 1.08rem var(--sans);letter-spacing:-.01em;color:#fff}
+.htxt small{color:#b6d2ef;font-size:.64rem;letter-spacing:.09em}
+.n144{padding:6px 12px;border-radius:8px}
+header button.alt{min-height:36px;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:8px}
+header button.alt:hover{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.7)}
+#lay{border:1px solid rgba(255,255,255,.4);border-radius:8px}
+#lay button{min-height:36px;color:#fff}
+#lay button+button{border-left-color:rgba(255,255,255,.4)}
+#lay button.on{background:#fff;color:var(--brand-dk)}
+#clk{border-color:rgba(255,255,255,.2)}
+#clk b{color:#fff}
+#clk small{color:#b6d2ef}
+#who{color:#fff}
+.card{margin-bottom:18px;padding:20px 22px;border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.card>h2:first-child{margin:0 0 16px;padding:0 0 12px;font:700 1.05rem var(--sans);color:var(--ink);border-bottom:1px solid var(--line)}
+.card>h2:first-child::before{width:4px;height:1em;border-radius:2px;background:var(--brand)}
+h2{font:700 1.1rem var(--sans)}
+label{margin:14px 0 6px;font:600 .8rem var(--sans);color:var(--sub)}
+input,select,textarea{min-height:44px;border:1px solid var(--inb);border-radius:8px;background:var(--card)}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
+button{min-height:42px;padding:10px 18px;border-radius:8px;background:var(--brand);color:#fff;font-weight:600}
+button:hover{filter:none;background:var(--brand-dk)}
+button.alt{background:var(--card);color:var(--ink);border:1px solid var(--inb)}
+button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));border-color:var(--brand);color:var(--ink)}
+.tabs{display:flex;gap:4px;width:fit-content;max-width:100%;margin:0 0 22px;padding:5px;overflow-x:auto;background:color-mix(in srgb,var(--ink) 6%,transparent);border:0;border-radius:12px}
+.tabs button{min-height:0;padding:9px 16px;border:0;border-radius:9px;background:transparent;color:var(--sub);font-weight:600;white-space:nowrap}
+.tabs button:hover{filter:none;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.tabs button.on{background:var(--card);color:var(--ac);box-shadow:0 1px 3px rgba(15,35,60,.18)}
+.lg{border-radius:12px;box-shadow:var(--sh)}
+.v{border-radius:12px;box-shadow:var(--sh)}
+#login{border-radius:16px}
+.pintro{margin:0 0 14px}
+.pintro .hint{margin:0}
+.pgroup{margin-bottom:16px}
+.pglabel{display:block;margin:0 0 8px;font:700 .72rem var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
+.ptiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.ptile{display:flex;align-items:center;gap:12px;width:100%;min-height:74px;padding:14px 16px;text-align:left;font-weight:400;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.ptile:hover{background:color-mix(in srgb,var(--brand) 6%,var(--card));border-color:var(--ac);color:var(--ink)}
+.ptile i{flex:none;display:grid;place-items:center;width:42px;height:42px;font-style:normal;font-size:1.25rem;background:color-mix(in srgb,var(--brand) 12%,var(--card));border-radius:10px}
+.ptile b{display:block;font:700 .95rem var(--sans);color:var(--ink)}
+.ptile small{display:block;margin-top:2px;font:500 .8rem/1.3 var(--sans);color:var(--sub)}
+.ptile.on{padding:13px 15px;border:2px solid var(--ac);background:color-mix(in srgb,var(--ac) 9%,var(--card))}
+.ptile.on i{background:var(--ac)}
+.pf{margin-top:2px}
+.vorrow{border-top-color:var(--line)}
+@media print{
+ .docprint,.docprint *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .docprint{position:fixed;left:0;top:0;width:100%;max-width:none;max-height:none;margin:0;padding:0 6mm;border:0;box-shadow:none;background:#fff;color:#000;overflow:visible}
+ .docprint .noprint{display:none!important}
+ .docprint input:not([type=checkbox]),.docprint select,.docprint textarea{border:0!important;border-bottom:1px solid #000!important;border-radius:0!important;background:none!important;color:#000!important;box-shadow:none!important;min-height:0!important;padding:1px 3px!important;-webkit-appearance:none;appearance:none}
+ .docprint textarea{border:1px solid #000!important;min-height:3.2em!important}
+ .docprint input[type=checkbox]{width:auto;min-height:0;margin-right:4px;accent-color:#000}
+ .docprint h3,.docprint label,.docprint .dtext,.docprint .dochead small,.docprint .dochead b{color:#000!important;background:none!important}
+ .docprint h3{border-color:#000!important}
+ .docprint .dnote{background:none;border:1px solid #000}
+ .docprint .dochead .plogo{background:none!important;filter:invert(1);padding:0;border:0}
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -427,13 +489,13 @@ dialog#docdlg{max-width:860px;max-height:92vh;overflow:auto}
 <div class="fields"><div><label for="v-org">Organisation / Rettungsdienst *</label><input id="v-org" autocomplete="off" placeholder="z. B. Johanniter Berlin"></div><div><label for="v-fz">Funkrufname / Fahrzeug</label><input id="v-fz" autocomplete="off"></div><div><label for="v-pat">Name des Patienten *</label><input id="v-pat" autocomplete="off"></div><div><label for="v-gebdat">Geburtsdatum</label><input id="v-gebdat" type="date"></div><div><label for="v-sex">Geschlecht</label><select id="v-sex"><option value="">–</option><option>weiblich</option><option>männlich</option><option>divers</option><option>unbekannt</option></select></div><div><label for="v-ank">Voraussichtliche Ankunft *</label><input id="v-ank" placeholder="z. B. 14:35"></div><div class="wide"><label for="v-stich">Stichwort / Verdachtsdiagnose *</label><input id="v-stich" autocomplete="off"></div><div class="wide"><label for="v-vit">Vitalwerte</label><input id="v-vit" placeholder="RR, Puls, SpO₂, GCS, Blutzucker"></div><div class="wide"><label for="v-hin">Hinweise für die Aufnahme</label><textarea id="v-hin"></textarea></div><div class="wide"><label for="v-kontakt">Rückfragen (Telefon oder Funk)</label><input id="v-kontakt"></div></div>
 <p class="hint" id="v-err" role="status"></p>
 <div class="row"><button type="button" id="v-send">Voranmeldung senden</button><button type="button" class="alt" id="v-x">Abbrechen</button></div></dialog>
-<dialog id="docdlg" class="card">
-<nav class="tabs noprint" id="doc-t"><button type="button" data-k="akte">Patientenakte</button><button type="button" data-k="arb">Arbeitsbefreiung</button><button type="button" data-k="tot">Totenschein</button></nav>
+<dialog id="docdlg" class="card docprint">
+<nav class="tabs noprint" id="doc-t"><button type="button" data-k="akte">Patientenakte</button><button type="button" data-k="arb">Arbeitsunfähigkeit</button><button type="button" data-k="tot">Todesbescheinigung</button></nav>
 <div id="doc-b"></div>
 <div class="row noprint"><button type="button" id="doc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="doc-x">Schließen</button></div>
 <p class="hint noprint">Die Felder sind mit den Daten des Protokolls vorausgefüllt und können ergänzt werden. Beim Drucken wird nur das Dokument ausgegeben.</p>
 </dialog>
-<datalist id="dl-ziel"><option value="Uniklinikum Berlin – Notaufnahme"><option value="Uniklinikum Berlin – Stroke Unit (Neurologie)"><option value="Uniklinikum Berlin – Herzkatheterlabor"><option value="Uniklinikum Berlin – Traumazentrum"><option value="Uniklinikum Berlin – Kinderklinik"><option value="Uniklinikum Berlin – Intensivstation"><option value="Uniklinikum Berlin – Geburtshilfe"><option value="Uniklinikum Berlin – Psychiatrie / Krisendienst"></datalist>
+<datalist id="dl-ziel"><option value="Zentrale Notaufnahme"><option value="Kardiologie / Chest Pain Unit"><option value="Stroke Unit (Neurologie)"><option value="Herzkatheterlabor"><option value="Unfallchirurgie / Traumatologie"><option value="Traumazentrum (Schockraum)"><option value="Kinder- und Jugendmedizin"><option value="Gynäkologie / Geburtshilfe"><option value="Psychiatrie / Notfallpsychiatrie"><option value="Intensivstation"><option value="Neurochirurgie"><option value="Viszeralchirurgie"><option value="Andere Klinik (Verlegung)"></datalist>
 <div id="radio" hidden>
 <div id="rbar"><span class="rtitle">TETRA BOS · Funk</span><button id="rmin" class="alt" type="button" title="Verkleinern / Vergrößern">–</button><button id="rhome" class="alt" type="button" title="Zurück an den Standardplatz">⌂</button></div>
 <div class="rbody" id="rbody">
@@ -662,13 +724,31 @@ const SEC=[
 ["Maßnahmen und Medikamente",[["mass","Durchgeführte Maßnahmen","area"],["med","Verabreichte Medikamente (Name, Dosis, Uhrzeit)","area"]]],
 ["Besatzung",[["b_san1","Sanitäter/in (Name, Qualifikation, z. B. RettSan / NotSan)"],["b_san2","Fahrer/in oder 2. Sanitäter/in"],["b_na","Notarzt / Notärztin (falls vorhanden)"]]],
 ["Einschätzung und Transport",[["naca","NACA-Score",["","0 – keine Verletzung/Erkrankung","I – geringfügige Störung","II – ambulante Abklärung","III – stationäre Behandlung","IV – akute Lebensgefahr nicht auszuschließen","V – akute Lebensgefahr","VI – Reanimation","VII – Tod"]],["tprio","Transport",["","mit Sondersignal","ohne Sondersignal","kein Transport, Verbleib vor Ort","Transportverweigerung (Revers)"]],["na","Notarzt (NEF/NAW) nachgefordert",["","nein","ja"]]]],
-["Übergabe",[["ziel","Zielklinik"],["ueb","Übergeben an"],["uebtxt","Übergabebericht (ISBAR: Identifikation, Situation, Beobachtung, Anamnese, Empfehlung)","area"]]]
+["Übergabe",[["ziel","Ziel-Abteilung"],["ueb","Übernehmende Person (Name, Funktion)"],["uebtxt","Übergabebericht (ISBAR: Identifikation, Situation, Beobachtung, Anamnese, Empfehlung)","area"]]]
 ];
+const KT_SECS=[
+ ["Transport",[["ktabh","Abholort (Adresse / Station)"],["ktabhz","Abholzeit"],["ktziel","Ziel-Abteilung"],["ktzieladr","Zieladresse (falls keine Klinik)"],["ktart","Transportart",["","liegend","sitzend","Rollstuhl","Tragestuhl"]],["ktbegl","Begleitung",["","keine","Angehörige/r","Pflegekraft","Sonstige"]],["ktschein","Verordnung",["","Krankentransportschein liegt vor","Verordnung liegt vor","Keine Verordnung vorhanden"]]]],
+ ["Zustand und Hilfsmittel",[["ktzust","Zustand bei Übernahme","area"],["ktmittel","Hilfsmittel (Sauerstoff, Infusion, Monitor, Isolation)","area"]]],
+ ["Übergabe",[["ktank","Ankunft am Ziel"],["ktueb","Übernommen von (Name, Funktion)"]]]
+];
+const REV_SECS=[
+ ["Angebotene Versorgung",[["rvang","Angebot des Rettungsdienstes (Transport, Behandlung, Maßnahmen)","area"],["rvempf","Empfehlung (z. B. Klinikeinweisung)","area"]]],
+ ["Aufklärung",[["rvr1","Über die Gefahr der Verschlechterung des Zustands aufgeklärt","check"],["rvr2","Über die Gefahr bleibender Schäden aufgeklärt","check"],["rvr3","Über die Gefahr des Todes aufgeklärt","check"],["rvr4","Auf die jederzeitige Möglichkeit der Anforderung des Rettungsdienstes hingewiesen","check"]]],
+ ["Entscheidung",[["rvent","Entscheidung",["","Transport wird verweigert","Behandlung wird verweigert","Transport und Behandlung werden verweigert"]],["rvzeit","Uhrzeit"]]],
+ ["Unterschriften",[["rvzeug","Zeuge / Begleitperson (Name)"],["rvpat","Unterschrift Patient / Vertreter"],["rvrd","Rettungsdienst (Name, Qualifikation)"]]]
+];
+const PT={
+ notfall:{t:"Notfallprotokoll",d:"ABCDE, SAMPLER, Übergabe",ic:"🚑",secs:SEC.slice(1)},
+ kt:{t:"Krankentransport",d:"Abholung, Transportart, Übernahme",ic:"🚐",secs:KT_SECS},
+ revers:{t:"Transportverweigerung",d:"Aufklärung und Revers",ic:"✍️",secs:REV_SECS}
+};
+const AKTEN=[["akte","🗂️","Patientenakte","Vollständige Krankenakte"],["arb","📝","Arbeitsunfähigkeit","Bescheinigung für den Arbeitgeber"],["tot","📜","Todesbescheinigung","Leichenschauschein (Totenschein)"]];
+const ptile=(k,ic,t,d)=>`<button type="button" class="ptile" data-pt="${k}"><i>${ic}</i><span><b>${t}</b><small>${d}</small></span></button>`;
 const VK=["t","rr","puls","spo2","af","bz","gcs"];
 const field=([k,l,t])=>{const id="f-"+k;
   if(t==="check")return `<label class="chk" style="grid-column:1/-1"><input type="checkbox" id="${id}" data-k="${k}">${l}</label>`;
   const i=Array.isArray(t)?`<select id="${id}" data-k="${k}">${t.map(o=>`<option>${o}</option>`).join("")}</select>`
-   :t==="area"?`<textarea id="${id}" data-k="${k}"></textarea>`:`<input id="${id}" data-k="${k}" ${t==="date"?'type="date"':""}${k==="ziel"?' list="dl-ziel" placeholder="Spital wählen oder eintippen"':""}>`;
+   :t==="area"?`<textarea id="${id}" data-k="${k}"></textarea>`:`<input id="${id}" data-k="${k}" ${t==="date"?'type="date"':""}${/ziel/.test(k)?' list="dl-ziel" placeholder="Abteilung wählen oder eintippen"':""}>`;
   return `<div><label for="${id}">${l}</label>${i}</div>`};
 const sec=([t,f,c])=>f==="vit"?`<div class="card"><h2>${t}</h2><div id="vit"></div><button type="button" class="alt" id="vadd">Messung hinzufügen</button></div>`
   :`<div class="card" ${c?`data-c="${c}" hidden`:""}><h2>${t}</h2><div class="fields">${f.map(field).join("")}</div></div>`;
@@ -686,16 +766,16 @@ function archive(box,edit){
   const draw=()=>{
     const q=$("#q").value.toLowerCase();
     const rows=Object.entries(all).filter(([,p])=>[p.p_name,p.fz,p.p_svnr,p.enr].join(" ").toLowerCase().includes(q)).sort((a,b)=>b[1].ts-a[1].ts);
-    $("#alist").innerHTML=rows.length?rows.map(([id,p])=>`<div class="card"><b>${esc(p.p_name||"Unbekannter Patient")}</b> · ${esc(p.fz)} · ${new Date(p.ts).toLocaleString("de-DE")}${p.enr?" · "+esc(p.enr):""}<div class="row"><button data-a="v" data-id="${id}">Ansehen</button>${edit?`<button class="alt" data-a="e" data-id="${id}">Bearbeiten</button>`:`<button class="alt" data-a="d" data-id="${id}">Löschen</button>`}</div></div>`).join(""):"<p>Keine Protokolle gefunden.</p>";
+    $("#alist").innerHTML=rows.length?rows.map(([id,p])=>`<div class="card"><b>${esc(p.p_name||"Unbekannter Patient")}</b> · ${PT[p.ptyp||"notfall"].t} · ${esc(p.fz)} · ${new Date(p.ts).toLocaleString("de-DE")}${p.enr?" · "+esc(p.enr):""}<div class="row"><button data-a="v" data-id="${id}">Ansehen</button>${edit?`<button class="alt" data-a="e" data-id="${id}">Bearbeiten</button>`:`<button class="alt" data-a="d" data-id="${id}">Löschen</button>`}</div></div>`).join(""):"<p>Keine Protokolle gefunden.</p>";
   };
   const detail=p=>{
-    const h=SEC.map(([t,f,c])=>{
+    const h=[SEC[0],...PT[p.ptyp||"notfall"].secs].map(([t,f,c])=>{
       if(c&&!p[c])return"";
       if(f==="vit")return p.vit&&p.vit.length?`<h3>${t}</h3>`+p.vit.map(v=>`<div>${VK.map(k=>k.toUpperCase()+": "+esc(v[k]||"–")).join(" · ")}</div>`).join(""):"";
       const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
       return l?`<h3>${t}</h3>${l}`:"";
     }).join("");
-    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>Patientenprotokoll</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="dcx">Akten erstellen</button><button class="alt" id="cl">Schließen</button></div></div>`;
+    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="dcx">Akten erstellen</button><button class="alt" id="cl">Schließen</button></div></div>`;
     $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";$("#dcx").onclick=()=>openDocs(p,"akte");
     $("#adet").scrollIntoView();
   };
@@ -741,17 +821,17 @@ const DOCS={
        u_rr:p.c_rr||lv.rr||"",u_puls:p.c_puls||lv.puls||"",u_spo2:p.b_spo2||lv.spo2||"",
        b_mass:p.mass,b_med:p.med,x_dat:DATUM(Date.now())}},
    html:d=>dHead("Patientenakte")+docFields(AKTE,d)},
- arb:{t:"Arbeitsbefreiung",
+ arb:{t:"Arbeitsunfähigkeit",
    data:p=>({pat:p.p_name,gebdat:p.p_gebdat,aufdat:DATUM(p.ts||Date.now()),datum:DATUM(Date.now())}),
-   html:d=>dHead("Arbeitsbefreiung")+
+   html:d=>dHead("Arbeitsunfähigkeitsbescheinigung")+
      `<div class="fields">${dField(["pat","Patient"],d)}${dField(["gebdat","Geburtsdatum","date"],d)}${dField(["aufdat","Aufnahmedatum","date"],d)}</div>`+
      `<p class="dtext">Hiermit wird bestätigt, dass der oben genannte Patient aufgrund einer Behandlung bzw. eines Krankenhausaufenthalts im Uniklinikum vorübergehend nicht arbeitsfähig ist.</p>`+
      `<div class="fields">${dField(["von","Arbeitsunfähig von","date"],d)}${dField(["bis","Arbeitsunfähig bis","date"],d)}${dField(["grund","Grund","area"],d)}</div>`+
      `<p class="dtext dnote"><b>Hinweis:</b> Der Patient sollte sich während des genannten Zeitraums von seiner Arbeit freistellen lassen und sich entsprechend schonen.</p>`+
      `<div class="fields">${dField(["arzt","Behandelnder Arzt"],d)}${dField(["datum","Datum","date"],d)}${dField(["unt","Unterschrift"],d)}</div>`},
- tot:{t:"Totenschein",
+ tot:{t:"Todesbescheinigung",
    data:p=>({name:p.p_name,gebdat:p.p_gebdat,geschl:p.p_sex,adr:p.p_adr}),
-   html:d=>dHead("Totenschein")+docFields(TOT,d)}
+   html:d=>dHead("Todesbescheinigung (Totenschein)")+docFields(TOT,d)}
 };
 let DOCPRE={};
 function showDoc(k){$$("#doc-t button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
@@ -910,7 +990,7 @@ async function fahrzeug(){
    onValue(ref(db,"crew/"+me.vid),s=>update(vref,{crew:Object.values(s.val()||{}).map(x=>x.name).join(", ")}))}
   await update(vref,{name:me.call,typ:me.typ||null,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
   panes[0].innerHTML=`<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
-  panes[1].innerHTML=`<form onsubmit="return false">${SEC.map(sec).join("")}</form><div class="card"><h2>Akten und Vorlagen</h2><p class="hint">Patientenakte, Arbeitsbefreiung oder Totenschein mit den Daten dieses Protokolls vorausfüllen und drucken.</p><div class="row"><button type="button" class="alt" data-doc="akte">Patientenakte</button><button type="button" class="alt" data-doc="arb">Arbeitsbefreiung</button><button type="button" class="alt" data-doc="tot">Totenschein</button></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div>`;
+  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${AKTEN.map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
   let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
@@ -922,22 +1002,30 @@ async function fahrzeug(){
   $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[me.vid+"_"+s]:Date.now()})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
     r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
+  let ptype="notfall";
+  const prefillNow=()=>({...Object.fromEntries($$("#pform [data-k]").map(el=>[el.dataset.k,el.type==="checkbox"?el.checked:el.value])),vit:$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value]))),enr,fz:me.call,crew:me.name,ts:Date.now()});
+  const showType=t=>{ptype=t;const doc=!!DOCS[t];
+    $$("[data-pt]").forEach(b=>b.classList.toggle("on",b.dataset.pt===t));
+    $("#pf-pat").hidden=doc;
+    ["notfall","kt","revers"].forEach(k=>$("#pf-"+k).hidden=doc||k!==t);
+    $("#pf-doc").hidden=!doc;
+    if(doc)$("#pdoc").innerHTML=DOCS[t].html(DOCS[t].data(prefillNow()))};
+  $("#pform").addEventListener("click",e=>{if(e.target.id==="pdoc-p")return print();
+    const b=e.target.closest("[data-pt]");if(!b)return;showType(b.dataset.pt);if(!DOCS[b.dataset.pt])save()});
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
-  const fill=d=>{$$("[data-k]").forEach(el=>{const v=d[el.dataset.k];el.type==="checkbox"?el.checked=!!v:el.value=v??""});
-    $("#vit").innerHTML="";(d.vit||[]).forEach(vrow);toggles()};
+  const fill=d=>{$$("#pform [data-k]").forEach(el=>{const v=d[el.dataset.k];el.type==="checkbox"?el.checked=!!v:el.value=v??""});
+    $("#vit").innerHTML="";(d.vit||[]).forEach(vrow);toggles();showType(d.ptyp&&(PT[d.ptyp]||DOCS[d.ptyp])?d.ptyp:"notfall")};
   const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();enr=d.enr||"";fill(d)};
   const setPid=id=>{clearTimeout(timer);pid=id;try{sessionStorage.setItem("pid",id)}catch{}};
   await load();
   const save=()=>{clearTimeout(timer);timer=setTimeout(()=>{
-    const o={};$$("[data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
+    const o={};$$("#pform [data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
     o.vit=$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value])));
-    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now()});
+    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:ptype});
     set(ref(db,"protocols/"+pid),o)},600)};
-  panes[1].addEventListener("input",()=>{toggles();save()});
+  panes[1].addEventListener("input",()=>{if(DOCS[ptype])return;toggles();save()});
   $("#vadd").onclick=()=>{vrow({t:new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});save()};
-  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();fill({})}};
-  const prefillNow=()=>({...Object.fromEntries($$("[data-k]").map(el=>[el.dataset.k,el.type==="checkbox"?el.checked:el.value])),vit:$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value]))),enr,fz:me.call,crew:me.name,ts:Date.now()});
-  panes[1].addEventListener("click",e=>{const b=e.target.closest("button[data-doc]");if(b)openDocs(prefillNow(),b.dataset.doc)});
+  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();fill({ptyp:ptype})}};
   archive(panes[2],true);
   // Bearbeiten aus dem Archiv
   panes[2].addEventListener("click",async e=>{const b=e.target.closest('button[data-a="e"]');if(b){setPid(b.dataset.id);await load();go(1)}});
