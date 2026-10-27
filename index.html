@@ -358,7 +358,7 @@ html[data-eff=handy] header .logo{height:46px!important}
 .vorrow button{min-height:36px;padding:6px 12px;font-size:.86rem;white-space:nowrap}
 .vor-ack{font:600 .82rem var(--sans);color:var(--ok);white-space:nowrap}
 @media(max-width:820px){.vorrow{grid-template-columns:1fr}.vorrow .row{justify-content:flex-start}}
-dialog#vdlg,dialog#docdlg{width:92vw;max-width:640px;padding:18px}
+dialog#docdlg{width:92vw;max-width:640px;padding:18px}
 dialog#docdlg{max-width:860px;max-height:92vh;overflow:auto}
 #docdlg .tabs{position:static;margin:0 0 14px;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 .dochead{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
@@ -373,7 +373,7 @@ dialog#docdlg{max-width:860px;max-height:92vh;overflow:auto}
 .dtext{margin:14px 0;font-size:.95rem}
 .dnote{padding:10px 12px;background:color-mix(in srgb,var(--ac) 10%,transparent);border-left:4px solid var(--ac);border-radius:var(--r)}
 #doc-b textarea{min-height:70px}
-#vdlg .fields{margin-top:8px}
+
 @media print{
  #docdlg,#docdlg *{visibility:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact}
  #docdlg{position:fixed;left:0;top:0;width:100%;max-width:none;max-height:none;margin:0;padding:0 6mm;border:0;box-shadow:none;background:#fff;color:#000;overflow:visible}
@@ -452,6 +452,24 @@ button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));borde
 
 /* Funk-Tastatur: zwei Reihen à vier Tasten */
 .pad{grid-template-columns:repeat(4,1fr)}
+
+/* ===== Design v6: scrollbare Dialoge, Voranmeldungsseite ===== */
+dialog.card{max-height:92vh;overflow:auto}
+#vorview{max-width:640px;margin:min(3vh,28px) auto 56px;padding:0;border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(7,40,80,.18)}
+.vp-head{padding:24px 26px 22px;color:#fff;background:linear-gradient(135deg,#0f5aa3,#073f78)}
+.vp-kicker{display:inline-block;margin-bottom:8px;font:700 .7rem var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#b6d2ef}
+.vp-head h2{margin:0 0 6px;font:700 1.45rem var(--sans);color:#fff}
+.vp-head p{margin:0;max-width:52ch;font-size:.92rem;color:#dbe8f7}
+.vp-sec{padding:20px 26px 8px;border-bottom:1px solid var(--line)}
+.vp-sec h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:0;border:0;font:700 .98rem var(--sans);color:var(--ink);text-transform:none;letter-spacing:0}
+.vp-sec h3 i{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font:700 .8rem var(--sans);font-style:normal}
+#vorview .fields{column-gap:16px}
+#vorview textarea{min-height:88px}
+.vitgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.vitgrid label{margin-top:0}
+.vp-err{min-height:1.4em;margin:14px 26px 0;font-weight:600;color:var(--red)}
+.vp-actions{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 26px 22px}
+@media(max-width:640px){.vitgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.vp-head,.vp-sec,.vp-actions{padding-left:18px;padding-right:18px}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -482,16 +500,32 @@ button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));borde
   <p id="l-err" style="color:var(--red)"></p>
   <div class="vor-box"><h3>Rettungsdienst einer anderen Organisation?</h3><p class="hint">Patienten können ohne Anmeldung vorab bei der Notaufnahme angekündigt werden.</p><div class="row"><button type="button" class="alt" id="vor-open">Patient voranmelden</button></div></div>
 </section>
+<section id="vorview" class="card vorpage" hidden>
+ <div class="vp-head"><span class="vp-kicker">Für Rettungsdienste anderer Organisationen</span><h2>Patient voranmelden</h2><p>Keine Anmeldung nötig. Die Angaben gehen direkt an die Notaufnahme des Uniklinikums Berlin. Pflichtfelder sind mit * markiert.</p></div>
+ <div class="vp-sec"><h3><i>1</i>Absender</h3>
+  <div class="fields"><div><label for="v-org">Organisation / Rettungsdienst *</label><input id="v-org" autocomplete="off" placeholder="z. B. Johanniter Berlin"></div><div><label for="v-fz">Funkrufname / Fahrzeug</label><input id="v-fz" autocomplete="off" placeholder="z. B. RTW 23/83"></div></div>
+ </div>
+ <div class="vp-sec"><h3><i>2</i>Patient</h3>
+  <div class="fields"><div><label for="v-pat">Name des Patienten *</label><input id="v-pat" autocomplete="off"></div><div><label for="v-gebdat">Geburtsdatum</label><input id="v-gebdat" type="date"></div><div><label for="v-sex">Geschlecht</label><select id="v-sex"><option value="">–</option><option>weiblich</option><option>männlich</option><option>divers</option><option>unbekannt</option></select></div></div>
+ </div>
+ <div class="vp-sec"><h3><i>3</i>Ankunft und Zustand</h3>
+  <div class="fields"><div><label for="v-ank">Voraussichtliche Ankunft *</label><input id="v-ank" type="time"></div><div><label for="v-stich">Stichwort / Verdachtsdiagnose *</label><input id="v-stich" autocomplete="off" placeholder="z. B. Brustschmerz, Verdacht Schlaganfall"></div></div>
+  <label>Vitalwerte</label>
+  <div class="vitgrid"><div><label for="v-rr">RR (mmHg)</label><input id="v-rr" inputmode="numeric" placeholder="120/80"></div><div><label for="v-puls">Puls</label><input id="v-puls" inputmode="numeric"></div><div><label for="v-spo2">SpO₂ (%)</label><input id="v-spo2" inputmode="numeric"></div><div><label for="v-bz">BZ (mg/dl)</label><input id="v-bz" inputmode="numeric"></div><div><label for="v-gcs">GCS</label><input id="v-gcs" inputmode="numeric"></div></div>
+ </div>
+ <div class="vp-sec"><h3><i>4</i>Hinweise und Rückfragen</h3>
+  <div><label for="v-hin">Hinweise für die Aufnahme</label><textarea id="v-hin" placeholder="z. B. Allergien, Medikamente, Maßnahmen bisher"></textarea></div>
+  <div><label for="v-kontakt">Rückfragen (Telefon oder Funk)</label><input id="v-kontakt" autocomplete="off"></div>
+ </div>
+ <p class="vp-err" id="v-err" role="status"></p>
+ <div class="vp-actions"><button type="button" class="alt" id="v-x">Zurück zur Anmeldung</button><button type="button" id="v-send">Voranmeldung senden</button></div>
+</section>
 <section id="app" hidden></section>
 </main>
 
 <dialog id="fdlg" class="card"><h2>Funk-Einstellungen</h2><label for="mic-sel">Mikrofon</label><select id="mic-sel"></select><label>Pegel</label><div id="mtest"><i id="vu2"></i></div><div class="row"><button id="mtest-b" class="alt" type="button">Mikrofon testen</button><button id="spk-b" class="alt" type="button">Lautsprecher testen</button><button id="fdlg-x" type="button">Schließen</button></div><p class="hint" id="mic-info"></p></dialog>
 <dialog id="adlg" class="card"><h2>Administration</h2><div id="adbody"></div><div class="row"><button type="button" class="alt" id="adx">Schließen</button></div></dialog>
 <dialog id="qdlg" class="card"><h2>Standortabfrage der Leitstelle</h2><p class="hint">Die Leitstelle fragt deinen Standort ab. Gib ihn ein oder übernimm ihn per GPS.</p><label for="q-loc">Aktueller Standort</label><input id="q-loc" autocomplete="off" placeholder="Straße Hausnr., PLZ Berlin oder Landmarke"><div class="row"><button id="q-send" type="button">Standort senden</button><button id="q-gps" class="alt" type="button">GPS verwenden</button><button id="q-x" class="alt" type="button">Später</button></div><p class="hint" id="q-err" role="status"></p></dialog>
-<dialog id="vdlg" class="card"><h2>Patient voranmelden</h2><p class="hint">Für Rettungsdienste anderer Organisationen, keine Anmeldung nötig. Die Angaben gehen direkt an die Notaufnahme des Uniklinikums Berlin. Pflichtfelder sind mit * markiert.</p>
-<div class="fields"><div><label for="v-org">Organisation / Rettungsdienst *</label><input id="v-org" autocomplete="off" placeholder="z. B. Johanniter Berlin"></div><div><label for="v-fz">Funkrufname / Fahrzeug</label><input id="v-fz" autocomplete="off"></div><div><label for="v-pat">Name des Patienten *</label><input id="v-pat" autocomplete="off"></div><div><label for="v-gebdat">Geburtsdatum</label><input id="v-gebdat" type="date"></div><div><label for="v-sex">Geschlecht</label><select id="v-sex"><option value="">–</option><option>weiblich</option><option>männlich</option><option>divers</option><option>unbekannt</option></select></div><div><label for="v-ank">Voraussichtliche Ankunft *</label><input id="v-ank" placeholder="z. B. 14:35"></div><div class="wide"><label for="v-stich">Stichwort / Verdachtsdiagnose *</label><input id="v-stich" autocomplete="off"></div><div class="wide"><label for="v-vit">Vitalwerte</label><input id="v-vit" placeholder="RR, Puls, SpO₂, GCS, Blutzucker"></div><div class="wide"><label for="v-hin">Hinweise für die Aufnahme</label><textarea id="v-hin"></textarea></div><div class="wide"><label for="v-kontakt">Rückfragen (Telefon oder Funk)</label><input id="v-kontakt"></div></div>
-<p class="hint" id="v-err" role="status"></p>
-<div class="row"><button type="button" id="v-send">Voranmeldung senden</button><button type="button" class="alt" id="v-x">Abbrechen</button></div></dialog>
 <dialog id="docdlg" class="card docprint">
 <nav class="tabs noprint" id="doc-t"><button type="button" data-k="akte">Patientenakte</button><button type="button" data-k="arb">Arbeitsunfähigkeit</button><button type="button" data-k="tot">Todesbescheinigung</button></nav>
 <div id="doc-b"></div>
@@ -1218,19 +1252,22 @@ function radioInit(){
 }
 
 /* ---------- Voranmeldung von anderen Rettungsdiensten (ohne Anmeldung) ---------- */
-$("#vor-open").onclick=()=>{$("#v-err").textContent="";$("#vdlg").showModal()};
-$("#v-x").onclick=()=>$("#vdlg").close();
+const vorBack=()=>{$("#vorview").hidden=true;$("#login").hidden=false;$("#v-err").textContent="";scrollTo(0,0)};
+$("#vor-open").onclick=()=>{$("#login").hidden=true;$("#vorview").hidden=false;$("#v-err").textContent="";scrollTo(0,0);$("#v-org").focus()};
+$("#v-x").onclick=vorBack;
 $("#v-send").onclick=async()=>{
   const g=id=>$("#"+id).value.trim(),err=t=>$("#v-err").textContent=t;
-  const pflicht=[["v-org","Organisation"],["v-pat","Name des Patienten"],["v-ank","Ankunft"],["v-stich","Stichwort"]].filter(([i])=>!g(i)).map(([,l])=>l);
-  if(pflicht.length)return err("Bitte ausfüllen: "+pflicht.join(", ")+".");
+  const pflicht=[["v-org","Organisation"],["v-pat","Name des Patienten"],["v-ank","voraussichtliche Ankunft"],["v-stich","Stichwort / Verdachtsdiagnose"]].filter(([i])=>!g(i)).map(([,l])=>l);
+  if(pflicht.length){err("Bitte noch ausfüllen: "+pflicht.join(", ")+".");$("#v-"+(pflicht[0]==="Organisation"?"org":pflicht[0]==="Name des Patienten"?"pat":pflicht[0].startsWith("voraus")?"ank":"stich")).focus();return}
+  const vit=[["RR",g("v-rr")],["Puls",g("v-puls")],["SpO₂",g("v-spo2")],["BZ",g("v-bz")],["GCS",g("v-gcs")]].filter(([,x])=>x).map(([l,x])=>l+" "+x).join(", ");
   err("Wird gesendet …");
   try{
     await set(ref(db,"voranmeldungen/v"+Date.now()+Math.random().toString(36).slice(2,6)),
-      {org:g("v-org"),fz:g("v-fz"),pat:g("v-pat"),gebdat:g("v-gebdat"),sex:g("v-sex"),ank:g("v-ank"),stich:g("v-stich"),vit:g("v-vit"),hin:g("v-hin"),kontakt:g("v-kontakt"),ts:Date.now()});
-    ["v-org","v-fz","v-pat","v-gebdat","v-ank","v-stich","v-vit","v-hin","v-kontakt"].forEach(i=>$("#"+i).value="");
-    $("#v-sex").value="";$("#v-err").textContent="";
-    $("#vdlg").close();alert("Die Voranmeldung wurde an die Notaufnahme des Uniklinikums Berlin übermittelt.");
+      {org:g("v-org"),fz:g("v-fz"),pat:g("v-pat"),gebdat:g("v-gebdat"),sex:g("v-sex"),ank:g("v-ank"),stich:g("v-stich"),vit,hin:g("v-hin"),kontakt:g("v-kontakt"),ts:Date.now()});
+    ["v-org","v-fz","v-pat","v-gebdat","v-ank","v-stich","v-rr","v-puls","v-spo2","v-bz","v-gcs","v-hin","v-kontakt"].forEach(i=>$("#"+i).value="");
+    $("#v-sex").value="";
+    vorBack();
+    alert("Die Voranmeldung wurde an die Notaufnahme des Uniklinikums Berlin übermittelt.");
   }catch(x){err("Senden fehlgeschlagen: "+(x.message||x))}
 };
 
