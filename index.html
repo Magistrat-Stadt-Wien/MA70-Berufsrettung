@@ -1011,7 +1011,7 @@ function leitstelle(){
   $("#m-prio").onchange=()=>{if($("#m-auto").checked)autoSel();else hint()};
   $("#m-vs").onchange=e=>{const c=e.target;if(c.dataset.v){c.checked?selV.add(c.dataset.v):selV.delete(c.dataset.v);hint()}};
   let swFirst=true;const swSeen={};
-  const confirmSw=async id=>{if(!V[id])return;
+  const confirmSw=async id=>{if(!V[id]||V[id].status!=="s4"||V[id].swAck)return;
     const old=V[id].swPrev||"s1";
     await update(ref(db,"vehicles/"+id),{status:old==="s4"?"s1":old,swAck:null,swTs:null,swPrev:null});
     await set(ref(db,"announcements/latest"),{id:Date.now(),text:"Sprechwunsch bestätigt. Bitte kommen.",target:id,von:me.name});
@@ -1039,9 +1039,14 @@ function leitstelle(){
   const bootT=Date.now();
   onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!v||!v.ts||v.ts<bootT-2000)return;
     const b=$("#banner");
-    if(!b.dataset.sw){b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+v.ank+" · "+v.stich+" ("+v.org+")"}
+    if(!b.dataset.sw){b.dataset.vid=s.key;b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+v.ank+" · "+v.stich+" ("+v.org+")"}
     say("Neue Voranmeldung von "+v.org+(v.fz?", "+v.fz:"")+". Patient "+v.pat+(v.sex?", "+v.sex:"")+". Voraussichtliche Ankunft "+v.ank+". Stichwort "+v.stich+".");
   },e=>console.error(e));
+  /* Gemeinsamer Stand aller Leitstellen: ist der angezeigte Sprechwunsch oder die Voranmeldung bestätigt, verschwindet der Hinweis überall */
+  onValue(ref(db,"vehicles"),s=>{const b=$("#banner"),id=b.dataset.sw;if(!id)return;const v=(s.val()||{})[id];
+    if(!v||v.status!=="s4"||v.swAck){b.hidden=true;b.dataset.sw=""}});
+  onValue(ref(db,"voranmeldungen"),s=>{const b=$("#banner"),id=b.dataset.vid;if(!id)return;const v=(s.val()||{})[id];
+    if(!v||v.ack){b.hidden=true;b.dataset.vid=""}});
   let PRT={};
   panes[3].innerHTML=`<div class="lage" id="kpi"></div><p class="hint">Kennzahlen aus den Einsatzprotokollen. Die Hilfsfrist ist die Zeit vom Notrufeingang bis zum Eintreffen am Einsatzort.</p><div class="grid2"><div class="card"><h2>Einsätze nach Art</h2><div id="b-art"></div></div><div class="card"><h2>Einsätze nach Priorität</h2><div id="b-prio"></div></div><div class="card"><h2>Einsätze pro Fahrzeug</h2><div id="b-fz"></div></div><div class="card"><h2>NACA-Verteilung (Protokolle)</h2><div id="b-naca"></div></div><div class="card"><h2>Transportart (Protokolle)</h2><div id="b-tr"></div></div></div>`;
   const bars=(o,c)=>{const mx=Math.max(1,...Object.values(o));return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="br"><span>${esc(k)}</span><i style="--w:${v/mx*100}%;--c:${c}"></i><b>${v}</b></div>`).join("")||"<p>Noch keine Daten.</p>"};
