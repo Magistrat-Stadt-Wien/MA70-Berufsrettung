@@ -508,7 +508,7 @@ button.alt:hover{background:color-mix(in srgb,var(--brand) 8%,var(--card));borde
  </div>
  <div class="rsel"><span class="rl">Gruppe / Ruf</span><select id="ch" aria-label="Funkkanal"></select><select id="tg" aria-label="Einzelruf" hidden></select></div>
  <div class="soft"><button id="fset" class="alt" type="button" title="Funk-Einstellungen" aria-label="Funk-Einstellungen">Menü</button><span class="navc"></span><button id="rmute" type="button" title="Stumm schalten">Stumm</button></div>
- <div class="pad"><button type="button" data-k="1" title="Gruppe RTW"><b>1</b><small>RTW</small></button><button type="button" data-k="2" title="Gruppe NEF / NAW"><b>2</b><small>NEF</small></button><button type="button" data-k="3" title="Gruppe KTW / NKTW"><b>3</b><small>KTW</small></button><button type="button" data-k="4" title="Sonderlage 1"><b>4</b><small>SON 1</small></button><button type="button" data-k="5" title="Sonderlage 2"><b>5</b><small>SON 2</small></button><button type="button" data-a="all" title="Rundruf an alle Fahrzeuge"><b>6</b><small>RUNDRUF</small></button><button type="button" data-a="grp" title="Anruf an alle auf dem Kanal"><b>7</b><small>KANAL</small></button><button type="button" data-a="prev" title="Einzelruf: voriges Fahrzeug"><b>8</b><small>◀ EINZEL</small></button><button type="button" data-a="next" title="Einzelruf: nächstes Fahrzeug"><b>9</b><small>EINZEL ▶</small></button></div>
+ <div class="pad"><button type="button" data-k="1" title="Betriebsgruppe 1 (Tagesgeschäft)"><b>1</b><small>BG 1</small></button><button type="button" data-k="2" title="Betriebsgruppe 2 (Ausweich)"><b>2</b><small>BG 2</small></button><button type="button" data-k="3" title="Führungsgruppe"><b>3</b><small>FG</small></button><button type="button" data-k="4" title="Sonderlage 1"><b>4</b><small>RS 1</small></button><button type="button" data-k="5" title="Sonderlage 2"><b>5</b><small>RS 2</small></button><button type="button" data-a="all" title="Rundruf an alle Fahrzeuge"><b>6</b><small>RUNDRUF</small></button><button type="button" data-a="grp" title="Anruf an alle auf dem Kanal"><b>7</b><small>KANAL</small></button><button type="button" data-a="prev" title="Einzelruf: voriges Fahrzeug"><b>8</b><small>◀ EINZEL</small></button><button type="button" data-a="next" title="Einzelruf: nächstes Fahrzeug"><b>9</b><small>EINZEL ▶</small></button></div>
  <input id="vol" type="range" min="0" max="150" value="100" aria-label="Lautstärke">
  <button id="ptt" type="button"><b>PTT</b><small>Sprechtaste · F1 gedrückt halten</small></button>
 </div>
@@ -564,7 +564,7 @@ const drawLogin=()=>{const e=$("#l-st");if(!e)return;const cur=e.value;
   e.innerHTML='<option value="" disabled>– Fahrzeug wählen –</option>'+Object.entries(STM).sort(byName).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");
   e.value=STM[cur]?cur:""};
 onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin();admList()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
-const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,call,typ,ch:lgAcc.role==="leit"?"rtw":typ,vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
+const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,call,typ,ch:"bg1",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
 $("#l-go").onclick=async()=>{lgErr();const u=uid($("#l-user").value),pw=$("#l-pw").value;
   if(!u||!pw)return lgErr("Bitte Zugangsname und Passwort eingeben.");
   try{const r=(await get(ref(db,"accounts/"+u))).val();
@@ -695,7 +695,7 @@ $("#q-gps").onclick = () => {
 /* ---------- Start ---------- */
 let vcur = {};
 async function start() {
-  me.ch = me.ch || "rtw";
+  me.ch = CH.some(c => c[0] === me.ch) ? me.ch : "bg1";
   $("#login").hidden = true; $("#app").hidden = false;
   $("#who").innerHTML = esc(me.name) + (me.role === "fzg" ? " · " + esc(me.call) : " · Leitstelle") + ' <button class="alt" id="out">Abmelden</button>';
   $("#out").onclick = async () => {
@@ -960,6 +960,13 @@ function leitstelle(){
   $("#vor").onclick=e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.vok)update(ref(db,"voranmeldungen/"+b.dataset.vok),{ack:Date.now()});
     if(b.dataset.vd&&confirm("Voranmeldung abschließen und aus der Liste entfernen?"))set(ref(db,"voranmeldungen/"+b.dataset.vd),null)};
+  /* Neue Voranmeldung: Ansage und Hinweis in der Leitstelle (nur Voranmeldungen, die nach dem Öffnen eingehen) */
+  const bootT=Date.now();
+  onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!v||!v.ts||v.ts<bootT-2000)return;
+    const b=$("#banner");
+    if(!b.dataset.sw){b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+v.ank+" · "+v.stich+" ("+v.org+")"}
+    say("Neue Voranmeldung von "+v.org+(v.fz?", "+v.fz:"")+". Patient "+v.pat+(v.sex?", "+v.sex:"")+". Voraussichtliche Ankunft "+v.ank+". Stichwort "+v.stich+".");
+  },e=>console.error(e));
   let PRT={};
   panes[3].innerHTML=`<div class="lage" id="kpi"></div><p class="hint">Kennzahlen aus den Einsatzprotokollen. Die Hilfsfrist ist die Zeit vom Notrufeingang bis zum Eintreffen am Einsatzort.</p><div class="grid2"><div class="card"><h2>Einsätze nach Art</h2><div id="b-art"></div></div><div class="card"><h2>Einsätze nach Priorität</h2><div id="b-prio"></div></div><div class="card"><h2>Einsätze pro Fahrzeug</h2><div id="b-fz"></div></div><div class="card"><h2>NACA-Verteilung (Protokolle)</h2><div id="b-naca"></div></div><div class="card"><h2>Transportart (Protokolle)</h2><div id="b-tr"></div></div></div>`;
   const bars=(o,c)=>{const mx=Math.max(1,...Object.values(o));return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="br"><span>${esc(k)}</span><i style="--w:${v/mx*100}%;--c:${c}"></i><b>${v}</b></div>`).join("")||"<p>Noch keine Daten.</p>"};
@@ -1046,7 +1053,7 @@ const ackMin=m=>{const a=vl(m).map(v=>ackT(m,v)).filter(Boolean);return a.length
 const tMin=(m,k)=>{const a=Object.entries(m.t||{}).filter(([x])=>x===k||x.endsWith("_"+k)).map(x=>x[1]);return a.length?Math.min(...a):0};
 const OFFIZIELL="RTW-1;rtw|RTW-2;rtw|RTW-3;rtw|RTW-4;rtw|RTW-5;rtw|Oberarzt-NEF;nef|UKB-NEF-1;nef|UKB-NEF-2;nef";
 const hm=t=>new Date(t).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
-const CH=[["rtw","RTW"],["nef","NEF / NAW"],["ktw","KTW / NKTW"],["son1","Sonderlage 1"],["son2","Sonderlage 2"]];
+const CH=[["bg1","RD BE BG1 · Betriebsgruppe 1"],["bg2","RD BE BG2 · Betriebsgruppe 2"],["fg","RD BE FG · Führungsgruppe"],["rs1","RD BE RS1 · Sonderlage 1"],["rs2","RD BE RS2 · Sonderlage 2"],["rs3","RD BE RS3 · Sonderlage 3"],["rs4","RD BE RS4 · Sonderlage 4"],["rs5","RD BE RS5 · Sonderlage 5"],["ho1","HO BE 01 SB1 · San./Betreuung (Hilfsorg.)"]];
 const chName=k=>(CH.find(c=>c[0]===k)||[0,k])[1];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const myName=()=>me.role==="leit"?"Leitstelle":me.call;
