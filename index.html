@@ -593,7 +593,7 @@ const sInfo = k => k === "aus" ? ["aus", "Außer Dienst", "#6b7178"] : STATUS.fi
 let me = null, actx = null, lastAnn = null, firstAnn = true;
 
 /* ---------- Login (Zugang → Fahrzeug aus dem Stamm) ---------- */
-let STM={},CRW={},ACC={},lgAcc=null,admOn=false,admTab="acc",admSub=null;
+let STM={},CRW={},ACC={},CLI={},CTRL={},liveSub=null,lgAcc=null,admOn=false,admTab="live",admSub=null;
 const slug=n=>n.toLowerCase().replace(/[^a-z0-9]+/g,"-"),crewOf=id=>Object.values(CRW[id]||{}).map(x=>x.name);
 const uid=t=>slug(t.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/ß/g,"ss")).replace(/^-+|-+$/g,"");
 const byName=(a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true});
@@ -609,7 +609,7 @@ const drawLogin=()=>{const e=$("#l-st");if(!e)return;const cur=e.value;
   e.innerHTML='<option value="" disabled>– Fahrzeug wählen –</option>'+Object.entries(STM).sort(byName).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");
   e.value=STM[cur]?cur:""};
 onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin();admList()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
-const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,call,typ,ch:lgAcc.role==="leit"?"lst":"rd",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
+const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,acc:lgAcc.user||"",call,typ,ch:lgAcc.role==="leit"?"lst":"rd",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
 $("#l-go").onclick=async()=>{lgErr();const u=uid($("#l-user").value),pw=$("#l-pw").value;
   if(!u||!pw)return lgErr("Bitte Zugangsname und Passwort eingeben.");
   try{const r=(await get(ref(db,"accounts/"+u))).val();
@@ -638,10 +638,23 @@ async function admOpen(){$("#adlg").showModal();adBody().innerHTML='<p class="hi
         admOn=true;if(!admSub)admSub=onValue(ref(db,"accounts"),s=>{ACC=s.val()||{};admList()});admDraw()}catch(x){adErr(x.message)}};
     $("#ad-pw").onkeydown=e=>{if(e.key==="Enter")$("#ad-go").click()};$("#ad-pw").focus();
   }catch(x){adBody().textContent="Keine Verbindung zur Datenbank: "+x.message}}
+function admLive(){$("#ad-c").innerHTML=`<p class="hint">Alle Personen, die gerade auf der Website angemeldet sind. „Funk sperren“ verhindert, dass jemand sprechen kann. „Abmelden“ beendet die Sitzung sofort.</p>
+ <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Name</th><th>Rolle</th><th>Funkgruppe</th><th>Zugang</th><th></th></tr></thead><tbody id="live-l"></tbody></table></div>`;
+  $("#ad-c").onclick=e=>{const b=e.target.closest("button[data-live]");if(!b)return;const cid=b.dataset.cid;
+    if(b.dataset.live==="mute"){update(ref(db,"control/"+cid),{mute:!(CTRL[cid]||{}).mute})}
+    else if(b.dataset.live==="kick"){if(confirm("Diese Person jetzt von der Website abmelden?"))update(ref(db,"control/"+cid),{kick:"k"+Date.now()})}};
+  admLiveDraw()}
+function admLiveDraw(){const t=$("#live-l");if(!t)return;
+  const rows=Object.entries(CLI).sort((a,b)=>String(a[1].name||"").localeCompare(String(b[1].name||""),"de",{numeric:true}));
+  t.innerHTML=rows.length?rows.map(([cid,c])=>{const ct=CTRL[cid]||{};
+    return `<tr><td><b>${esc(c.name||"–")}</b>${ct.mute?' <span class="badge" style="background:#c4001a">Funk gesperrt</span>':""}</td><td>${c.leit?"Leitstelle":"Fahrzeug"}</td><td>${esc(chName(c.ch||""))}</td><td>${esc(c.acc||"–")}</td>`+
+      `<td><div class="row" style="margin-top:0"><button type="button" class="alt" data-live="mute" data-cid="${esc(cid)}">${ct.mute?"Funk freigeben":"Funk sperren"}</button><button type="button" class="alt" data-live="kick" data-cid="${esc(cid)}">Abmelden</button></div></td></tr>`}).join("")
+    :'<tr><td colspan="5">Gerade ist niemand angemeldet.</td></tr>'}
 function admDraw(){
-  adBody().innerHTML=`<div class="tabs" id="ad-t">${[["acc","Zugänge"],["stm","Fahrzeugstamm"],["pw","Admin-Passwort"]].map(([k,n])=>`<button type="button" data-t="${k}" class="${k===admTab?"on":""}">${n}</button>`).join("")}</div><div id="ad-c"></div><p id="ad-err" style="color:var(--red)"></p>`;
+  if(admOn&&!liveSub)liveSub=[onValue(ref(db,"clients"),s=>{CLI=s.val()||{};admLiveDraw()}),onValue(ref(db,"control"),s=>{CTRL=s.val()||{};admLiveDraw()})];
+  adBody().innerHTML=`<div class="tabs" id="ad-t">${[["live","Aktive Nutzer"],["acc","Zugänge"],["stm","Fahrzeugstamm"],["pw","Admin-Passwort"]].map(([k,n])=>`<button type="button" data-t="${k}" class="${k===admTab?"on":""}">${n}</button>`).join("")}</div><div id="ad-c"></div><p id="ad-err" style="color:var(--red)"></p>`;
   $("#ad-t").onclick=e=>{const t=e.target.dataset.t;if(t){admTab=t;admDraw()}};
-  ({acc:admAcc,stm:admStm,pw:admPw})[admTab]();admList()}
+  ({live:admLive,acc:admAcc,stm:admStm,pw:admPw})[admTab]();admList()}
 function admAcc(){$("#ad-c").innerHTML=`<p class="hint">Mit einem Zugang melden sich Personen an, bevor sie ein Fahrzeug wählen können. Das Passwort gibst du der Person weiter.</p><div class="fields"><div><label for="ac-n">Anzeigename</label><input id="ac-n" autocomplete="off" placeholder="Vorname Nachname"></div><div><label for="ac-u">Zugangsname</label><input id="ac-u" autocomplete="off" autocapitalize="none" placeholder="vorname.nachname"></div><div><label for="ac-p">Start-Passwort</label><input id="ac-p" autocomplete="off" placeholder="mindestens 6 Zeichen"></div><div><label for="ac-r">Rolle</label><select id="ac-r"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select></div></div><div class="row"><button type="button" id="ac-add">Zugang anlegen</button></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Name</th><th>Zugangsname</th><th>Rolle</th><th></th></tr></thead><tbody id="ad-l"></tbody></table></div>`;
   $("#ac-add").onclick=async()=>{const n=$("#ac-n").value.trim(),u=uid($("#ac-u").value),p=$("#ac-p").value;
     if(!n||!u)return adErr("Bitte Anzeigename und Zugangsname eingeben.");if(!minPw(p))return adErr("Das Passwort braucht mindestens 6 Zeichen.");if(ACC[u])return adErr("Dieser Zugangsname ist schon vergeben.");
@@ -660,7 +673,7 @@ function admList(){const t=$("#ad-l");if(!t||!admOn)return;
   t.innerHTML=admTab==="acc"?Object.entries(ACC).sort(byName).map(([id,a])=>`<tr><td><b>${esc(a.name)}</b></td><td>${esc(id)}</td><td>${ROLN[a.role]||"–"}</td><td><button type="button" class="alt" data-a="pw" data-id="${esc(id)}">Passwort</button> <button type="button" class="alt" data-a="del" data-id="${esc(id)}">Löschen</button></td></tr>`).join("")||'<tr><td colspan="4">Noch keine Zugänge. Lege oben den ersten an.</td></tr>'
   :Object.entries(STM).sort(byName).map(([id,v])=>`<tr><td><b>${esc(v.name)}</b></td><td><select data-id="${esc(id)}" aria-label="Typ">${Object.entries(TYN).map(([k,n])=>`<option value="${k}"${k===typOf(v)?" selected":""}>${n}</option>`).join("")}</select></td><td><button type="button" class="alt" data-del="${esc(id)}">Entfernen</button></td></tr>`).join("")||'<tr><td colspan="3">Der Stamm ist leer.</td></tr>'}
 $("#adm").onclick=admOpen;$("#adx").onclick=()=>$("#adlg").close();
-$("#adlg").onclose=()=>{admOn=false;if(admSub){admSub();admSub=null}ACC={}};
+$("#adlg").onclose=()=>{admOn=false;if(admSub){admSub();admSub=null}if(liveSub){liveSub.forEach(f=>f());liveSub=null}ACC={}};
 
 /* ---------- Funk ---------- */
 function beep() {
@@ -1152,6 +1165,7 @@ const SR=16000,CHUNK=1920,RING=16; /* 16 kHz Breitband, 120 ms pro Paket, 16 Slo
 let C={},R={},T=null,tg="",talk=0,seq=0,tail=0,live=false,capOn=false;
 let stream=null,gr=null,msrc=null,micP=null,od=null,lk=null,txk="",txid="",nseq=0,ob=[],rp=0,pv=0,hb=0;
 let srvOff=0,errMsg="",micErr="",outG=null,vv=1,nextT=0,seen={},subs=[],vt=0,jb=.25,hist=new Float32Array(3),ph=0,plx="",wl=null,testOn=false,micId="";
+let muted=false;
 const sNow=()=>Date.now()+srvOff;
 
 function getCtx(){
@@ -1234,9 +1248,11 @@ function ui(){
   const nb=Object.entries(C).filter(([k,v])=>k!==me.cid&&(me.role==="leit"?!v.leit&&v.ch===me.ch:v.leit||v.ch===me.ch)).length;
   const oth=me.role==="leit"?Object.entries(R).filter(([k,v])=>(tg||k!==me.ch)&&v&&v.talker&&CH.some(c=>c[0]===k)).map(([k,v])=>chName(k)+": "+v.talker.name):[];
   $("#rst").textContent=errMsg||((talk&&!mine?"Sperre wird angefordert …":mine?(tg==="*"?"Rundruf an alle Fahrzeuge":tg?"Einzelruf an "+((C[tg]||{}).name||"")+" – nur dieses Fahrzeug hört dich":"Du sprichst – Kanal offen"):T?"Es spricht: "+T.name:"Funkkanal frei · "+chName(me.ch)+" · "+nb+(nb===1?" weiteres Gerät":" weitere Geräte")+" erreichbar")+(oth.length?" · Auf anderen Kanälen – "+oth.join(", "):"")+(actx&&actx.state!=="running"?" · Ton gesperrt: einmal irgendwo klicken":""));
+  if(muted)$("#rst").textContent="Funk gesperrt durch die Administration";
   $("#ch").disabled=$("#tg").disabled=!!(talk||mine)}
 async function pttDown(){try{await pttDown2()}catch(e){capOn=false;live=false;talk=0;ob=[];clearInterval(hb);ui();onErr(e)}}
 async function pttDown2(){
+  if(muted){ui();return}
   if(talk||tail)return;const id=++seq;talk=id;ui();getCtx();
   if(!await openMic()){talk=0;ui();alert(micMsg());return}
   if(talk!==id)return;
@@ -1257,10 +1273,15 @@ async function pttUp2(){
   const k=txk;await freeLock();tail=0;
   setTimeout(()=>{if(!(R[k]&&R[k].talker))set(ref(db,"audio/"+k),null).catch(()=>{})},2500)}
 
+function forceOut(){alert("Die Administration hat deine Sitzung beendet.");const o=$("#out");if(o)o.click();else{sessionStorage.removeItem("me");location.reload()}}
 function radioInit(){
   me.cid="c"+Math.random().toString(36).slice(2,10);
   const cref=ref(db,"clients/"+me.cid);
-  onValue(ref(db,".info/connected"),s=>{if(s.val()===true){set(cref,{name:myName(),ch:me.ch,leit:me.role==="leit",typ:me.typ||null}).catch(onErr);onDisconnect(cref).remove()}});
+  /* Steuerung durch die Administration: Funk sperren oder Sitzung beenden */
+  let kickSeen=null;
+  onValue(ref(db,"control/"+me.cid),s=>{const c=s.val()||{};muted=!!c.mute;if(muted&&talk)pttUp();ui();
+    if(kickSeen===null){kickSeen=c.kick||""}else if(c.kick&&c.kick!==kickSeen){kickSeen=c.kick;forceOut()}});
+  onValue(ref(db,".info/connected"),s=>{if(s.val()===true){set(cref,{name:myName(),ch:me.ch,leit:me.role==="leit",typ:me.typ||null,acc:me.acc||""}).catch(onErr);onDisconnect(cref).remove()}});
   $("#radio").hidden=false;getCtx();
   onValue(ref(db,".info/serverTimeOffset"),s=>{srvOff=s.val()||0});
   let prev=null;
