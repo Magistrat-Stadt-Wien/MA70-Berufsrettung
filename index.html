@@ -470,6 +470,14 @@ dialog.card{max-height:92vh;overflow:auto}
 .vp-err{min-height:1.4em;margin:14px 26px 0;font-weight:600;color:var(--red)}
 .vp-actions{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:16px 26px 22px}
 @media(max-width:640px){.vitgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.vp-head,.vp-sec,.vp-actions{padding-left:18px;padding-right:18px}}
+
+/* ===== Archiv: Filter, Einträge, Akten-Ansicht ===== */
+.afilter{margin-bottom:16px}
+.af{margin-bottom:6px}
+.arow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding:14px 18px}
+.arow .row{margin-top:0}
+.tbadge{background:var(--brand)}
+#adoc :disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -797,31 +805,61 @@ function tabs(names){
   go(0);return {panes:$$(".pane"),go};
 }
 
+const ARCH_TYPES=[["","Alle Arten"],["notfall","Notfallprotokoll"],["kt","Krankentransport"],["revers","Transportverweigerung"],["akte","Patientenakte"],["arb","Arbeitsunfähigkeit"],["tot","Todesbescheinigung"]];
+const archTyp=r=>r.ptyp||"notfall";
+const ARCH_NAME=k=>(ARCH_TYPES.find(x=>x[0]===k)||[0,"Protokoll"])[1];
 function archive(box,edit){
-  box.innerHTML='<input id="q" placeholder="Suchen: Patient, Fahrzeug, Versichertennummer, Einsatz" aria-label="Suchen" style="margin-bottom:12px"><div id="alist"></div><div id="adet"></div>';
-  let all={};
+  box.innerHTML=`<div class="card afilter"><div class="fields af">
+    <div class="wide"><label for="af-q">Suche</label><input id="af-q" autocomplete="off" placeholder="Name, Einsatz-Nr., Fahrzeug, Besatzung"></div>
+    <div><label for="af-t">Art</label><select id="af-t">${ARCH_TYPES.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></div>
+    <div><label for="af-f">Fahrzeug</label><select id="af-f"><option value="">Alle Fahrzeuge</option></select></div>
+    <div><label for="af-von">Von</label><input id="af-von" type="date"></div>
+    <div><label for="af-bis">Bis</label><input id="af-bis" type="date"></div>
+   </div><div class="row"><button type="button" class="alt" id="af-reset">Filter zurücksetzen</button><span class="mut" id="af-count"></span></div></div>
+   <div id="alist"></div><div id="adet"></div>`;
+  let prot={},docs={};
+  const all=()=>[...Object.entries(prot).map(([id,p])=>({...p,id,kind:"prot"})),...Object.entries(docs).map(([id,d])=>({...d,id,kind:"doc"}))];
   const draw=()=>{
-    const q=$("#q").value.toLowerCase();
-    const rows=Object.entries(all).filter(([,p])=>[p.p_name,p.fz,p.p_svnr,p.enr].join(" ").toLowerCase().includes(q)).sort((a,b)=>b[1].ts-a[1].ts);
-    $("#alist").innerHTML=rows.length?rows.map(([id,p])=>`<div class="card"><b>${esc(p.p_name||"Unbekannter Patient")}</b> · ${PT[p.ptyp||"notfall"].t} · ${esc(p.fz)} · ${new Date(p.ts).toLocaleString("de-DE")}${p.enr?" · "+esc(p.enr):""}<div class="row"><button data-a="v" data-id="${id}">Ansehen</button>${edit?`<button class="alt" data-a="e" data-id="${id}">Bearbeiten</button>`:`<button class="alt" data-a="d" data-id="${id}">Löschen</button>`}</div></div>`).join(""):"<p>Keine Protokolle gefunden.</p>";
+    const q=$("#af-q").value.trim().toLowerCase(),t=$("#af-t").value,f=$("#af-f").value,von=$("#af-von").value,bis=$("#af-bis").value;
+    const fzs=[...new Set(all().map(r=>r.fz).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de",{numeric:true}));
+    const fsel=$("#af-f"),cur=fsel.value;
+    fsel.innerHTML='<option value="">Alle Fahrzeuge</option>'+fzs.map(z=>`<option>${esc(z)}</option>`).join("");fsel.value=cur;
+    const rows=all().filter(r=>(!t||archTyp(r)===t)&&(!f||r.fz===f)&&(!von||DATUM(r.ts||0)>=von)&&(!bis||DATUM(r.ts||0)<=bis)
+      &&[r.p_name,r.name,r.fz,r.enr,r.crew].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    const n=all().length;
+    $("#af-count").textContent=rows.length+(rows.length===1?" Eintrag":" Einträge")+(rows.length!==n?" von "+n:"");
+    $("#alist").innerHTML=rows.length?rows.map(r=>{const name=r.p_name||r.name||"Unbekannte Person",isDoc=r.kind==="doc";
+      const btns=(edit&&!isDoc?`<button class="alt" data-a="e" data-id="${esc(r.id)}">Bearbeiten</button>`:"")+((!edit||isDoc)?`<button class="alt" data-a="d" data-id="${r.kind}:${esc(r.id)}">Löschen</button>`:"");
+      return `<div class="card arow"><div><b>${esc(name)}</b> <span class="badge tbadge">${ARCH_NAME(archTyp(r))}</span>${isDoc?' <span class="badge" style="background:var(--sub)">Akte</span>':""}<div class="mut">${esc(r.fz||"–")} · ${new Date(r.ts||0).toLocaleString("de-DE")}${r.enr?" · Einsatz "+esc(r.enr):""}</div></div>`+
+        `<div class="row"><button data-a="v" data-id="${r.kind}:${esc(r.id)}">Ansehen</button>${btns}</div></div>`}).join("")
+      :'<div class="card"><p class="hint">Keine Einträge mit diesen Filtern.</p></div>';
   };
-  const detail=p=>{
-    const h=[SEC[0],...PT[p.ptyp||"notfall"].secs].map(([t,f,c])=>{
+  const detail=r=>{
+    if(r.kind==="doc"){
+      $("#adet").innerHTML=`<div class="card"><div class="docprint" id="adoc">${DOCS[r.ptyp].html(r.vals||{})}</div><div class="row noprint"><button type="button" id="adp">Drucken / als PDF speichern</button><button type="button" class="alt" id="adc">Schließen</button></div></div>`;
+      $$("#adoc input,#adoc select,#adoc textarea").forEach(el=>el.disabled=true);
+      $("#adp").onclick=()=>print();$("#adc").onclick=()=>$("#adet").innerHTML="";
+      $("#adet").scrollIntoView();return;
+    }
+    const p=r;
+    const hh=[SEC[0],...PT[p.ptyp||"notfall"].secs].map(([t,f,c])=>{
       if(c&&!p[c])return"";
       if(f==="vit")return p.vit&&p.vit.length?`<h3>${t}</h3>`+p.vit.map(v=>`<div>${VK.map(k=>k.toUpperCase()+": "+esc(v[k]||"–")).join(" · ")}</div>`).join(""):"";
       const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
       return l?`<h3>${t}</h3>${l}`:"";
     }).join("");
-    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${h}<div class="row"><button id="pr">Drucken</button><button class="alt" id="dcx">Akten erstellen</button><button class="alt" id="cl">Schließen</button></div></div>`;
-    $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";$("#dcx").onclick=()=>openDocs(p,"akte");
+    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${hh}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
+    $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";
     $("#adet").scrollIntoView();
   };
-  box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const id=b.dataset.id;
-    if(b.dataset.a==="v")detail(all[id]);
-    if(b.dataset.a==="e")edit(id);
-    if(b.dataset.a==="d"&&confirm("Protokoll endgültig löschen?"))set(ref(db,"protocols/"+id),null)};
-  $("#q").oninput=draw;
-  onValue(ref(db,"protocols"),s=>{all=s.val()||{};draw()});
+  box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;
+    if(b.dataset.a==="v"){const[kind,id]=b.dataset.id.split(":");const r=all().find(x=>x.kind===kind&&x.id===id);if(r)detail(r);return}
+    if(b.dataset.a==="d"){const[kind,id]=b.dataset.id.split(":");if(confirm("Eintrag endgültig löschen?"))set(ref(db,(kind==="doc"?"dokumente/":"protocols/")+id),null)}
+  };
+  ["af-q","af-t","af-f","af-von","af-bis"].forEach(i=>$("#"+i).addEventListener("input",draw));
+  $("#af-reset").onclick=()=>{["af-q","af-von","af-bis"].forEach(i=>$("#"+i).value="");$("#af-t").value="";$("#af-f").value="";draw()};
+  onValue(ref(db,"protocols"),s=>{prot=s.val()||{};draw()});
+  onValue(ref(db,"dokumente"),s=>{docs=s.val()||{};draw()});
 }
 
 /* ---------- Akten und Vorlagen: Patientenakte, Arbeitsbefreiung, Totenschein ---------- */
@@ -844,7 +882,7 @@ const TOT=[
  ["5. Ärztliche Angaben",[["a_name","Name des Arztes"],["a_fkt","Dienstgrad / Funktion"],["a_nr","Ärztenummer"],["a_dat","Datum","date"],["a_zeit","Uhrzeit"],["a_unt","Unterschrift / Logo","area"]]]
 ];
 const dField=([k,l,t],d)=>{const id="d-"+k,v=d[k]??"";
-  if(t&&t.chk)return `<div class="dchk wide"><label>${l}</label><div>${t.chk.map(o=>`<label class="chk"><input type="checkbox" data-cb="${k}" value="${esc(o)}">${esc(o)}</label>`).join("")}</div></div>`;
+  if(t&&t.chk)return `<div class="dchk wide"><label>${l}</label><div>${t.chk.map(o=>`<label class="chk"><input type="checkbox" data-cb="${k}" value="${esc(o)}"${(Array.isArray(d[k])&&d[k].includes(o))?" checked":""}>${esc(o)}</label>`).join("")}</div></div>`;
   if(Array.isArray(t))return `<div><label for="${id}">${l}</label><select id="${id}">${t.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")}</select></div>`;
   if(t==="area")return `<div class="wide"><label for="${id}">${l}</label><textarea id="${id}">${esc(v)}</textarea></div>`;
   return `<div><label for="${id}">${l}</label><input id="${id}" value="${esc(v)}"${t==="date"?' type="date"':""}></div>`};
@@ -1034,7 +1072,7 @@ async function fahrzeug(){
    onValue(ref(db,"crew/"+me.vid),s=>update(vref,{crew:Object.values(s.val()||{}).map(x=>x.name).join(", ")}))}
   await update(vref,{name:me.call,typ:me.typ||null,status:cur&&STATUS.some(x=>x[0]===cur.status)?cur.status:"s1"});
   panes[0].innerHTML=`<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${STATUS.map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
-  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${AKTEN.map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
+  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${AKTEN.map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
   let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
@@ -1054,7 +1092,18 @@ async function fahrzeug(){
     ["notfall","kt","revers"].forEach(k=>$("#pf-"+k).hidden=doc||k!==t);
     $("#pf-doc").hidden=!doc;
     if(doc)$("#pdoc").innerHTML=DOCS[t].html(DOCS[t].data(prefillNow()))};
-  $("#pform").addEventListener("click",e=>{if(e.target.id==="pdoc-p")return print();
+  const saveDoc=async()=>{const k=ptype,msg=$("#pdoc-m");if(!DOCS[k])return;
+    const vals={};
+    $$("#pdoc [id^='d-']").forEach(el=>vals[el.id.slice(2)]=el.value);
+    $$("#pdoc [data-cb]:checked").forEach(el=>{vals[el.dataset.cb]=[...(vals[el.dataset.cb]||[]),el.value]});
+    msg.textContent="Wird gespeichert …";
+    try{
+      await set(ref(db,"dokumente/d"+Date.now()+Math.random().toString(36).slice(2,6)),
+        {ptyp:k,t:DOCS[k].t,name:vals.name||vals.pat||"",fz:me.call||"",crew:me.name||"",enr:enr||"",vid:me.vid||"",ts:Date.now(),vals});
+      msg.textContent="Im Archiv gespeichert.";
+    }catch(x){msg.textContent="Speichern fehlgeschlagen: "+(x.message||x)}
+  };
+  $("#pform").addEventListener("click",e=>{if(e.target.id==="pdoc-s")return saveDoc();if(e.target.id==="pdoc-p")return print();
     const b=e.target.closest("[data-pt]");if(!b)return;showType(b.dataset.pt);if(!DOCS[b.dataset.pt])save()});
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
   const fill=d=>{$$("#pform [data-k]").forEach(el=>{const v=d[el.dataset.k];el.type==="checkbox"?el.checked=!!v:el.value=v??""});
