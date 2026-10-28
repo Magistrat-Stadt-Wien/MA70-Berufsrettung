@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Uniklinikum Berlin · Notaufnahme</title>
 <style>
-:root{--red:#c4001a;--brand:#0b5ca8;--brand-dk:#073f78;--gold:#0b5ca8;--ink:#13243a;--bg:#eef3f9;--card:#ffffff;--line:#d3deeb;--sub:#4f6178;--inb:#a9bbd0;--rt:#b3001a;--ph:#0a3f78;--ac:#1a6cc0;--ac-ink:#fff;--warn:#ffc400;--ok:#1f8a5b;--sans:"IBM Plex Sans","Segoe UI",Arial,sans-serif;--mono:"IBM Plex Mono",Consolas,"Courier New",monospace;--fc:var(--sans);--r:3px;color-scheme:light}
+:root{--red:#c4001a;--brand:#0b5ca8;--brand-dk:#073f78;--gold:#0b5ca8;--ink:#13243a;--bg:#eef3f9;--card:#ffffff;--line:#d3deeb;--sub:#4f6178;--inb:#a9bbd0;--rt:#b3001a;--ph:#0a3f78;--ac:#1a6cc0;--ac-ink:#fff;--warn:#ffc400;--ok:#1f8a5b;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--fc:var(--sans);--r:3px;color-scheme:light}
 :root[data-theme=dark]{--ink:#e6eef8;--bg:#07111f;--card:#0e1b2c;--line:#1f3450;--sub:#8fa6c2;--inb:#2d4a6b;--rt:#ff6b78;--ph:#061a30;--ac:#58a8ff;--ac-ink:#04162b;--gold:#58a8ff;--brand:#3f8fe0;color-scheme:dark}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#e6eef8;--bg:#07111f;--card:#0e1b2c;--line:#1f3450;--sub:#8fa6c2;--inb:#2d4a6b;--rt:#ff6b78;--ph:#061a30;--ac:#58a8ff;--ac-ink:#04162b;--gold:#58a8ff;--brand:#3f8fe0;color-scheme:dark}}
 @media print{:root{--card:#fff!important;--ink:#111!important;--bg:#fff!important;--line:#ccc!important;--sub:#555!important;--rt:#a30013!important}}
@@ -485,8 +485,6 @@ dialog.card{max-height:92vh;overflow:auto}
 .vorfwd .vp-l{width:100%;font:600 .8rem var(--sans);color:var(--sub)}
 .vorfwd .row{margin-top:0;width:100%}
 .vor-fwd{margin-top:4px;font:600 .82rem var(--sans);color:var(--brand)}
-#vorfz{border-left:5px solid var(--ac)}
-#vorfz h2{color:var(--ac)}
 
 /* ===== Voranmeldung als Einsatz ===== */
 .vf-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%}
@@ -503,9 +501,11 @@ dialog.card{max-height:92vh;overflow:auto}
 /* ===== KH-Personen und Anforderungen ===== */
 .vf-flags{display:flex;flex-wrap:wrap;gap:8px 18px;width:100%}
 .vf-flags .chk{margin:0}
+
+.legal ul{margin:6px 0 10px 20px;padding:0}
+.legal li{margin:4px 0}
+.legal h3{margin:16px 0 4px}
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <script>
 (function(){
   var h=document.documentElement,t=null;
@@ -527,12 +527,33 @@ dialog.card{max-height:92vh;overflow:auto}
 <main>
 <section id="login" class="card">
   <img class="logo" data-logo alt="Uniklinikum Berlin">
-  <h2>Anmelden</h2><p class="hint">Melde dich mit deinem Zugang an. Zugänge und Fahrzeuge legt die Administration an (Schlüssel-Symbol oben).</p>
+  <h2>Anmelden</h2><p class="hint">Melde dich mit deinem Zugang an. Zugänge und Fahrzeuge legt die Administration an (Schlüssel-Symbol oben). Anmeldungen und Zugriffe werden protokolliert.</p>
   <div id="l-s1"><label for="l-user">Zugangsname</label><input id="l-user" autocomplete="username" autocapitalize="none" spellcheck="false"><label for="l-pw">Passwort</label><input id="l-pw" type="password" autocomplete="current-password"><div class="row"><button id="l-go" type="button">Anmelden</button></div></div>
   <div id="l-s2" hidden><p class="hint" id="l-hi"></p><label for="l-st">Fahrzeug aus dem Stamm</label><select id="l-st"></select><div class="row"><button id="l-start" type="button">Dienst beginnen</button><button class="alt" id="l-back" type="button">Anderer Zugang</button></div></div>
   <p id="l-err" style="color:var(--red)"></p>
   <div class="vor-box"><h3>Rettungsdienst einer anderen Organisation?</h3><p class="hint">Patienten können ohne Anmeldung vorab bei der Notaufnahme angekündigt werden.</p><div class="row"><button type="button" class="alt" id="vor-open">Patient voranmelden</button></div></div>
 </section>
+<dialog id="legal" class="card legal"><h2>Rechtliche Hinweise und Datenschutz</h2>
+<p class="hint">Stand: Prototyp. Diese Angaben sind keine Rechtsberatung. Vor dem Einsatz mit echten Patientendaten müssen Datenschutzbeauftragte und Rechtsabteilung zustimmen.</p>
+<h3>Verantwortliche Stelle</h3><p>Uniklinikum Berlin, [Anschrift und Kontakt eintragen]. Datenschutzbeauftragte/r: [Name und Kontakt eintragen].</p>
+<h3>Zweck</h3><p>Voranmeldung von Patientinnen und Patienten, Einsatzdokumentation und Übergabe zwischen Rettungsdienst, Leitstelle und Klinik.</p>
+<h3>Verarbeitete Daten</h3><p>Name, Geburtsdatum, Geschlecht, Stichwort, Vitalwerte und Hinweise zur Behandlung. Gesundheitsdaten sind besonders geschützt (Art. 9 DSGVO). Die Datenbank liegt nach der Konfiguration in der EU (Region europe-west1).</p>
+<h3>Rechtsgrundlagen (Auswahl, rechtlich zu prüfen)</h3><ul>
+<li>Art. 9 Abs. 2 lit. h DSGVO: Verarbeitung zur Gesundheitsversorgung</li>
+<li>§ 630f BGB: Dokumentationspflicht und Aufbewahrung</li>
+<li>§ 203 StGB: ärztliche Schweigepflicht</li>
+<li>Landesrechtliche Vorgaben zum Rettungsdienst (Berlin)</li></ul>
+<h3>Aufbewahrung</h3><p>Behandlungsdokumentation mindestens 10 Jahre nach Abschluss der Behandlung (§ 630f Abs. 3 BGB). Rettungsdienst- und Landesfristen müssen geprüft werden.</p>
+<h3>Zugriffe und Sicherheit</h3><p>Anmeldungen, Ansichten, Änderungen, Drucke, Löschungen und Weiterleitungen werden im Zugriffsprotokoll festgehalten. Eine Sitzung endet nach 30 Minuten Inaktivität auf Fahrzeugen und nach 60 Minuten in der Leitstelle.</p>
+<h3>Akten</h3><p>Patientenakte, Arbeitsunfähigkeit und Todesbescheinigung sind nur für Klinikpersonal freigeschaltet. Arbeitsunfähigkeit und Todesbescheinigung darf nur eine Ärztin oder ein Arzt ausstellen.</p>
+<h3>Vor dem Echtbetrieb nötig</h3><ul>
+<li>Auftragsverarbeitungsvertrag mit dem Dienstleister (Art. 28 DSGVO)</li>
+<li>Datenschutz-Folgenabschätzung (Art. 35 DSGVO)</li>
+<li>Verzeichnis der Verarbeitungstätigkeiten (Art. 30 DSGVO)</li>
+<li>Anmeldung über Firebase-Authentifizierung und Datenbankregeln, die nur berechtigte Personen zulassen</li>
+<li>Löschkonzept und Berechtigungskonzept</li>
+<li>Freigabe durch IT-Sicherheit, Datenschutz und ärztliche Leitung</li></ul>
+<div class="row"><button type="button" class="alt" id="lg-x">Schließen</button></div></dialog>
 <section id="vorview" class="card vorpage" hidden>
  <div class="vp-head"><span class="vp-kicker">Für Rettungsdienste anderer Organisationen</span><h2>Patient voranmelden</h2><p>Keine Anmeldung nötig. Die Angaben gehen direkt an die Notaufnahme des Uniklinikums Berlin. Pflichtfelder sind mit * markiert.</p></div>
  <div class="vp-sec"><h3><i>1</i>Absender</h3>
@@ -638,11 +659,11 @@ const drawLogin=()=>{const e=$("#l-st");if(!e)return;const cur=e.value;
   e.innerHTML='<option value="" disabled>– Fahrzeug wählen –</option>'+Object.entries(STM).sort(byName).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");
   e.value=STM[cur]?cur:""};
 onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin();admList()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
-const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,acc:lgAcc.user||"",call,typ,ch:lgAcc.role==="leit"?"lst":"rd",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}start()};
+const lgBegin=(call,typ,vid)=>{me={role:lgAcc.role,name:lgAcc.name,acc:lgAcc.user||"",call,typ,ch:lgAcc.role==="leit"?"lst":"rd",vid};try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}audit("Anmeldung",call||"Leitstelle");start()};
 $("#l-go").onclick=async()=>{lgErr();const u=uid($("#l-user").value),pw=$("#l-pw").value;
   if(!u||!pw)return lgErr("Bitte Zugangsname und Passwort eingeben.");
   try{const r=(await get(ref(db,"accounts/"+u))).val();
-    if(!await pwOk(pw,r))return lgErr("Zugangsname oder Passwort stimmt nicht.");
+    if(!await pwOk(pw,r)){audit("Fehlgeschlagene Anmeldung",u,{name:"unbekannt",acc:u,role:""});return lgErr("Zugangsname oder Passwort stimmt nicht.")}
     lgAcc=r;$("#l-pw").value="";
     if(r.role==="leit")return lgBegin("","rtw","");
     $("#l-s1").hidden=true;$("#l-s2").hidden=false;$("#l-hi").textContent="Angemeldet als "+r.name+". Wähle jetzt dein Fahrzeug.";drawLogin();
@@ -667,11 +688,17 @@ async function admOpen(){$("#adlg").showModal();adBody().innerHTML='<p class="hi
         admOn=true;if(!admSub)admSub=onValue(ref(db,"accounts"),s=>{ACC=s.val()||{};admList()});admDraw()}catch(x){adErr(x.message)}};
     $("#ad-pw").onkeydown=e=>{if(e.key==="Enter")$("#ad-go").click()};$("#ad-pw").focus();
   }catch(x){adBody().textContent="Keine Verbindung zur Datenbank: "+x.message}}
+function admAudit(){$("#ad-c").innerHTML=`<p class="hint">Wer hat wann was getan. Einträge lassen sich nicht ändern. Patientennamen stehen hier bewusst nicht drin, nur Nummern.</p>
+ <div class="row"><button type="button" class="alt" id="au-r">Aktualisieren</button></div>
+ <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Zeit</th><th>Wer</th><th>Rolle</th><th>Aktion</th><th>Details</th></tr></thead><tbody id="au-l"><tr><td colspan="5">Lade …</td></tr></tbody></table></div>`;
+  const load=()=>get(ref(db,"audit")).then(s=>{const rows=Object.values(s.val()||{}).sort((a,b)=>b.ts-a.ts).slice(0,300);
+    $("#au-l").innerHTML=rows.length?rows.map(r=>`<tr><td>${new Date(r.ts).toLocaleString("de-DE")}</td><td>${esc(r.who||"–")}${r.acc?`<br><span class="mut">${esc(r.acc)}</span>`:""}</td><td>${esc(r.role||"–")}</td><td>${esc(r.action)}</td><td>${esc(r.detail||"")}</td></tr>`).join(""):'<tr><td colspan="5">Noch keine Einträge.</td></tr>'});
+  $("#au-r").onclick=load;load()}
 function admLive(){$("#ad-c").innerHTML=`<p class="hint">Alle Personen, die gerade auf der Website angemeldet sind. „Funk sperren“ verhindert, dass jemand sprechen kann. „Abmelden“ beendet die Sitzung sofort.</p>
  <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Name</th><th>Rolle</th><th>Funkgruppe</th><th>Zugang</th><th></th></tr></thead><tbody id="live-l"></tbody></table></div>`;
   $("#ad-c").onclick=e=>{const b=e.target.closest("button[data-live]");if(!b)return;const cid=b.dataset.cid;
-    if(b.dataset.live==="mute"){update(ref(db,"control/"+cid),{mute:!(CTRL[cid]||{}).mute})}
-    else if(b.dataset.live==="kick"){if(confirm("Diese Person jetzt von der Website abmelden?"))update(ref(db,"control/"+cid),{kick:"k"+Date.now()})}};
+    if(b.dataset.live==="mute"){audit("Funk gesperrt / freigegeben",(CLI[cid]||{}).acc||cid);update(ref(db,"control/"+cid),{mute:!(CTRL[cid]||{}).mute})}
+    else if(b.dataset.live==="kick"){if(confirm("Diese Person jetzt von der Website abmelden?")){audit("Sitzung beendet",(CLI[cid]||{}).acc||cid);update(ref(db,"control/"+cid),{kick:"k"+Date.now()})}}};
   admLiveDraw()}
 function admLiveDraw(){const t=$("#live-l");if(!t)return;
   const rows=Object.entries(CLI).sort((a,b)=>String(a[1].name||"").localeCompare(String(b[1].name||""),"de",{numeric:true}));
@@ -681,24 +708,24 @@ function admLiveDraw(){const t=$("#live-l");if(!t)return;
     :'<tr><td colspan="5">Gerade ist niemand angemeldet.</td></tr>'}
 function admDraw(){
   if(admOn&&!liveSub)liveSub=[onValue(ref(db,"clients"),s=>{CLI=s.val()||{};admLiveDraw()}),onValue(ref(db,"control"),s=>{CTRL=s.val()||{};admLiveDraw()})];
-  adBody().innerHTML=`<div class="tabs" id="ad-t">${[["live","Aktive Nutzer"],["acc","Zugänge"],["stm","Fahrzeugstamm"],["pw","Admin-Passwort"]].map(([k,n])=>`<button type="button" data-t="${k}" class="${k===admTab?"on":""}">${n}</button>`).join("")}</div><div id="ad-c"></div><p id="ad-err" style="color:var(--red)"></p>`;
+  adBody().innerHTML=`<div class="tabs" id="ad-t">${[["live","Aktive Nutzer"],["acc","Zugänge"],["stm","Fahrzeugstamm"],["pw","Admin-Passwort"],["audit","Zugriffsprotokoll"]].map(([k,n])=>`<button type="button" data-t="${k}" class="${k===admTab?"on":""}">${n}</button>`).join("")}</div><div id="ad-c"></div><p id="ad-err" style="color:var(--red)"></p>`;
   $("#ad-t").onclick=e=>{const t=e.target.dataset.t;if(t){admTab=t;admDraw()}};
-  ({live:admLive,acc:admAcc,stm:admStm,pw:admPw})[admTab]();admList()}
+  ({live:admLive,acc:admAcc,stm:admStm,pw:admPw,audit:admAudit})[admTab]();admList()}
 function admAcc(){$("#ad-c").innerHTML=`<p class="hint">Mit einem Zugang melden sich Personen an, bevor sie ein Fahrzeug wählen können. Das Passwort gibst du der Person weiter.</p><div class="fields"><div><label for="ac-n">Anzeigename</label><input id="ac-n" autocomplete="off" placeholder="Vorname Nachname"></div><div><label for="ac-u">Zugangsname</label><input id="ac-u" autocomplete="off" autocapitalize="none" placeholder="vorname.nachname"></div><div><label for="ac-p">Start-Passwort</label><input id="ac-p" autocomplete="off" placeholder="mindestens 6 Zeichen"></div><div><label for="ac-r">Rolle</label><select id="ac-r"><option value="fzg">Fahrzeugbesatzung</option><option value="leit">Leitstelle</option></select></div></div><div class="row"><button type="button" id="ac-add">Zugang anlegen</button></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Name</th><th>Zugangsname</th><th>Rolle</th><th></th></tr></thead><tbody id="ad-l"></tbody></table></div>`;
   $("#ac-add").onclick=async()=>{const n=$("#ac-n").value.trim(),u=uid($("#ac-u").value),p=$("#ac-p").value;
     if(!n||!u)return adErr("Bitte Anzeigename und Zugangsname eingeben.");if(!minPw(p))return adErr("Das Passwort braucht mindestens 6 Zeichen.");if(ACC[u])return adErr("Dieser Zugangsname ist schon vergeben.");
     try{await set(ref(db,"accounts/"+u),{name:n,user:u,role:$("#ac-r").value,...await hashPw(p),ts:Date.now()});adErr();["n","u","p"].forEach(k=>$("#ac-"+k).value="")}catch(x){adErr(x.message)}};
   $("#ad-l").onclick=async e=>{const id=e.target.dataset.id,a=ACC[id];if(!a)return;
-    if(e.target.dataset.a==="del"){if(confirm("Zugang "+a.name+" löschen?"))set(ref(db,"accounts/"+id),null)}
-    else{const p=prompt("Neues Passwort für "+a.name+" (mindestens 6 Zeichen):");if(p===null)return;if(!minPw(p))return adErr("Das Passwort braucht mindestens 6 Zeichen.");await update(ref(db,"accounts/"+id),await hashPw(p));adErr();alert("Passwort geändert.")}}}
+    if(e.target.dataset.a==="del"){if(confirm("Zugang "+a.name+" löschen?")){audit("Zugang gelöscht",a.user||id);set(ref(db,"accounts/"+id),null)}}
+    else{const p=prompt("Neues Passwort für "+a.name+" (mindestens 6 Zeichen):");if(p===null)return;if(!minPw(p))return adErr("Das Passwort braucht mindestens 6 Zeichen.");await update(ref(db,"accounts/"+id),await hashPw(p));audit("Passwort eines Zugangs geändert",id);adErr();alert("Passwort geändert.")}}}
 function admStm(){$("#ad-c").innerHTML=`<p class="hint">Diese Fahrzeuge stehen nach dem Anmelden zur Auswahl.</p><div class="fields"><div><label for="sv-n">Funkrufname</label><input id="sv-n" autocomplete="off" placeholder="z. B. Zentrale-6"></div><div><label for="sv-t">Typ</label><select id="sv-t">${Object.entries(TYN).map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></div><div><label for="sv-abt">Abteilung (nur KH-Person)</label><input id="sv-abt" list="dl-abt" autocomplete="off" placeholder="z. B. Notaufnahme"></div></div><div class="row"><button type="button" id="sv-add">Fahrzeug hinzufügen</button><button type="button" class="alt" id="sv-off">UKB-Standardliste laden (ersetzt alles)</button><button type="button" class="alt" id="sv-clear">Alle Fahrzeuge entfernen</button></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th></th></tr></thead><tbody id="ad-l"></tbody></table></div>`;
   $("#sv-add").onclick=()=>{const n=$("#sv-n").value.trim();if(!n)return adErr("Bitte einen Funkrufnamen eingeben.");const id=slug(n);if(STM[id])return adErr("Dieses Fahrzeug gibt es schon.");set(ref(db,"stamm/"+id),{name:n,typ:$("#sv-t").value,abt:$("#sv-abt").value.trim()});adErr();$("#sv-n").value=""};
-  $("#sv-off").onclick=()=>{if(!confirm("Der Fahrzeugstamm wird durch die UKB-Standardliste ersetzt. Alle bisherigen Fahrzeuge werden entfernt. Fortfahren?"))return;const o={};OFFIZIELL.split("|").forEach(x=>{const[n,t,a]=x.split(";");o[slug(n)]={name:n,typ:t,...(a?{abt:a}:{})}});set(ref(db,"stamm"),o);set(ref(db,"vehicles"),null);set(ref(db,"crew"),null)};
-  $("#sv-clear").onclick=()=>{if(confirm("Alle Fahrzeuge aus dem Stamm und die aktuellen Fahrzeugdaten entfernen?"))set(ref(db,"stamm"),null).then(()=>set(ref(db,"vehicles"),null)).then(()=>set(ref(db,"crew"),null))};
+  $("#sv-off").onclick=()=>{if(!confirm("Der Fahrzeugstamm wird durch die UKB-Standardliste ersetzt. Alle bisherigen Fahrzeuge werden entfernt. Fortfahren?"))return;const o={};OFFIZIELL.split("|").forEach(x=>{const[n,t,a]=x.split(";");o[slug(n)]={name:n,typ:t,...(a?{abt:a}:{})}});audit("Fahrzeugstamm durch Standardliste ersetzt");set(ref(db,"stamm"),o);set(ref(db,"vehicles"),null);set(ref(db,"crew"),null)};
+  $("#sv-clear").onclick=()=>{if(confirm("Alle Fahrzeuge aus dem Stamm und die aktuellen Fahrzeugdaten entfernen?")){audit("Alle Fahrzeuge entfernt");set(ref(db,"stamm"),null).then(()=>set(ref(db,"vehicles"),null)).then(()=>set(ref(db,"crew"),null))}};
   $("#ad-l").onclick=e=>{const id=e.target.dataset.del;if(id&&STM[id]&&confirm("Fahrzeug "+STM[id].name+" aus dem Stamm entfernen?"))set(ref(db,"stamm/"+id),null)};
   $("#ad-l").onchange=e=>{const id=e.target.dataset.id;if(id)update(ref(db,"stamm/"+id),{typ:e.target.value})}}
 function admPw(){$("#ad-c").innerHTML=`<label for="pw-n">Neues Admin-Passwort</label><input id="pw-n" type="password" autocomplete="new-password"><div class="row"><button type="button" id="pw-go">Passwort ändern</button></div>`;
-  $("#pw-go").onclick=async()=>{const p=$("#pw-n").value;if(!minPw(p))return adErr("Mindestens 6 Zeichen.");await set(ref(db,"admin"),await hashPw(p));$("#pw-n").value="";adErr();alert("Admin-Passwort geändert.")}}
+  $("#pw-go").onclick=async()=>{const p=$("#pw-n").value;if(!minPw(p))return adErr("Mindestens 6 Zeichen.");await set(ref(db,"admin"),await hashPw(p));audit("Admin-Passwort geändert");$("#pw-n").value="";adErr();alert("Admin-Passwort geändert.")}}
 function admList(){const t=$("#ad-l");if(!t||!admOn)return;
   t.innerHTML=admTab==="acc"?Object.entries(ACC).sort(byName).map(([id,a])=>`<tr><td><b>${esc(a.name)}</b></td><td>${esc(id)}</td><td>${ROLN[a.role]||"–"}</td><td><button type="button" class="alt" data-a="pw" data-id="${esc(id)}">Passwort</button> <button type="button" class="alt" data-a="del" data-id="${esc(id)}">Löschen</button></td></tr>`).join("")||'<tr><td colspan="4">Noch keine Zugänge. Lege oben den ersten an.</td></tr>'
   :Object.entries(STM).sort(byName).map(([id,v])=>`<tr><td><b>${esc(v.name)}</b>${v.abt?`<br><span class="mut">${esc(v.abt)}</span>`:""}</td><td><select data-id="${esc(id)}" aria-label="Typ">${Object.entries(TYN).map(([k,n])=>`<option value="${k}"${k===typOf(v)?" selected":""}>${n}</option>`).join("")}</select></td><td><button type="button" class="alt" data-del="${esc(id)}">Entfernen</button></td></tr>`).join("")||'<tr><td colspan="3">Der Stamm ist leer.</td></tr>'}
@@ -879,9 +906,9 @@ function archive(box,edit){
   };
   const detail=r=>{
     if(r.kind==="doc"){
-      $("#adet").innerHTML=`<div class="card"><div class="docprint" id="adoc">${DOCS[r.ptyp].html(r.vals||{})}</div><div class="row noprint"><button type="button" id="adp">Drucken / als PDF speichern</button><button type="button" class="alt" id="adc">Schließen</button></div></div>`;
+      $("#adet").innerHTML=`<div class="card"><div class="docprint" id="adoc"><div class="mut">Gespeichert von ${esc(r.crew||"–")} am ${new Date(r.ts||0).toLocaleString("de-DE")} · Aufbewahrung: mindestens 10 Jahre nach Abschluss der Behandlung (§ 630f BGB), Frist durch die Klinik prüfen.</div>${DOCS[r.ptyp].html(r.vals||{})}</div><div class="row noprint"><button type="button" id="adp">Drucken / als PDF speichern</button><button type="button" class="alt" id="adc">Schließen</button></div></div>`;
       $$("#adoc input,#adoc select,#adoc textarea").forEach(el=>el.disabled=true);
-      $("#adp").onclick=()=>print();$("#adc").onclick=()=>$("#adet").innerHTML="";
+      $("#adp").onclick=()=>{audit("Druck","Akte "+r.ptyp);print()};$("#adc").onclick=()=>$("#adet").innerHTML="";
       $("#adet").scrollIntoView();return;
     }
     const p=r;
@@ -891,13 +918,13 @@ function archive(box,edit){
       const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
       return l?`<h3>${t}</h3>${l}`:"";
     }).join("");
-    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div>${hh}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
-    $("#pr").onclick=()=>print();$("#cl").onclick=()=>$("#adet").innerHTML="";
+    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div><div class="mut">${p.geaendert?`Zuletzt geändert von ${esc(p.geaendert.name||"–")} am ${new Date(p.geaendert.ts).toLocaleString("de-DE")} · `:""}Aufbewahrung: mindestens 10 Jahre nach Abschluss der Behandlung (§ 630f BGB), Frist durch die Klinik prüfen.</div>${hh}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
+    $("#pr").onclick=()=>{audit("Druck",p.enr||"");print()};$("#cl").onclick=()=>$("#adet").innerHTML="";
     $("#adet").scrollIntoView();
   };
   box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;
-    if(b.dataset.a==="v"){const[kind,id]=b.dataset.id.split(":");const r=all().find(x=>x.kind===kind&&x.id===id);if(r)detail(r);return}
-    if(b.dataset.a==="d"){const[kind,id]=b.dataset.id.split(":");if(confirm("Eintrag endgültig löschen?"))set(ref(db,(kind==="doc"?"dokumente/":"protocols/")+id),null)}
+    if(b.dataset.a==="v"){const[kind,id]=b.dataset.id.split(":");const r=all().find(x=>x.kind===kind&&x.id===id);if(r){audit("Ansicht",r.kind==="doc"?"Akte "+(r.ptyp||""):"Protokoll "+(r.enr||""));detail(r)}return}
+    if(b.dataset.a==="d"){const[kind,id]=b.dataset.id.split(":");if(confirm("Eintrag endgültig löschen?")){audit("Gelöscht",(kind==="doc"?"Akte ":"Protokoll ")+id);set(ref(db,(kind==="doc"?"dokumente/":"protocols/")+id),null)}}
   };
   ["af-q","af-t","af-f","af-von","af-bis"].forEach(i=>$("#"+i).addEventListener("input",draw));
   $("#af-reset").onclick=()=>{["af-q","af-von","af-bis"].forEach(i=>$("#"+i).value="");$("#af-t").value="";$("#af-f").value="";draw()};
@@ -905,7 +932,7 @@ function archive(box,edit){
   onValue(ref(db,"dokumente"),s=>{docs=s.val()||{};draw()});
 }
 
-/* ---------- Akten und Vorlagen: Patientenakte, Arbeitsbefreiung, Totenschein ---------- */
+/* ---------- Akten: Patientenakte, Arbeitsunfähigkeit, Todesbescheinigung ---------- */
 const DATUM=t=>{const d=new Date(t);return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
 const AKTE=[
  ["1. Patientendaten",[["name","Name"],["gebdat","Geburtsdatum","date"],["geschl","Geschlecht",["","weiblich","männlich","divers"]],["adr","Anschrift"],["tel","Telefon"],["vers","Versicherungsstatus"],["pid","Patienten-ID"]]],
@@ -931,6 +958,7 @@ const dField=([k,l,t],d)=>{const id="d-"+k,v=d[k]??"";
   return `<div><label for="${id}">${l}</label><input id="${id}" value="${esc(v)}"${t==="date"?' type="date"':""}></div>`};
 const docFields=(secs,d)=>secs.map(([t,f])=>`<h3>${t}</h3><div class="fields">${f.map(x=>dField(x,d)).join("")}</div>`).join("");
 const dHead=t=>`<div class="dochead"><img class="plogo" src="${LOGO}" alt=""><div><b>Uniklinikum Berlin</b><small>${t}</small></div></div>`;
+const DNOTE=t=>`<p class="dtext dnote"><b>Hinweis:</b> ${t}</p>`;
 const DOCS={
  akte:{t:"Patientenakte",
    data:p=>{const lv=Object.values(p.vit||{}).slice(-1)[0]||{},ts=p.ts||Date.now();
@@ -938,10 +966,10 @@ const DOCS={
        a_bes:p.s_s,a_vor:p.s_p,a_all:p.s_a,a_med:p.s_m,u_bew:p.d_gcs?"GCS "+p.d_gcs:"",
        u_rr:p.c_rr||lv.rr||"",u_puls:p.c_puls||lv.puls||"",u_spo2:p.b_spo2||lv.spo2||"",
        b_mass:p.mass,b_med:p.med,x_dat:DATUM(Date.now())}},
-   html:d=>dHead("Patientenakte")+docFields(AKTE,d)},
+   html:d=>dHead("Patientenakte")+DNOTE("Die Dokumentation muss vollständig, zeitgenau und nachvollziehbar sein (§ 630f BGB). Änderungen werden mit Bearbeiter und Zeitpunkt festgehalten.")+docFields(AKTE,d)},
  arb:{t:"Arbeitsunfähigkeit",
    data:p=>({pat:p.p_name,gebdat:p.p_gebdat,aufdat:DATUM(p.ts||Date.now()),datum:DATUM(Date.now())}),
-   html:d=>dHead("Arbeitsunfähigkeitsbescheinigung")+
+   html:d=>dHead("Arbeitsunfähigkeitsbescheinigung")+DNOTE("Die Arbeitsunfähigkeit darf nur eine Ärztin oder ein Arzt ausstellen. Bei gesetzlich Versicherten wird sie in der Regel elektronisch (eAU) übermittelt; dieser Ausdruck ist dann für die Patientin oder den Patienten gedacht.")+
      `<div class="fields">${dField(["pat","Patient"],d)}${dField(["gebdat","Geburtsdatum","date"],d)}${dField(["aufdat","Aufnahmedatum","date"],d)}</div>`+
      `<p class="dtext">Hiermit wird bestätigt, dass der oben genannte Patient aufgrund einer Behandlung bzw. eines Krankenhausaufenthalts im Uniklinikum vorübergehend nicht arbeitsfähig ist.</p>`+
      `<div class="fields">${dField(["von","Arbeitsunfähig von","date"],d)}${dField(["bis","Arbeitsunfähig bis","date"],d)}${dField(["grund","Grund","area"],d)}</div>`+
@@ -949,7 +977,7 @@ const DOCS={
      `<div class="fields">${dField(["arzt","Behandelnder Arzt"],d)}${dField(["datum","Datum","date"],d)}${dField(["unt","Unterschrift"],d)}</div>`},
  tot:{t:"Todesbescheinigung",
    data:p=>({name:p.p_name,gebdat:p.p_gebdat,geschl:p.p_sex,adr:p.p_adr}),
-   html:d=>dHead("Todesbescheinigung (Totenschein)")+docFields(TOT,d)}
+   html:d=>dHead("Todesbescheinigung (Totenschein)")+DNOTE("Die Leichenschau und die Todesbescheinigung darf nur eine Ärztin oder ein Arzt vornehmen. Das Ausfüllen dieser Vorlage ersetzt die ärztliche Feststellung nicht.")+docFields(TOT,d)}
 };
 let DOCPRE={};
 function showDoc(k){$$("#doc-t button").forEach(b=>b.classList.toggle("on",b.dataset.k===k));
@@ -1094,7 +1122,8 @@ function leitstelle(){
         `<div><div>Ankunft: <b>${esc(v.ank)}</b> · Stichwort: ${esc(v.stich)}</div>${v.vit?`<div>Vitals: ${esc(v.vit)}</div>`:""}${v.hin?`<div>Hinweis: ${esc(v.hin)}</div>`:""}${v.kontakt?`<div>Rückfragen: ${esc(v.kontakt)}</div>`:""}</div>`+
         `<div class="row">${v.ack?`<span class="vor-ack">✔ Aufnahme vorbereitet ${hm(v.ack)}</span>`:`<button class="alt" data-vok="${esc(id)}">Aufnahme vorbereitet</button>`}<button class="alt" data-vfwd="${esc(id)}">Als Einsatz weiterleiten</button><button class="alt" data-vd="${esc(id)}">Erledigt</button></div>${panel}</div>`}).join("")}</div>`:"";
   };
-  onValue(ref(db,"voranmeldungen"),s=>{VOR_ROWS=Object.entries(s.val()||{}).sort((a,b)=>b[1].ts-a[1].ts);drawVor()});
+  let VOR_READY=false,VOR_KNOWN=new Set();
+  onValue(ref(db,"voranmeldungen"),s=>{if(!VOR_READY){VOR_READY=true;VOR_KNOWN=new Set(Object.keys(s.val()||{}))}VOR_ROWS=Object.entries(s.val()||{}).sort((a,b)=>b[1].ts-a[1].ts);drawVor()});
   onValue(ref(db,"vehicles"),()=>{if(VOR_OPEN)drawVor()});
   $("#vor").onchange=e=>{const c=e.target;if(c.dataset.vfz){c.checked?VOR_SEL.add(c.dataset.vfz):VOR_SEL.delete(c.dataset.vfz)}};
   $("#vor").onclick=async e=>{const b=e.target.closest("button");if(!b)return;
@@ -1118,14 +1147,14 @@ function leitstelle(){
         vordet:{org:v.org||"",fz:v.fz||"",pat:v.pat||"",gebdat:v.gebdat||"",sex:v.sex||"",ank:v.ank||"",stich:v.stich||"",vit:v.vit||"",hin:v.hin||"",kontakt:v.kontakt||""},
         req,vids,vid:null,acks:null,ack:null,fin:null,t:null,done:false,ts:Date.now(),vor:id};
       await update(ref(db),upd);
+      audit("Einsatz aus Voranmeldung angelegt",nr);
       const extra=[req.vorb?"Bitte Aufnahme vorbereiten.":"",req.vor?"Patient ist vor Ort.":""].filter(Boolean).join(" ");
       await set(ref(db,"announcements/latest"),{id:Date.now(),text:`${ids.map(f=>V[f].name).join(", ")}: Voranmeldung, ${prio}, ${v.stich||""}, ${adr}. Ankunft ${v.ank}. ${extra}`.trim(),target:"multi",targets,von:me.name});
       VOR_OPEN=null;VOR_SEL=new Set();VOR_FORM.adr="";VOR_FORM.vorb=false;VOR_FORM.vor=false;drawVor();
     }
   };
   /* Neue Voranmeldung: Ansage und Hinweis in der Leitstelle (nur Voranmeldungen, die nach dem Öffnen eingehen) */
-  const bootT=Date.now();
-  onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!v||!v.ts||v.ts<bootT-2000)return;
+  onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!VOR_READY||VOR_KNOWN.has(s.key)||!v)return;VOR_KNOWN.add(s.key);
     const b=$("#banner");
     if(!b.dataset.sw){b.dataset.vid=s.key;b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+v.ank+" · "+v.stich+" ("+v.org+")"}
     say("Neue Voranmeldung von "+v.org+(v.fz?", "+v.fz:"")+". Patient "+v.pat+(v.sex?", "+v.sex:"")+". Voraussichtliche Ankunft "+v.ank+". Stichwort "+v.stich+".");
@@ -1183,7 +1212,7 @@ async function fahrzeug(){
   const abtNow=(cur&&cur.abt)||(STM[me.vid]||{}).abt||ABT[0];
   const abtCardHtml=KH?`<div class="card"><h2>Abteilung</h2><p class="hint">Wechsle die Abteilung, damit die Leitstelle weiß, wo du gerade bist.</p><div class="row"><select id="abt-sel" aria-label="Abteilung">${ABT.map(a=>`<option${a===abtNow?" selected":""}>${esc(a)}</option>`).join("")}</select><button type="button" id="abt-go">Abteilung wechseln</button></div><p class="mut" id="abt-now">Aktuell: ${esc(abtNow)}</p></div>`:"";
   panes[0].innerHTML=`${abtCardHtml}<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${(KH?KSTATUS:STATUS).map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
-  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${AKTEN.map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
+  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"${KH?"":" hidden"}><span class="pglabel">Akten</span><div class="ptiles">${(KH?AKTEN:[]).map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
   let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
@@ -1213,7 +1242,7 @@ async function fahrzeug(){
     try{
       await set(ref(db,"dokumente/d"+Date.now()+Math.random().toString(36).slice(2,6)),
         {ptyp:k,t:DOCS[k].t,name:vals.name||vals.pat||"",fz:me.call||"",crew:me.name||"",enr:enr||"",vid:me.vid||"",ts:Date.now(),vals});
-      msg.textContent="Im Archiv gespeichert.";
+      audit("Akte gespeichert",k);msg.textContent="Im Archiv gespeichert.";
     }catch(x){msg.textContent="Speichern fehlgeschlagen: "+(x.message||x)}
   };
   $("#pform").addEventListener("click",e=>{if(e.target.id==="pdoc-s")return saveDoc();if(e.target.id==="pdoc-p")return print();
@@ -1227,7 +1256,7 @@ async function fahrzeug(){
   const save=()=>{clearTimeout(timer);timer=setTimeout(()=>{
     const o={};$$("#pform [data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
     o.vit=$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value])));
-    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:ptype});
+    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:ptype,geaendert:{name:me.name||"",ts:Date.now()}});
     set(ref(db,"protocols/"+pid),o)},600)};
   panes[1].addEventListener("input",()=>{if(DOCS[ptype])return;toggles();save()});
   panes[0].addEventListener("click",e=>{if(e.target.id==="abt-go"){const a=$("#abt-sel").value;update(vref,{abt:a});$("#abt-now").textContent="Aktuell: "+a}});
@@ -1370,6 +1399,14 @@ async function pttUp2(){
   const k=txk;await freeLock();tail=0;
   setTimeout(()=>{if(!(R[k]&&R[k].talker))set(ref(db,"audio/"+k),null).catch(()=>{})},2500)}
 
+/* Zugriffsprotokoll: wer hat wann was getan. Keine Patientennamen, nur Nummern und Aktionen. */
+const audit=(action,detail="",who=null)=>{const w=who||(me?{name:me.name,acc:me.acc||"",role:me.role}:{name:"Besucher",acc:"",role:""});
+  try{set(ref(db,"audit/a"+Date.now()+Math.random().toString(36).slice(2,7)),{ts:Date.now(),who:w.name||"",acc:w.acc||"",role:w.role||"",action,detail:String(detail||"")}).catch(()=>{})}catch{}};
+/* Automatische Abmeldung bei Inaktivität (Fahrzeuge 30 Minuten, Leitstelle 60 Minuten) */
+const IDLE={fzg:30,leit:60};let lastAct=Date.now();
+["pointerdown","keydown","touchstart","scroll"].forEach(ev=>window.addEventListener(ev,()=>{lastAct=Date.now()},{passive:true}));
+setInterval(()=>{if(!me||!me.role)return;if(Date.now()-lastAct>(IDLE[me.role]||30)*60000){audit("Automatische Abmeldung (Inaktivität)");endSession("Du wurdest wegen Inaktivität automatisch abgemeldet.")}},20000);
+function endSession(msg){alert(msg);const o=$("#out");if(o)o.click();else{try{sessionStorage.removeItem("me")}catch{}location.reload()}}
 function forceOut(){alert("Die Administration hat deine Sitzung beendet.");const o=$("#out");if(o)o.click();else{sessionStorage.removeItem("me");location.reload()}}
 function radioInit(){
   me.cid="c"+Math.random().toString(36).slice(2,10);
@@ -1438,14 +1475,20 @@ $("#v-send").onclick=async()=>{
       {org:g("v-org"),fz:g("v-fz"),pat:g("v-pat"),gebdat:g("v-gebdat"),sex:g("v-sex"),ank:g("v-ank"),stich:g("v-stich"),vit,hin:g("v-hin"),kontakt:g("v-kontakt"),ts:Date.now()});
     ["v-org","v-fz","v-pat","v-gebdat","v-ank","v-stich","v-rr","v-puls","v-spo2","v-bz","v-gcs","v-hin","v-kontakt"].forEach(i=>$("#"+i).value="");
     $("#v-sex").value="";
+    audit("Voranmeldung eingegangen","",{name:"Externe Organisation",acc:"",role:"extern"});
     vorBack();
     alert("Die Voranmeldung wurde an die Notaufnahme des Uniklinikums Berlin übermittelt.");
   }catch(x){err("Senden fehlgeschlagen: "+(x.message||x))}
 };
 
+/* Rechtliche Hinweise öffnen und Abmeldungen protokollieren */
+document.addEventListener("click",e=>{const t=e.target;
+  if(t.id==="lg-open"){e.preventDefault();$("#legal").showModal()}
+  if(t.id==="lg-x")$("#legal").close();
+  if(t.id==="out")audit("Abmeldung")});
 if(me&&me.role)start();
 </script>
-<footer class="ft">Prototyp für das Uniklinikum Berlin. Keine echten Patientendaten eingeben. Im Notfall: 112</footer>
+<footer class="ft">Prototyp für das Uniklinikum Berlin. Bis zur Freigabe keine echten Patientendaten eingeben. <a href="#" id="lg-open">Rechtliche Hinweise</a> · Im Notfall: 112</footer>
 <script>
 (function(){
 var q=function(x){return document.querySelector(x)},R=q("#radio"),ch=q("#ch"),tg=q("#tg"),vol=q("#vol"),bar=q("#rbar"),body=q("#rbody"),disp=q("#rdisp"),knob=q("#kvol"),mute=q("#rmute"),drag=0,dx=0,dy=0,vt=0,last=100,pa=0,kd=0;
