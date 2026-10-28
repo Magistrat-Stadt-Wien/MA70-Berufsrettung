@@ -637,6 +637,11 @@ dialog#vdlg,dialog#docdlg,dialog#adlg{border:0}
 #banner:not([hidden]){animation:u-slide .4s cubic-bezier(.2,.8,.2,1) both}
 #toast.show{animation:u-in .3s cubic-bezier(.2,.8,.2,1) both}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* ===== Voranmeldung im Protokoll, Archiv ===== */
+.vorstrip{margin:0 0 16px;padding:11px 16px;border:1px dashed var(--inb);border-radius:14px;font-size:.9rem}
+.vorstrip.ok{border-style:solid;border-color:color-mix(in srgb,var(--ok) 45%,transparent);background:color-mix(in srgb,var(--ok) 8%,var(--card))}
+.abk{margin:0 0 14px}
 </style>
 <script>
 (function(){
@@ -952,7 +957,7 @@ const SEC=[
 ["Maßnahmen und Medikamente",[["mass","Durchgeführte Maßnahmen","area"],["med","Verabreichte Medikamente (Name, Dosis, Uhrzeit)","area"]]],
 ["Besatzung",[["b_san1","Sanitäter/in (Name, Qualifikation, z. B. RettSan / NotSan)"],["b_san2","Fahrer/in oder 2. Sanitäter/in"],["b_na","Notarzt / Notärztin (falls vorhanden)"]]],
 ["Einschätzung und Transport",[["naca","NACA-Score",["","0 – keine Verletzung/Erkrankung","I – geringfügige Störung","II – ambulante Abklärung","III – stationäre Behandlung","IV – akute Lebensgefahr nicht auszuschließen","V – akute Lebensgefahr","VI – Reanimation","VII – Tod"]],["tprio","Transport",["","mit Sondersignal","ohne Sondersignal","kein Transport, Verbleib vor Ort","Transportverweigerung (Revers)"]],["na","Notarzt (NEF/NAW) nachgefordert",["","nein","ja"]]]],
-["Übergabe",[["ziel","Ziel-Abteilung"],["ueb","Übernehmende Person (Name, Funktion)"],["uebtxt","Übergabebericht (ISBAR: Identifikation, Situation, Beobachtung, Anamnese, Empfehlung)","area"]]]
+["Übergabe",[["ziel","Ziel-Abteilung"],["eta","Voraussichtliche Ankunft in der Klinik (Uhrzeit)"],["ueb","Übernehmende Person (Name, Funktion)"],["uebtxt","Übergabebericht (ISBAR: Identifikation, Situation, Beobachtung, Anamnese, Empfehlung)","area"]]]
 ];
 const KT_SECS=[
  ["Transport",[["ktabh","Abholort (Adresse / Station)"],["ktabhz","Abholzeit"],["ktziel","Ziel-Abteilung"],["ktzieladr","Zieladresse (falls keine Klinik)"],["ktart","Transportart",["","liegend","sitzend","Rollstuhl","Tragestuhl"]],["ktbegl","Begleitung",["","keine","Angehörige/r","Pflegekraft","Sonstige"]],["ktschein","Verordnung",["","Krankentransportschein liegt vor","Verordnung liegt vor","Keine Verordnung vorhanden"]]]],
@@ -988,61 +993,62 @@ function tabs(names){
   go(0);return {panes:$$(".pane"),go};
 }
 
-const ARCH_TYPES=[["","Alle Arten"],["notfall","Notfallprotokoll"],["kt","Krankentransport"],["revers","Transportverweigerung"],["akte","Patientenakte"],["arb","Arbeitsunfähigkeit"],["tot","Todesbescheinigung"]];
-const archTyp=r=>r.ptyp||"notfall";
+const ARCH_TYPES=[["","Alle Arten"],["einsatz","Einsätze"],["vor","Voranmeldungen"],["notfall","Notfallprotokoll"],["kt","Krankentransport"],["revers","Transportverweigerung"],["akte","Patientenakte"],["arb","Arbeitsunfähigkeit"],["tot","Todesbescheinigung"]];
+const archTyp=r=>r.kind==="mis"?"einsatz":r.kind==="vor"?"vor":r.kind==="doc"?r.ptyp:(PT[r.ptyp]?r.ptyp:"notfall");
 const ARCH_NAME=k=>(ARCH_TYPES.find(x=>x[0]===k)||[0,"Protokoll"])[1];
-function archive(box,edit){
-  box.innerHTML=`<div class="card afilter"><div class="fields af">
+const PMETA=new Set(["ptyp","vid","fz","crew","enr","created","ts","geaendert","vit","vorid","vorx"]);
+const protHas=p=>Object.entries(p||{}).some(([k,v])=>!PMETA.has(k)&&(v===true||(typeof v==="string"&&v.trim())))||Object.values((p||{}).vit||{}).some(r=>Object.entries(r||{}).some(([k,v])=>k!=="t"&&String(v).trim()));
+function archive(box,edit,leit){
+  box.innerHTML=`<div id="aview"><div class="card afilter"><div class="fields af">
     <div class="wide"><label for="af-q">Suche</label><input id="af-q" autocomplete="off" placeholder="Name, Einsatz-Nr., Fahrzeug, Besatzung"></div>
-    <div><label for="af-t">Art</label><select id="af-t">${ARCH_TYPES.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></div>
+    <div><label for="af-t">Art</label><select id="af-t">${ARCH_TYPES.filter(([k])=>leit||(k!=="einsatz"&&k!=="vor")).map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select></div>
     <div><label for="af-f">Fahrzeug</label><select id="af-f"><option value="">Alle Fahrzeuge</option></select></div>
     <div><label for="af-von">Von</label><input id="af-von" type="date"></div>
     <div><label for="af-bis">Bis</label><input id="af-bis" type="date"></div>
-   </div><div class="row"><button type="button" class="alt" id="af-reset">Filter zurücksetzen</button><span class="mut" id="af-count"></span></div></div>
-   <div id="alist"></div><div id="adet"></div>`;
-  let prot={},docs={};
-  const all=()=>[...Object.entries(prot).map(([id,p])=>({...p,id,kind:"prot"})),...Object.entries(docs).map(([id,d])=>({...d,id,kind:"doc"}))];
+   </div><div class="row"><button type="button" class="alt" id="af-reset">Filter zurücksetzen</button><span class="mut" id="af-count"></span></div></div><div id="alist"></div></div><div id="adet"></div>`;
+  const D={prot:{},doc:{},mis:{},vor:{}},nm=v=>(STM[v]||{}).name||v,dt=t=>new Date(t||0).toLocaleString("de-DE");
+  const all=()=>[
+    ...Object.entries(D.prot).filter(([,p])=>protHas(p)).map(([id,p])=>({...p,id,kind:"prot"})),
+    ...Object.entries(D.doc).map(([id,d])=>({...d,id,kind:"doc"})),
+    ...(leit?[...Object.entries(D.mis).filter(([,m])=>m.done&&!m.vor&&!m.vordet).map(([id,m])=>({...m,id,kind:"mis",ts0:m.ts,ts:m.doneTs||m.ts,name:m.nr+" · "+m.sw,enr:m.nr,fzl:vl(m).map(nm),fz:vl(m).map(nm).join(", ")})),
+      ...Object.entries(D.vor).filter(([,v])=>v.done).map(([id,v])=>({...v,id,kind:"vor",ts0:v.ts,ts:v.doneTs||v.ts,name:v.pat,fz:v.fz||v.org||""}))]:[])
+  ].map(r=>({...r,fzl:r.fzl||[r.fz].filter(Boolean)}));
   const draw=()=>{
-    const q=$("#af-q").value.trim().toLowerCase(),t=$("#af-t").value,f=$("#af-f").value,von=$("#af-von").value,bis=$("#af-bis").value;
-    const fzs=[...new Set(all().map(r=>r.fz).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de",{numeric:true}));
-    const fsel=$("#af-f"),cur=fsel.value;
-    fsel.innerHTML='<option value="">Alle Fahrzeuge</option>'+fzs.map(z=>`<option>${esc(z)}</option>`).join("");fsel.value=cur;
-    const rows=all().filter(r=>(!t||archTyp(r)===t)&&(!f||r.fz===f)&&(!von||DATUM(r.ts||0)>=von)&&(!bis||DATUM(r.ts||0)<=bis)
-      &&[r.p_name,r.name,r.fz,r.enr,r.crew].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b.ts||0)-(a.ts||0));
-    const n=all().length;
-    $("#af-count").textContent=rows.length+(rows.length===1?" Eintrag":" Einträge")+(rows.length!==n?" von "+n:"");
-    $("#alist").innerHTML=rows.length?rows.map(r=>{const name=r.p_name||r.name||"Unbekannte Person",isDoc=r.kind==="doc";
-      const btns=(edit&&!isDoc?`<button class="alt" data-a="e" data-id="${esc(r.id)}">Bearbeiten</button>`:"")+((!edit||isDoc)?`<button class="alt" data-a="d" data-id="${r.kind}:${esc(r.id)}">Löschen</button>`:"");
-      return `<div class="card arow"><div><b>${esc(name)}</b> <span class="badge tbadge">${ARCH_NAME(archTyp(r))}</span>${isDoc?' <span class="badge" style="background:var(--sub)">Akte</span>':""}<div class="mut">${esc(r.fz||"–")} · ${new Date(r.ts||0).toLocaleString("de-DE")}${r.enr?" · Einsatz "+esc(r.enr):""}</div></div>`+
-        `<div class="row"><button data-a="v" data-id="${r.kind}:${esc(r.id)}">Ansehen</button>${btns}</div></div>`}).join("")
+    const q=$("#af-q").value.trim().toLowerCase(),t=$("#af-t").value,f=$("#af-f").value,von=$("#af-von").value,bis=$("#af-bis").value,A=all();
+    const fsel=$("#af-f"),cur=fsel.value,fzs=[...new Set(A.flatMap(r=>r.fzl))].sort((a,b)=>a.localeCompare(b,"de",{numeric:true}));
+    if(fsel.dataset.s!==fzs.join("|")){fsel.dataset.s=fzs.join("|");fsel.innerHTML='<option value="">Alle Fahrzeuge</option>'+fzs.map(z=>`<option>${esc(z)}</option>`).join("");fsel.value=cur}
+    const rows=A.filter(r=>(!t||archTyp(r)===t)&&(!f||r.fzl.includes(f))&&(!von||DATUM(r.ts||0)>=von)&&(!bis||DATUM(r.ts||0)<=bis)
+      &&[r.p_name,r.name,r.pat,r.fz,r.enr,r.crew,r.sw,r.adr].join(" ").toLowerCase().includes(q)).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    $("#af-count").textContent=rows.length+(rows.length===1?" Eintrag":" Einträge")+(rows.length!==A.length?" von "+A.length:"");
+    $("#alist").innerHTML=rows.length?rows.map(r=>{const key=r.kind+":"+esc(r.id),name=r.p_name||r.name||"Unbekannte Person";
+      return `<div class="card arow"><div><b>${esc(name)}</b> <span class="badge tbadge">${ARCH_NAME(archTyp(r))}</span><div class="mut">${esc(r.fz||"–")} · ${dt(r.ts)}${r.enr&&r.kind!=="mis"?" · Einsatz "+esc(r.enr):""}</div></div>`+
+        `<div class="row"><button data-a="v" data-id="${key}">Ansehen</button>${leit&&(r.kind==="mis"||r.kind==="vor")?`<button class="alt" data-a="o" data-id="${key}">Wieder öffnen</button>`:""}${edit&&r.kind==="prot"?`<button class="alt" data-a="e" data-id="${esc(r.id)}">Bearbeiten</button>`:""}${!edit||r.kind==="doc"?`<button class="alt" data-a="d" data-id="${key}">Löschen</button>`:""}</div></div>`}).join("")
       :'<div class="empty"><i>🔍</i><b>Keine Treffer</b><span>Passe die Filter an oder setze sie zurück.</span></div>';
   };
+  const lines=a=>a.filter(x=>x[1]).map(([l,v])=>`<div><b>${l}:</b> ${esc(v)}</div>`).join("");
+  const bar='<div class="row abk"><button type="button" class="alt" id="adc">← Zurück zum Archiv</button><button type="button" id="adp">Drucken / als PDF speichern</button></div>';
+  const show=h=>{$("#aview").hidden=true;$("#adet").innerHTML=h;$("#adc").onclick=()=>{$("#adet").innerHTML="";$("#aview").hidden=false};$("#adp").onclick=()=>{audit("Druck");print()};scrollTo(0,0)};
   const detail=r=>{
-    if(r.kind==="doc"){
-      $("#adet").innerHTML=`<div class="card"><div class="docprint" id="adoc"><div class="mut">Gespeichert von ${esc(r.crew||"–")} am ${new Date(r.ts||0).toLocaleString("de-DE")}</div>${DOCS[r.ptyp].html(r.vals||{})}</div><div class="row noprint"><button type="button" id="adp">Drucken / als PDF speichern</button><button type="button" class="alt" id="adc">Schließen</button></div></div>`;
-      $$("#adoc input,#adoc select,#adoc textarea").forEach(el=>el.disabled=true);
-      $("#adp").onclick=()=>{audit("Druck","Akte "+r.ptyp);print()};$("#adc").onclick=()=>$("#adet").innerHTML="";
-      $("#adet").scrollIntoView();return;
-    }
-    const p=r;
-    const hh=[SEC[0],...PT[p.ptyp||"notfall"].secs].map(([t,f,c])=>{
-      if(c&&!p[c])return"";
-      if(f==="vit")return p.vit&&p.vit.length?`<h3>${t}</h3>`+p.vit.map(v=>`<div>${VK.map(k=>k.toUpperCase()+": "+esc(v[k]||"–")).join(" · ")}</div>`).join(""):"";
-      const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");
-      return l?`<h3>${t}</h3>${l}`:"";
-    }).join("");
-    $("#adet").innerHTML=`<div class="card" id="print"><div class="phead"><img class="plogo" src="${$(".logo").src}" alt=""><div><b>${PT[p.ptyp||"notfall"].t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${new Date(p.ts||Date.now()).toLocaleString("de-DE")} · Gedruckt ${new Date().toLocaleString("de-DE")}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div><div class="mut">${p.geaendert?`Zuletzt geändert von ${esc(p.geaendert.name||"–")} am ${new Date(p.geaendert.ts).toLocaleString("de-DE")}  `:"Noch keine Änderungen erfasst."}</div>${hh}<div class="row"><button id="pr">Drucken</button><button class="alt" id="cl">Schließen</button></div></div>`;
-    $("#pr").onclick=()=>{audit("Druck",p.enr||"");print()};$("#cl").onclick=()=>$("#adet").innerHTML="";
-    $("#adet").scrollIntoView();
+    if(r.kind==="doc"){show(`${bar}<div class="card"><div class="docprint" id="adoc"><div class="mut">Gespeichert von ${esc(r.crew||"–")} am ${dt(r.ts)}</div>${DOCS[r.ptyp]?DOCS[r.ptyp].html(r.vals||{}):""}</div></div>`);
+      $$("#adoc input,#adoc select,#adoc textarea").forEach(el=>el.disabled=true);return}
+    if(r.kind==="mis"){const tl=Object.entries(r.t||{}).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_");return (i>0?nm(k.slice(0,i))+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ");
+      show(`${bar}<div class="card" id="print"><h2>Einsatz ${esc(r.nr)}</h2>${lines([["Art",r.art],["Priorität",r.prio],["Stichwort",r.sw],["Einsatzort",r.adr],["Bemerkung",r.info],["Fahrzeuge",vl(r).map(v=>nm(v)+(ackT(r,v)?" (bestätigt "+hm(ackT(r,v))+")":"")).join(", ")],["Zeiten",tl],["Angelegt",dt(r.ts0)],["Abgeschlossen",dt(r.ts)]])}</div>`);return}
+    if(r.kind==="vor"){const lm=Object.values(D.mis).filter(m=>m.vor===r.id);
+      show(`${bar}<div class="card" id="print"><h2>Voranmeldung ${esc(r.pat)}</h2>${lines([["Quelle",r.quelle==="intern"?"Intern, aus Rettungsdienst-Protokoll":"Extern"],["Absender",[r.org,r.fz].filter(Boolean).join(" · ")],["Geschlecht",r.sex],["Geburtsdatum",r.gebdat],["Voraussichtliche Ankunft",r.ank],["Ziel",r.ziel],["Stichwort",r.stich],["NACA",r.naca],["Vitalwerte",r.vit],["Hinweise",r.hin],["Rückfragen",r.kontakt],["Eingegangen",dt(r.ts0)],["Aufnahme vorbereitet",r.ack?dt(r.ack):""],["Abgeschlossen",dt(r.ts)],["Einsatz",lm.map(m=>m.nr+": "+vl(m).map(nm).join(", ")).join(" · ")]])}</div>`);return}
+    const p=r,pt=PT[p.ptyp]||PT.notfall;
+    const hh=[SEC[0],...pt.secs].map(([t,f,c])=>{if(c&&!p[c])return"";
+      if(f==="vit"){const vs=Object.values(p.vit||{}).filter(v=>v&&VK.some(k=>v[k]));return vs.length?`<h3>${t}</h3>`+vs.map(v=>`<div>${VK.map(k=>k.toUpperCase()+": "+esc(v[k]||"–")).join(" · ")}</div>`).join(""):""}
+      const l=f.filter(([k,,ty])=>p[k]&&ty!=="check").map(([k,lb])=>`<div><b>${lb}:</b> ${esc(p[k])}</div>`).join("");return l?`<h3>${t}</h3>${l}`:""}).join("");
+    show(`${bar}<div class="card" id="print"><div class="phead"><img class="plogo" src="${LOGO}" alt=""><div><b>${pt.t}</b><br>Uniklinikum Berlin · Einsatz ${esc(p.enr||"–")}<br>Erstellt ${dt(p.created||p.ts)} · Gedruckt ${dt(Date.now())}</div></div><div>Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}</div><div class="mut">${p.geaendert?`Zuletzt geändert von ${esc(p.geaendert.name||"–")} am ${dt(p.geaendert.ts)}`:"Noch keine Änderungen erfasst."}</div>${hh}</div>`);
   };
-  box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;
-    if(b.dataset.a==="v"){const[kind,id]=b.dataset.id.split(":");const r=all().find(x=>x.kind===kind&&x.id===id);if(r){audit("Ansicht",r.kind==="doc"?"Akte "+(r.ptyp||""):"Protokoll "+(r.enr||""));detail(r)}return}
-    if(b.dataset.a==="d"){const[kind,id]=b.dataset.id.split(":");if(confirm("Eintrag endgültig löschen?")){audit("Gelöscht",(kind==="doc"?"Akte ":"Protokoll ")+id);set(ref(db,(kind==="doc"?"dokumente/":"protocols/")+id),null)}}
-  };
+  box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const a=b.dataset.a,[kind,id]=String(b.dataset.id).split(":");
+    if(a==="v"){const r=all().find(x=>x.kind===kind&&x.id===id);if(r){audit("Ansicht",kind+" "+(r.enr||r.ptyp||""));detail(r)}return}
+    if(a==="d"){if(confirm("Eintrag endgültig löschen?")){audit("Gelöscht",kind+" "+id);set(ref(db,({prot:"protocols/",doc:"dokumente/",mis:"missions/",vor:"voranmeldungen/"})[kind]+id),null)}return}
+    if(a==="o"){const u={};u[(kind==="mis"?"missions/":"voranmeldungen/")+id+"/done"]=null;u[(kind==="mis"?"missions/":"voranmeldungen/")+id+"/doneTs"]=null;
+      if(kind==="vor")Object.entries(D.mis).forEach(([mid,m])=>{if(m.vor===id)u["missions/"+mid+"/done"]=null});update(ref(db),u);audit("Wieder geöffnet",kind+" "+id)}};
   ["af-q","af-t","af-f","af-von","af-bis"].forEach(i=>$("#"+i).addEventListener("input",draw));
   $("#af-reset").onclick=()=>{["af-q","af-von","af-bis"].forEach(i=>$("#"+i).value="");$("#af-t").value="";$("#af-f").value="";draw()};
-  onValue(ref(db,"protocols"),s=>{prot=s.val()||{};draw()});
-  onValue(ref(db,"dokumente"),s=>{docs=s.val()||{};draw()});
+  [["protocols","prot"],["dokumente","doc"],...(leit?[["missions","mis"],["voranmeldungen","vor"]]:[])].forEach(([path,k])=>onValue(ref(db,path),s=>{D[k]=s.val()||{};draw()}));
 }
 
 /* ---------- Akten: Patientenakte, Arbeitsunfähigkeit, Todesbescheinigung ---------- */
@@ -1102,9 +1108,9 @@ $("#doc-x").onclick=()=>$("#docdlg").close();
 
 /* ---------- Leitstelle ---------- */
 function leitstelle(){
-  const {panes}=tabs(["Einsätze","Fahrzeuge und Funk","Archiv","Statistik","Fahrzeugstamm"]);
+  const {panes}=tabs(["Einsätze","Voranmeldungen","Fahrzeuge und Funk","Archiv","Statistik","Fahrzeugstamm"]);
   let V={},M={},Q=null,editId=null;const selV=new Set();
-  panes[0].innerHTML=`<div class="lage" id="lage"></div><div id="vor"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields f3">
+  panes[0].innerHTML=`<div class="lage" id="lage"></div><div class="card"><h2 id="mt">Neuer Einsatz</h2><div class="fields f3">
    <div><label for="m-art">Einsatzart</label><select id="m-art"><option>Notfallrettung</option><option>Notarzteinsatz</option><option>Krankentransport</option></select></div>
    <div><label for="m-code">Stichwort (Einsatzcode)</label><select id="m-code"><option value="">– Stichwort wählen –</option>${CODES.map(c=>`<option value="${c[0]}">${esc(codeTxt(c))}</option>`).join("")}</select></div>
    <div><label for="m-prio">Priorität (Alpha-Code)</label><select id="m-prio">${ALPHA.map(a=>`<option value="${a}"${a==="Bravo"?" selected":""}>${ALTXT[a]}</option>`).join("")}</select></div>
@@ -1115,7 +1121,8 @@ function leitstelle(){
    <label for="m-info">Meldung / Bemerkung</label><textarea id="m-info"></textarea>
    <label class="chk"><input type="checkbox" id="m-ann" checked>Zuweisung per Funk durchsagen</label>
    <div class="row"><button id="m-save">Einsatz speichern</button><button class="alt" id="m-cancel" hidden>Abbrechen</button></div></div><div id="mlist"></div>`;
-  panes[1].innerHTML=`<div class="card" id="q-card" hidden><h2>Rückmeldungen auf die letzte Abfrage</h2><p class="hint" id="q-sub"></p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Antwort</th><th>Zeit</th></tr></thead><tbody id="q-body"></tbody></table></div></div><h2 class="sech" style="margin-top:0">Fahrzeuge</h2><div id="vlist" class="grid"></div><div class="card" style="margin-top:20px"><h2>Eigene Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div>`;
+  panes[1].innerHTML='<div id="vor"></div>';
+  panes[2].innerHTML=`<div class="card" id="q-card" hidden><h2>Rückmeldungen auf die letzte Abfrage</h2><p class="hint" id="q-sub"></p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Antwort</th><th>Zeit</th></tr></thead><tbody id="q-body"></tbody></table></div></div><h2 class="sech" style="margin-top:0">Fahrzeuge</h2><div id="vlist" class="grid"></div><div class="card" style="margin-top:20px"><h2>Eigene Durchsage</h2><label for="a-target">An</label><select id="a-target"></select><label for="a-text">Text</label><textarea id="a-text"></textarea><div class="row"><button id="a-send">Durchsagen</button></div></div>`;
   /* ---- Schnellfunk: Abfragen und Standardrufe an ein Fahrzeug oder alle ---- */
   $("#app").insertAdjacentHTML("afterbegin",`<div class="qbar" id="qbar" role="group" aria-label="Schnellfunk"><b class="qt">Schnellfunk</b><select id="q-to" aria-label="Empfänger"></select><div class="qbtns"><button type="button" data-q="status">Status abfragen</button><button type="button" data-q="standort">Standort abfragen</button><button type="button" class="alt" data-q="melden">Bitte melden</button><button type="button" class="alt" data-q="bestaetigen">Einsatz bestätigen</button><details class="qmore" id="q-more"><summary>Mehr</summary><div class="qpop"><button type="button" class="alt" data-q="wiederholen">Einsatz wiederholen</button><button type="button" class="alt" data-q="warten">Bitte warten</button><button type="button" class="alt dng" data-q="funkstille">Funkstille</button><div class="qtxt"><input id="q-txt" maxlength="160" placeholder="Eigener Kurztext" aria-label="Eigener Kurztext"><button type="button" data-q="text">Senden</button></div></div></details></div><span class="qres" id="q-res" role="status" aria-live="polite"></span></div>`);
   {const qb=$("#qbar"),setQh=()=>document.documentElement.style.setProperty("--qh",getComputedStyle(qb).position==="sticky"?qb.offsetHeight+"px":"0px");
@@ -1174,13 +1181,13 @@ function leitstelle(){
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
     $("#vlist").innerHTML=Object.keys(V).length?Object.entries(V).map(([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>vl(m).includes(id)&&!m.done);
       return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div>${v.abt?`<div>Abteilung: ${esc(v.abt)}</div>`:""}<div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div>${v.loc?`<div>Standort: ${esc(v.loc.text)} <span class="mut">(${hm(v.loc.ts)})</span></div>`:""}${v.status!=="aus"?`<div class="row vq"><button class="alt" data-q="status" data-v="${esc(id)}">Status?</button><button class="alt" data-q="standort" data-v="${esc(id)}">Standort?</button><button class="alt" data-call="${esc(v.name)}">Rufen</button></div>`:""}<div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#2e8b57">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`}).join(""):"<p>Noch kein Fahrzeug angemeldet.</p>";
-    {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done);
+    {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done&&!m.vor&&!m.vordet);
      const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!vl(m).length).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>vl(m).some(v=>!ackT(m,v))).length,"#8e24aa"]];
      $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
     const PR=m=>{const i=["Echo","Delta","Charlie","Bravo","Alpha","Omega"].indexOf(m.prio);return i>=0?i:m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?2:5};
-    const rows=Object.entries(M).sort((a,b)=>(Number(!!a[1].done)-Number(!!b[1].done))||(a[1].done?0:PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
-    $("#mlist").innerHTML=rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b7178"]:!vs_.length?["Offen","#e2001a"]:na===0?["Bestätigt","#2e8b57"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#e0a100"];
-      return `<div class="card${MNEW.has(id)?" is-new":""}"><b>${esc(m.nr)}</b>${MNEW.has(id)?' <span class="new-tag">NEU</span>':""} <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):'<div class="empty"><i>📭</i><b>Noch keine Einsätze</b><span>Lege oben den ersten Einsatz an.</span></div>';
+    const rows=Object.entries(M).filter(([,m])=>!m.done&&!m.vor&&!m.vordet).sort((a,b)=>(PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
+    $("#mlist").innerHTML='<h2 class="sech">Laufende Einsätze ('+rows.length+')</h2>'+(rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b7178"]:!vs_.length?["Offen","#e2001a"]:na===0?["Bestätigt","#2e8b57"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#e0a100"];
+      return `<div class="card${MNEW.has(id)?" is-new":""}"><b>${esc(m.nr)}</b>${MNEW.has(id)?' <span class="new-tag">NEU</span>':""} <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):'<div class="empty"><i>📭</i><b>Keine laufenden Einsätze</b><span>Lege oben einen neuen Einsatz an. Abgeschlossene Einsätze liegen im Archiv.</span></div>');
     {const qt=$("#q-to"),cq=qt.value;qt.innerHTML='<option value="alle">Alle Fahrzeuge</option>'+Object.entries(V).filter(([id,v])=>v.status!=="aus"&&v.crew).sort(byName).map(([id,v])=>`<option value="${esc(id)}">${esc(v.name)}</option>`).join("");
      qt.value=[...qt.options].some(o=>o.value===cq)?cq:"alle"}
     drawQ();
@@ -1216,7 +1223,7 @@ function leitstelle(){
   onValue(ref(db,"missions"),s=>{M=s.val()||{};
     if(!MREADY){MREADY=true;MSEEN=new Set(Object.keys(M))}
     else Object.keys(M).forEach(id=>{if(!MSEEN.has(id)){MSEEN.add(id);MNEW.add(id);setTimeout(()=>{MNEW.delete(id);draw()},9000)}});
-    draw()});
+    draw();try{drawVor()}catch{}});
   /* Voranmeldungen: Liste, Weiterleitung als Einsatz an Fahrzeuge, Bestätigung (gemeinsamer Stand über die Datenbank) */
   let VOR_ROWS=[],VOR_OPEN=null,VOR_SEL=new Set(),VOR_FORM={adr:"",art:"Notfallrettung",prio:"Bravo",vorb:false,vor:false};
   const vorCb=(id,label,checked)=>`<label class="chk"><input type="checkbox" id="${id}"${checked?" checked":""}>${label}</label>`;
@@ -1225,8 +1232,8 @@ function leitstelle(){
     if($("#vf-adr"))VOR_FORM={adr:$("#vf-adr").value,art:$("#vf-art").value,prio:$("#vf-prio").value,vorb:$("#vf-vorb").checked,vor:$("#vf-vor").checked};
     const act=Object.entries(V).filter(([,x])=>x.status!=="aus"&&x.crew).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     const rd=act.filter(([,x])=>typOf(x)!=="kh"),kh=act.filter(([,x])=>typOf(x)==="kh");
-    $("#vor").innerHTML=VOR_ROWS.length?`<div class="card"><h2>Voranmeldungen (${VOR_ROWS.length})</h2><p class="hint">Patienten, die andere Rettungsdienste ohne Anmeldung vorab angekündigt haben.</p>${VOR_ROWS.map(([id,v])=>{
-      const wl=Object.values(v.weiter||{});
+    $("#vor").innerHTML=VOR_ROWS.length?`<div class="card"><h2>Voranmeldungen (${VOR_ROWS.length})</h2><p class="hint">Vorab angekündigte Patienten: automatisch aus Rettungsdienst-Protokollen (intern) oder von anderen Organisationen (extern).</p>${VOR_ROWS.map(([id,v])=>{
+      const wl=Object.values(v.weiter||{}),lm=Object.values(M).find(m=>m.vor===id);
       const panel=VOR_OPEN===id?`<div class="vorfwd"><span class="vp-l">Als Einsatz weiterleiten</span>
         <div class="vf-grid"><div class="vf-wide"><label for="vf-adr">Einsatzort / Abholort *</label><input id="vf-adr" value="${esc(VOR_FORM.adr)}" placeholder="Straße Hausnr., PLZ Berlin oder Klinik" autocomplete="off"></div>
         <div><label for="vf-art">Einsatzart</label><select id="vf-art">${["Notfallrettung","Notarzteinsatz","Krankentransport"].map(a=>`<option${a===VOR_FORM.art?" selected":""}>${a}</option>`).join("")}</select></div>
@@ -1235,17 +1242,17 @@ function leitstelle(){
         <span class="vp-l">Rettungsdienst</span>${rd.length?rd.map(fzLine).join(""):'<span class="mut">Kein Rettungsdienst im Dienst.</span>'}
         <span class="vp-l">Krankenhaus-Personen</span>${kh.length?kh.map(fzLine).join(""):'<span class="mut">Keine KH-Person im Dienst.</span>'}
         <div class="row"><button type="button" data-vsend="${esc(id)}">Als Einsatz weiterleiten</button><button type="button" class="alt" data-vclose="1">Abbrechen</button></div></div>`:"";
-      return `<div class="vorrow${VOR_NEW.has(id)?" is-new":""}"><div><b>${esc(v.pat)}</b>${VOR_NEW.has(id)?' <span class="new-tag">NEU</span>':""}${v.sex?" · "+esc(v.sex):""}${v.gebdat?" · geb. "+esc(v.gebdat):""}<br><span class="mut">${esc(v.org)}${v.fz?" · "+esc(v.fz):""} · eingegangen ${hm(v.ts)}</span>${v.einsatz?`<div class="vor-fwd">➜ Einsatz ${esc(v.einsatz)}</div>`:""}${wl.length?`<div class="vor-fwd">Weitergeleitet an: ${wl.map(esc).join(", ")}</div>`:""}</div>`+
-        `<div><div>Ankunft: <b>${esc(v.ank)}</b> · Stichwort: ${esc(v.stich)}</div>${v.vit?`<div>Vitals: ${esc(v.vit)}</div>`:""}${v.hin?`<div>Hinweis: ${esc(v.hin)}</div>`:""}${v.kontakt?`<div>Rückfragen: ${esc(v.kontakt)}</div>`:""}</div>`+
-        `<div class="row">${v.ack?`<span class="vor-ack">✔ Aufnahme vorbereitet ${hm(v.ack)}</span>`:`<button class="alt" data-vok="${esc(id)}">Aufnahme vorbereitet</button>`}<button class="alt" data-vfwd="${esc(id)}">Als Einsatz weiterleiten</button><button class="alt" data-vd="${esc(id)}">Erledigt</button></div>${panel}</div>`}).join("")}</div>`:"";
+      return `<div class="vorrow${VOR_NEW.has(id)?" is-new":""}"><div><b>${esc(v.pat)}</b> ${v.quelle==="intern"?'<span class="badge" style="background:var(--brand)">Intern</span>':'<span class="badge" style="background:var(--sub)">Extern</span>'}${VOR_NEW.has(id)?' <span class="new-tag">NEU</span>':""}${v.sex?" · "+esc(v.sex):""}${v.gebdat?" · geb. "+esc(v.gebdat):""}<br><span class="mut">${esc(v.org)}${v.fz?" · "+esc(v.fz):""} · eingegangen ${hm(v.ts)}</span>${v.einsatz?`<div class="vor-fwd">➜ Einsatz ${esc(v.einsatz)}</div>`:""}${wl.length?`<div class="vor-fwd">Weitergeleitet an: ${wl.map(esc).join(", ")}</div>`:""}${lm?`<div class="mut">Einsatz ${esc(lm.nr)}: ${vl(lm).map(f=>esc(V[f]?V[f].name:f)+(ackT(lm,f)?" ✔ "+hm(ackT(lm,f)):" ⏳")).join(" · ")}</div>`:""}</div>`+
+        `<div><div>Ankunft: <b>${esc(v.ank||"offen")}</b> · Stichwort: ${esc(v.stich)}${v.ziel?" · Ziel: "+esc(v.ziel):""}</div>${v.vit?`<div>Vitals: ${esc(v.vit)}</div>`:""}${v.hin?`<div>Hinweis: ${esc(v.hin)}</div>`:""}${v.kontakt?`<div>Rückfragen: ${esc(v.kontakt)}</div>`:""}</div>`+
+        `<div class="row">${v.ack?`<span class="vor-ack">✔ Aufnahme vorbereitet ${hm(v.ack)}</span>`:`<button class="alt" data-vok="${esc(id)}">Aufnahme vorbereitet</button>`}<button class="alt" data-vfwd="${esc(id)}">Als Einsatz weiterleiten</button><button class="alt" data-vd="${esc(id)}">Erledigt</button></div>${panel}</div>`}).join("")}</div>`:'<div class="empty"><i>📋</i><b>Keine offenen Voranmeldungen</b><span>Neue Voranmeldungen erscheinen hier automatisch, auch die aus Rettungsdienst-Protokollen.</span></div>';const vt=$('#tabs button[data-t="1"]');if(vt)vt.textContent="Voranmeldungen"+(VOR_ROWS.length?" ("+VOR_ROWS.length+")":"");
   };
   let VOR_READY=false,VOR_KNOWN=new Set(),VOR_NEW=new Set();
-  onValue(ref(db,"voranmeldungen"),s=>{if(!VOR_READY){VOR_READY=true;VOR_KNOWN=new Set(Object.keys(s.val()||{}))}VOR_ROWS=Object.entries(s.val()||{}).sort((a,b)=>b[1].ts-a[1].ts);drawVor()});
+  onValue(ref(db,"voranmeldungen"),s=>{if(!VOR_READY){VOR_READY=true;VOR_KNOWN=new Set(Object.keys(s.val()||{}))}VOR_ROWS=Object.entries(s.val()||{}).filter(x=>!x[1].done).sort((a,b)=>b[1].ts-a[1].ts);drawVor()});
   onValue(ref(db,"vehicles"),()=>{if(VOR_OPEN)drawVor()});
   $("#vor").onchange=e=>{const c=e.target;if(c.dataset.vfz){c.checked?VOR_SEL.add(c.dataset.vfz):VOR_SEL.delete(c.dataset.vfz)}};
   $("#vor").onclick=async e=>{const b=e.target.closest("button");if(!b)return;
     if(b.dataset.vok){update(ref(db,"voranmeldungen/"+b.dataset.vok),{ack:Date.now()});return}
-    if(b.dataset.vd){if(confirm("Voranmeldung abschließen und aus der Liste entfernen?"))set(ref(db,"voranmeldungen/"+b.dataset.vd),null);return}
+    if(b.dataset.vd){if(confirm("Voranmeldung abschließen? Sie wird ins Archiv verschoben.")){const id=b.dataset.vd,u={};u["voranmeldungen/"+id+"/done"]=true;u["voranmeldungen/"+id+"/doneTs"]=Date.now();Object.entries(M).forEach(([mid,m])=>{if(m.vor===id&&!m.done){u["missions/"+mid+"/done"]=true;u["missions/"+mid+"/doneTs"]=Date.now()}});update(ref(db),u);audit("Voranmeldung abgeschlossen")}return}
     if(b.dataset.vfwd){VOR_OPEN=VOR_OPEN===b.dataset.vfwd?null:b.dataset.vfwd;VOR_SEL=new Set();drawVor();return}
     if(b.dataset.vclose){VOR_OPEN=null;drawVor();return}
     if(b.dataset.vsend){
@@ -1273,8 +1280,8 @@ function leitstelle(){
   /* Neue Voranmeldung: Ansage und Hinweis in der Leitstelle (nur Voranmeldungen, die nach dem Öffnen eingehen) */
   onChildAdded(ref(db,"voranmeldungen"),s=>{const v=s.val();if(!VOR_READY||VOR_KNOWN.has(s.key)||!v)return;VOR_KNOWN.add(s.key);VOR_NEW.add(s.key);setTimeout(()=>{VOR_NEW.delete(s.key);drawVor()},9000);drawVor();
     const b=$("#banner");
-    if(!b.dataset.sw){b.dataset.vid=s.key;b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+v.ank+" · "+v.stich+" ("+v.org+")"}
-    say("Neue Voranmeldung von "+v.org+(v.fz?", "+v.fz:"")+". Patient "+v.pat+(v.sex?", "+v.sex:"")+". Voraussichtliche Ankunft "+v.ank+". Stichwort "+v.stich+".");
+    if(!b.dataset.sw){b.dataset.vid=s.key;b.hidden=false;b.textContent="Neue Voranmeldung: "+v.pat+" · Ankunft "+(v.ank||"offen")+" · "+v.stich+" ("+v.org+")"}
+    say("Neue Voranmeldung von "+v.org+(v.fz?", "+v.fz:"")+". Patient "+v.pat+(v.sex?", "+v.sex:"")+". "+(v.ank?"Voraussichtliche Ankunft "+v.ank+". ":"")+"Stichwort "+v.stich+".");
   },e=>console.error(e));
   /* Gemeinsamer Stand aller Leitstellen: ist der angezeigte Sprechwunsch oder die Voranmeldung bestätigt, verschwindet der Hinweis überall */
   onValue(ref(db,"vehicles"),s=>{const b=$("#banner"),id=b.dataset.sw;if(!id)return;const v=(s.val()||{})[id];
@@ -1282,7 +1289,7 @@ function leitstelle(){
   onValue(ref(db,"voranmeldungen"),s=>{const b=$("#banner"),id=b.dataset.vid;if(!id)return;const v=(s.val()||{})[id];
     if(!v||v.ack){b.hidden=true;b.dataset.vid=""}});
   let PRT={};
-  panes[3].innerHTML=`<div class="lage" id="kpi"></div><p class="hint">Kennzahlen aus den Einsatzprotokollen. Die Hilfsfrist ist die Zeit vom Notrufeingang bis zum Eintreffen am Einsatzort.</p><div class="grid2"><div class="card"><h2>Einsätze nach Art</h2><div id="b-art"></div></div><div class="card"><h2>Einsätze nach Priorität</h2><div id="b-prio"></div></div><div class="card"><h2>Einsätze pro Fahrzeug</h2><div id="b-fz"></div></div><div class="card"><h2>NACA-Verteilung (Protokolle)</h2><div id="b-naca"></div></div><div class="card"><h2>Transportart (Protokolle)</h2><div id="b-tr"></div></div></div>`;
+  panes[4].innerHTML=`<div class="lage" id="kpi"></div><p class="hint">Kennzahlen aus den Einsatzprotokollen. Die Hilfsfrist ist die Zeit vom Notrufeingang bis zum Eintreffen am Einsatzort.</p><div class="grid2"><div class="card"><h2>Einsätze nach Art</h2><div id="b-art"></div></div><div class="card"><h2>Einsätze nach Priorität</h2><div id="b-prio"></div></div><div class="card"><h2>Einsätze pro Fahrzeug</h2><div id="b-fz"></div></div><div class="card"><h2>NACA-Verteilung (Protokolle)</h2><div id="b-naca"></div></div><div class="card"><h2>Transportart (Protokolle)</h2><div id="b-tr"></div></div></div>`;
   const bars=(o,c)=>{const mx=Math.max(1,...Object.values(o));return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="br"><span>${esc(k)}</span><i style="--w:${v/mx*100}%;--c:${c}"></i><b>${v}</b></div>`).join("")||"<p>Noch keine Daten.</p>"};
   const cnt=(arr,f)=>arr.reduce((o,x)=>{const k=f(x);if(k)o[k]=(o[k]||0)+1;return o},{});
   const avg=a=>a.length?(Math.round(a.reduce((x,y)=>x+y,0)/a.length/6000)/10)+" min":"–";
@@ -1293,13 +1300,13 @@ function leitstelle(){
     $("#b-art").innerHTML=bars(cnt(ms,m=>m.art),"#1e66b0");$("#b-prio").innerHTML=bars(cnt(ms,m=>m.prio),"#e2001a");
     $("#b-fz").innerHTML=bars(cnt(ms.flatMap(m=>vl(m).map(v=>({v}))),x=>V[x.v]?V[x.v].name:x.v),"#2e8b57");
     $("#b-naca").innerHTML=bars(cnt(pr,p=>p.naca),"#e0a100");$("#b-tr").innerHTML=bars(cnt(pr,p=>p.tprio),"#8e24aa")}
-  panes[4].innerHTML=`<div class="card"><h2>Fahrzeugstamm</h2><p class="hint">Alle Fahrzeuge, die sich beim Anmelden auswählen lassen. Mehrere Personen können sich auf dasselbe Fahrzeug anmelden, hier siehst du, wer gerade in welchem Fahrzeug sitzt. Der Stamm wird von der Administration gepflegt und kann hier nur eingesehen werden.</p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th>Besatzung (angemeldet)</th><th>Status</th></tr></thead><tbody id="stl"></tbody></table></div></div>`;
+  panes[5].innerHTML=`<div class="card"><h2>Fahrzeugstamm</h2><p class="hint">Alle Fahrzeuge, die sich beim Anmelden auswählen lassen. Mehrere Personen können sich auf dasselbe Fahrzeug anmelden, hier siehst du, wer gerade in welchem Fahrzeug sitzt. Der Stamm wird von der Administration gepflegt und kann hier nur eingesehen werden.</p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th>Besatzung (angemeldet)</th><th>Status</th></tr></thead><tbody id="stl"></tbody></table></div></div>`;
   function drawStamm(){const TY={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW",kh:"KH-Person"};
     $("#stl").innerHTML=Object.entries(STM).sort((a,b)=>a[1].name.localeCompare(b[1].name,"de",{numeric:true})).map(([id,v])=>{const c=crewOf(id),st=V[id]&&c.length?sInfo(V[id].status):null;
       return `<tr><td><b>${esc(v.name)}</b></td><td>${TY[v.typ]||"–"}</td><td>${c.length?c.map(esc).join(", "):"<i>niemand angemeldet</i>"}</td><td>${st?`<span class="badge" style="background:${st[2]}">${st[1]}</span>`:"–"}</td></tr>`}).join("")||'<tr><td colspan="4">Der Stamm ist leer. Die Administration muss Fahrzeuge anlegen.</td></tr>'}
   const rd=()=>{drawStat();drawStamm()};
   onValue(ref(db,"missions"),rd);onValue(ref(db,"vehicles"),rd);onValue(ref(db,"stamm"),rd);onValue(ref(db,"crew"),rd);onValue(ref(db,"protocols"),s=>{PRT=s.val()||{};rd()});
-  archive(panes[2],false);
+  archive(panes[3],false,true);
 }
 
 const reqHtml=m=>{const r=m.req||{},need=[r.vorb?"Aufnahme vorbereiten":"",r.vor?"Patient vor Ort melden":""].filter(Boolean).join(" · ");
@@ -1315,7 +1322,7 @@ async function fahrzeug(){
   function flushVor(){
     while(vorQueue.length){const m=vorQueue.shift();PREFILLED.add(m.id);const v=m.vordet||{};
       get(ref(db,"protocols/"+pid)).then(snap=>{const cur=snap.val()||{};if(cur.p_name)return;
-        enr=m.nr;
+        enr=m.nr;vorId=m.vor||"";vorX=true;watchVor();
         fill({...cur,p_name:v.pat||"",p_gebdat:v.gebdat||"",p_sex:v.sex||"",s_s:v.stich||"",ptyp:"notfall",
           s_e:`Voranmeldung von ${v.org||"–"}, Ankunft ${v.ank||"–"}.${v.vit?" Vitals: "+v.vit+".":""}${v.hin?" "+v.hin:""}`});
         save()}).catch(()=>{});
@@ -1329,8 +1336,8 @@ async function fahrzeug(){
   const abtNow=(cur&&cur.abt)||(STM[me.vid]||{}).abt||ABT[0];
   const abtCardHtml=KH?`<div class="card"><h2>Abteilung</h2><p class="hint">Wechsle die Abteilung, damit die Leitstelle weiß, wo du gerade bist.</p><div class="row"><select id="abt-sel" aria-label="Abteilung">${ABT.map(a=>`<option${a===abtNow?" selected":""}>${esc(a)}</option>`).join("")}</select><button type="button" id="abt-go">Abteilung wechseln</button></div><p class="mut" id="abt-now">Aktuell: ${esc(abtNow)}</p></div>`:"";
   panes[0].innerHTML=`${abtCardHtml}<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${(KH?KSTATUS:STATUS).map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
-  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"${KH?"":" hidden"}><span class="pglabel">Akten</span><div class="ptiles">${(KH?AKTEN:[]).map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
-  let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now();
+  panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div id="vor-strip" class="vorstrip" hidden></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"${KH?"":" hidden"}><span class="pglabel">Akten</span><div class="ptiles">${(KH?AKTEN:[]).map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
+  let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now(),vorId="",vorX=false,vorCur=null,vorOff=null,vorTm=0;
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
     if(!FZREADY){FZREADY=true;ms.forEach(([id])=>FZSEEN.add(id))}
@@ -1345,9 +1352,9 @@ async function fahrzeug(){
   $("#st").onclick=e=>{const s=e.target.dataset.s;if(s){tetraBeep();update(vref,{status:s,swTs:s==="s4"?Date.now():null,swAck:null,swPrev:s==="s4"?(vcur.status==="s4"?(vcur.swPrev||"s1"):(vcur.status||"s1")):null});if(cmid)update(ref(db,"missions/"+cmid+"/t"),{[me.vid+"_"+s]:Date.now()})}};
   const vrow=(d={})=>{const r=document.createElement("div");r.className="vrow";
     r.innerHTML=VK.map((k,i)=>`<input data-v="${k}" placeholder="${["Zeit","RR","Puls","SpO₂","AF","BZ","GCS"][i]}" aria-label="${k}" value="${esc(d[k])}">`).join("");$("#vit").appendChild(r)};
-  let ptype="notfall";
+  let ptype="notfall",lastP="notfall",saved=false;
   const prefillNow=()=>({...Object.fromEntries($$("#pform [data-k]").map(el=>[el.dataset.k,el.type==="checkbox"?el.checked:el.value])),vit:$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value]))),enr,fz:me.call,crew:me.name,ts:Date.now()});
-  const showType=t=>{ptype=t;const doc=!!DOCS[t];
+  const showType=t=>{ptype=t;const doc=!!DOCS[t];if(!doc)lastP=t;{const vs=$("#vor-strip");if(vs)vs.hidden=KH||t!=="notfall"}
     $$("[data-pt]").forEach(b=>b.classList.toggle("on",b.dataset.pt===t));
     $("#pf-pat").hidden=doc;
     ["notfall","kt","revers"].forEach(k=>$("#pf-"+k).hidden=doc||k!==t);
@@ -1370,18 +1377,32 @@ async function fahrzeug(){
   const toggles=()=>$$("[data-c]").forEach(c=>c.hidden=!$("#f-"+c.dataset.c).checked);
   const fill=d=>{$$("#pform [data-k]").forEach(el=>{const v=d[el.dataset.k];el.type==="checkbox"?el.checked=!!v:el.value=v??""});
     $("#vit").innerHTML="";(d.vit||[]).forEach(vrow);toggles();showType(d.ptyp&&(PT[d.ptyp]||DOCS[d.ptyp])?d.ptyp:"notfall")};
-  const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();enr=d.enr||"";fill(d)};
+  const drawStrip=()=>{const e=$("#vor-strip");if(!e)return;const v=vorCur;e.className="vorstrip"+(v?" ok":"");
+    e.innerHTML=v?`<b>✔ Notaufnahme voranmeldet</b> <span class="mut">${hm(v.ts)}${v.upd&&v.upd-v.ts>3000?" · aktualisiert "+hm(v.upd):""}</span> `+(v.done?'<span class="badge" style="background:var(--sub)">abgeschlossen</span>':v.ack?`<span class="badge" style="background:var(--ok)">Aufnahme vorbereitet ${hm(v.ack)}</span>`:'<span class="mut">· wartet auf Bestätigung</span>'):'<span class="mut">Die Voranmeldung geht automatisch an die Notaufnahme, sobald Patient oder Symptome eingetragen sind.</span>'};
+  const watchVor=()=>{if(vorOff){vorOff();vorOff=null}vorCur=null;drawStrip();if(vorId)vorOff=onValue(ref(db,"voranmeldungen/"+vorId),s=>{vorCur=s.val();drawStrip()})};
+  const vorFields=o=>{const lv=Object.values(o.vit||{}).filter(r=>r.rr||r.puls||r.spo2||r.bz||r.gcs).slice(-1)[0]||{},m=MC[cmid]||{};
+    return {pat:o.p_name||"Name unbekannt",gebdat:o.p_gebdat||"",sex:o.p_sex||"",fz:me.call,crew:me.name,enr:o.enr||"",ank:o.eta||"",ziel:o.ziel||"",naca:o.naca||"",
+      stich:(o.s_s||m.sw||"Notfallpatient").slice(0,120),vit:[["RR",o.c_rr||lv.rr],["Puls",o.c_puls||lv.puls],["SpO₂",o.b_spo2||lv.spo2],["BZ",o.d_bz||lv.bz],["GCS",o.d_gcs||lv.gcs]].filter(x=>x[1]).map(x=>x[0]+" "+x[1]).join(", "),
+      hin:[o.s_a&&"Allergien: "+o.s_a,o.s_m&&"Medikamente: "+o.s_m,o.mass&&"Maßnahmen: "+o.mass].filter(Boolean).join(" · "),kontakt:"Funk "+me.call,upd:Date.now()}};
+  const autoVor=async(o,p)=>{if(KH||vorX||p!==pid||o.ptyp!=="notfall")return;
+    if(/kein Transport|verweigerung/i.test(o.tprio||"")){if(vorId&&vorCur&&!vorCur.done&&!vorCur.einsatz){await set(ref(db,"voranmeldungen/"+vorId),null);vorId="";watchVor();update(ref(db,"protocols/"+pid),{vorid:null})}return}
+    if(!(o.p_name||o.s_s||o.naca))return;
+    try{if(vorId){if(vorCur&&!vorCur.done)await update(ref(db,"voranmeldungen/"+vorId),vorFields(o));return}
+      vorId="v"+pid;await set(ref(db,"voranmeldungen/"+vorId),{...vorFields(o),org:"Uniklinikum Rettungsdienst",quelle:"intern",pid,vid:me.vid,ts:Date.now()});
+      watchVor();update(ref(db,"protocols/"+pid),{vorid:vorId});audit("Voranmeldung automatisch",o.enr||"")}
+    catch(x){vorId="";toast("Voranmeldung fehlgeschlagen: "+(x.message||x),true)}};
+  const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();enr=d.enr||"";vorId=d.vorid||"";vorX=!!d.vorx;saved=protHas(d);watchVor();fill(d)};
   const setPid=id=>{clearTimeout(timer);pid=id;try{sessionStorage.setItem("pid",id)}catch{}};
   await load();
   const save=()=>{clearTimeout(timer);timer=setTimeout(()=>{
     const o={};$$("#pform [data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
     o.vit=$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value])));
-    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:ptype,geaendert:{name:me.name||"",ts:Date.now()}});
-    set(ref(db,"protocols/"+pid),o)},600)};
+    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:lastP,vorid:vorId||null,vorx:vorX||null,geaendert:{name:me.name||"",ts:Date.now()}});if(!saved&&!protHas(o))return;saved=true;
+    set(ref(db,"protocols/"+pid),o);clearTimeout(vorTm);vorTm=setTimeout(()=>autoVor(o,pid),vorId?300:4000)},600)};
   panes[1].addEventListener("input",()=>{if(DOCS[ptype])return;toggles();save()});
   panes[0].addEventListener("click",e=>{if(e.target.id==="abt-go"){const a=$("#abt-sel").value;update(vref,{abt:a});$("#abt-now").textContent="Aktuell: "+a}});
   $("#vadd").onclick=()=>{vrow({t:new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});save()};
-  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();fill({ptyp:ptype})}};
+  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();vorId="";vorX=false;saved=false;watchVor();fill({ptyp:ptype})}};
   fzReady=true;flushVor();
   archive(panes[2],true);
   // Bearbeiten aus dem Archiv
