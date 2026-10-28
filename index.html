@@ -667,7 +667,7 @@ dialog#vdlg,dialog#docdlg,dialog#adlg{border:0}
   <img class="logo" data-logo alt="Uniklinikum Berlin">
   <h2>Anmelden</h2><p class="hint">Melde dich mit deinem Zugang an. Zugänge und Fahrzeuge legt die Administration an.</p>
   <div id="l-s1"><label for="l-user">Zugangsname</label><input id="l-user" autocomplete="username" autocapitalize="none" spellcheck="false"><label for="l-pw">Passwort</label><input id="l-pw" type="password" autocomplete="current-password"><div class="row"><button id="l-go" type="button">Anmelden</button></div></div>
-  <div id="l-s2" hidden><p class="hint" id="l-hi"></p><label for="l-st" id="l-lb">Fahrzeug aus dem Stamm</label><select id="l-st"></select><div class="row"><button id="l-start" type="button">Dienst beginnen</button><button class="alt" id="l-back" type="button">Anderer Zugang</button></div></div>
+  <div id="l-s2" hidden><p class="hint" id="l-hi"></p><label for="l-mode">Anmelden als</label><select id="l-mode"><option value="fzg">Fahrzeug aus dem Stamm</option><option value="kh">Eigene Person mit Abteilung</option></select><label for="l-st" id="l-lb">Fahrzeug aus dem Stamm</label><select id="l-st"></select><div class="row"><button id="l-start" type="button">Dienst beginnen</button><button class="alt" id="l-back" type="button">Anderer Zugang</button></div></div>
   <p id="l-err" style="color:var(--red)"></p>
   <div class="vor-box"><h3>Rettungsdienst einer anderen Organisation?</h3><p class="hint">Patienten können ohne Anmeldung vorab bei der Notaufnahme angekündigt werden.</p><div class="row"><button type="button" class="alt" id="vor-open">Patient voranmelden</button></div></div>
 </section>
@@ -774,7 +774,7 @@ async function hashPw(pw,salt=toHex(crypto.getRandomValues(new Uint8Array(16))))
 const pwOk=async(pw,r)=>!!r&&r.hash===(await hashPw(pw,r.salt)).hash;
 const toast=(msg,err=false)=>{const t=$("#toast");t.textContent=msg;t.className="show"+(err?" err":"");clearTimeout(toast.t);toast.t=setTimeout(()=>t.className="",3400)};
 const lgErr=t=>$("#l-err").textContent=t||"";
-const drawLogin=()=>{const e=$("#l-st");if(!e||(lgAcc&&lgAcc.role==="kh"))return;const cur=e.value;
+const drawLogin=()=>{const e=$("#l-st");if(!e||$("#l-mode").value==="kh")return;const cur=e.value;
   e.innerHTML='<option value="" disabled>– Fahrzeug wählen –</option>'+Object.entries(STM).filter(([,v])=>typOf(v)!=="kh").sort(byName).map(([id,v])=>{const c=crewOf(id);return `<option value="${esc(id)}">${esc(v.name)}${c.length?" – angemeldet: "+esc(c.join(", ")):" – frei"}</option>`}).join("");
   e.value=STM[cur]?cur:""};
 onValue(ref(db,"stamm"),s=>{STM=s.val()||{};drawLogin();admList()});onValue(ref(db,"crew"),s=>{CRW=s.val()||{};drawLogin()});
@@ -785,13 +785,14 @@ $("#l-go").onclick=async()=>{lgErr();const u=uid($("#l-user").value),pw=$("#l-pw
     if(!await pwOk(pw,r)){audit("Fehlgeschlagene Anmeldung",u,{name:"unbekannt",acc:u,role:""});return lgErr("Zugangsname oder Passwort stimmt nicht.")}
     lgAcc=r;$("#l-pw").value="";
     if(r.role==="leit")return lgBegin("","rtw","");
-    if(r.role==="kh"){$("#l-s1").hidden=true;$("#l-s2").hidden=false;$("#l-hi").textContent="Angemeldet als "+r.name+". Wähle jetzt deine Abteilung.";$("#l-lb").textContent="Abteilung";$("#l-st").innerHTML=ABT.map(a=>`<option>${esc(a)}</option>`).join("");return}
-    $("#l-lb").textContent="Fahrzeug aus dem Stamm";
-    $("#l-s1").hidden=true;$("#l-s2").hidden=false;$("#l-hi").textContent="Angemeldet als "+r.name+". Wähle jetzt dein Fahrzeug.";drawLogin();
+    
+    $("#l-s1").hidden=true;$("#l-s2").hidden=false;$("#l-hi").textContent="Angemeldet als "+r.name+". Wähle, wie du dich anmelden möchtest.";$("#l-mode").value=r.role==="kh"?"kh":"fzg";setMode();
   }catch(x){lgErr(x.message||"Anmeldung fehlgeschlagen.")}};
+const setMode=()=>{const k=$("#l-mode").value==="kh";$("#l-lb").textContent=k?"Abteilung":"Fahrzeug aus dem Stamm";if(k)$("#l-st").innerHTML=ABT.map(a=>`<option>${esc(a)}</option>`).join("");else drawLogin()};
+$("#l-mode").onchange=setMode;
 $("#l-user").onkeydown=$("#l-pw").onkeydown=e=>{if(e.key==="Enter")$("#l-go").click()};
 $("#l-back").onclick=()=>{lgAcc=null;$("#l-s2").hidden=true;$("#l-s1").hidden=false;lgErr()};
-$("#l-start").onclick=()=>{if(lgAcc&&lgAcc.role==="kh"){const a=$("#l-st").value;if(!a)return lgErr("Bitte eine Abteilung wählen.");return lgBegin(lgAcc.name,"kh","kh-"+uid(lgAcc.user||lgAcc.name),a)}const id=$("#l-st").value,v=STM[id];
+$("#l-start").onclick=()=>{if($("#l-mode").value==="kh"){const a=$("#l-st").value;if(!a)return lgErr("Bitte eine Abteilung wählen.");return lgBegin(lgAcc.name,"kh","kh-"+uid(lgAcc.user||lgAcc.name),a)}const id=$("#l-st").value,v=STM[id];
   if(!v)return lgErr(Object.keys(STM).length?"Bitte ein Fahrzeug aus dem Stamm wählen.":"Der Fahrzeugstamm ist leer. Die Administration muss zuerst Fahrzeuge anlegen.");
   lgBegin(v.name,typOf(v),id)};
 try{const s=sessionStorage.getItem("me");if(s)me=JSON.parse(s)}catch{}
