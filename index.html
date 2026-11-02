@@ -2,7 +2,7 @@
 <html lang="de-DE">
 <head>
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#0000ff">
+<meta name="theme-color" content="#ff0000">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Uniklinikum Berlin · Notaufnahme</title>
@@ -718,80 +718,110 @@ button.alt:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 6
  .docprint .dnote{border:1px solid #000;background:none}
 }
 
-/* ===== Design v9: Blau #0000ff und Rot #ff0000 ===== */
-:root{--brand:#0000ff;--brand-dk:#0000b3;--ac:#ff0000;--ac-ink:#fff;--red:#ff0000;--rt:#d10000;--gold:#0000ff;--ph:#0000ff;--bg:#f1f2ff;--card:#fff;--line:#d3d6ff;--inb:#aab0f2;--ink:#0a0a3d;--sub:#4a4f8a;--btn1:#2424ff;--btn2:#0000d9;--ok:#0000ff;--warn:#ff0000;--sh:0 1px 0 #fff inset,0 14px 32px -22px rgba(0,0,255,.5)}
-:root[data-theme=dark]{--brand:#7a7aff;--brand-dk:#5050ff;--ac:#ff4d4d;--ac-ink:#fff;--red:#ff4d4d;--rt:#ff8080;--gold:#7a7aff;--ph:#0000c8;--bg:#05051c;--card:#0d0d33;--line:#25256b;--inb:#3a3a9a;--ink:#eceeff;--sub:#a3a8e6;--btn1:#3a3aff;--btn2:#0000d9;--sh:0 14px 32px -22px rgba(0,0,0,.8)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--brand:#7a7aff;--brand-dk:#5050ff;--ac:#ff4d4d;--ac-ink:#fff;--red:#ff4d4d;--rt:#ff8080;--gold:#7a7aff;--ph:#0000c8;--bg:#05051c;--card:#0d0d33;--line:#25256b;--inb:#3a3a9a;--ink:#eceeff;--sub:#a3a8e6;--btn1:#3a3aff;--btn2:#0000d9;--sh:0 14px 32px -22px rgba(0,0,0,.8)}}
-::selection{background:#0000ff;color:#fff}
-body{background:radial-gradient(900px 480px at 0 -10%,rgba(0,0,255,.13),transparent 70%),radial-gradient(800px 460px at 100% 0,rgba(255,0,0,.08),transparent 70%),var(--bg)}
-header{background:linear-gradient(100deg,#0000ff 0%,#0000d6 100%);border-bottom:4px solid #ff0000;box-shadow:0 12px 28px -14px rgba(0,0,255,.6)}
-.n144{background:#fff;color:#ff0000;border:2px solid #ff0000;box-shadow:none}
-.n144 b{color:#ff0000}
-#clk{border-left-color:rgba(255,255,255,.3)}
-header button.alt,header button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.45)}
-header button.alt:hover,header button:hover{background:#fff;color:#0000ff;border-color:#fff}
-#lay{border:1px solid rgba(255,255,255,.45)}
-#lay button.on{background:#fff;color:#0000ff}
-.card{border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh)}
-.card>h2:first-child{color:var(--brand);border-bottom:2px solid var(--line)}
-.card>h2:first-child::before{width:5px;background:linear-gradient(180deg,#ff0000,#0000ff)}
-h3{color:var(--brand)}
-label{color:var(--sub)}
-input,select,textarea{border:1.5px solid var(--inb);border-radius:10px}
-input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,0,255,.18)}
-.row button,dialog button,.card>button,#login button,#vorview button{background:linear-gradient(135deg,var(--btn1),var(--btn2));color:#fff;box-shadow:0 8px 18px -10px rgba(0,0,255,.8)}
-button.alt,.row button.alt,dialog button.alt,#vorview button.alt{background:var(--card);color:var(--brand);border:1.5px solid var(--brand);box-shadow:none}
-button.alt:hover,.row button.alt:hover,dialog button.alt:hover,#vorview button.alt:hover{background:#0000ff;color:#fff;border-color:#0000ff}
-header button.alt:hover{background:#fff;color:#0000ff}
-.qbar .dng,#adlg .dng{background:#ff0000;border-color:#ff0000;color:#fff}
-.tabs{background:rgba(0,0,255,.08);border-radius:14px}
-.tabs button{color:var(--brand)!important}
-.tabs button:hover{background:rgba(0,0,255,.1)!important;color:var(--brand)!important}
-.tabs button.on{background:#0000ff!important;color:#fff!important;box-shadow:inset 0 -4px 0 #ff0000,0 6px 14px -8px rgba(0,0,255,.8)!important}
-.tbadge{background:linear-gradient(135deg,#2424ff,#0000d9)}
-.dt th{background:rgba(0,0,255,.07);color:var(--brand);border-bottom:2px solid #0000ff}
-.dt tbody tr:hover td{background:rgba(0,0,255,.07)}
-.dt tbody tr.me td{background:rgba(255,0,0,.1)}
-.lg{border-left:5px solid var(--c,#0000ff);border-radius:14px}
-.lg b{color:var(--c,var(--brand))}
-.v{border-top-width:6px;border-radius:14px}
-.qbar{border-left:6px solid #ff0000;border-radius:14px}
-.ptile:hover{border-color:#0000ff;background:rgba(0,0,255,.06)}
-.ptile i{background:rgba(0,0,255,.12)}
-.ptile.on{border:2px solid #ff0000;background:rgba(255,0,0,.06)}
+/* ===== Design v11: Seitenleiste, flach, eckig – Rot #ff0000 und Blau #0000ff ===== */
+:root{--brand:#ff0000;--brand-dk:#c20000;--ac:#0000ff;--ac-ink:#fff;--red:#ff0000;--rt:#c20000;--gold:#ff0000;--ph:#ff0000;--bg:#f2f2f4;--card:#fff;--line:#dcdce2;--inb:#b4b4c0;--ink:#14141a;--sub:#5d5d6b;--btn1:#ff0000;--btn2:#d90000;--ok:#0000ff;--sh:none;--r:4px;--hf:"Bahnschrift","DIN Alternate","Roboto Condensed","Arial Narrow",system-ui,sans-serif}
+:root[data-theme=dark]{--brand:#ff3b3b;--brand-dk:#ff2020;--ac:#6e6eff;--red:#ff3b3b;--rt:#ff7070;--gold:#ff3b3b;--bg:#000;--card:#0b0b0b;--line:#2a2a2a;--inb:#444;--ink:#f4f4f4;--sub:#a0a0a0}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--brand:#ff3b3b;--brand-dk:#ff2020;--ac:#6e6eff;--red:#ff3b3b;--rt:#ff7070;--gold:#ff3b3b;--bg:#000;--card:#0b0b0b;--line:#2a2a2a;--inb:#444;--ink:#f4f4f4;--sub:#a0a0a0}}
+::selection{background:#ff0000;color:#fff}
+:focus-visible{outline:3px solid #0000ff;outline-offset:2px}
+body{background:var(--bg);font-size:15px}
+body,body:has(#radio[hidden]){grid-template-columns:minmax(12px,1fr) minmax(0,1400px) 336px minmax(12px,1fr)}
+body:has(#radio[hidden]){grid-template-columns:minmax(12px,1fr) minmax(0,1400px) minmax(12px,1fr)}
+h2,h3,.htxt b,.tabs button,.dochead b{font-family:var(--hf)}
+/* Kopfzeile: hell, schlank, roter Logo-Block */
+header,html[data-eff] header{background:var(--card);color:var(--ink);border-bottom:1px solid var(--line);box-shadow:none;min-height:68px;padding:0 20px 0 0;margin-bottom:24px;gap:16px}
+header .logo,html[data-eff] header .logo{height:44px!important;box-sizing:content-box;padding:12px 24px;background:#ff0000;border-radius:0;margin:0 4px 0 0}
+.htxt b{color:var(--ink);font-size:1.2rem;letter-spacing:0}
+.htxt small,#clk small,#who{color:var(--sub)}
+.n144{background:#ff0000;color:#fff;border:0;border-radius:0;box-shadow:none;padding:8px 14px}
+.n144 b{color:#fff}
+#clk{border-left:1px solid var(--line)}
+#clk b{color:var(--ink)}
+header button,header button.alt{background:transparent;color:var(--ink);border:1.5px solid var(--ink);border-radius:var(--r);box-shadow:none}
+header button:hover,header button.alt:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+#lay{border:1.5px solid var(--ink);border-radius:var(--r);background:none}
+#lay button{border:0;color:var(--ink)}
+#lay button+button{border-left:1.5px solid var(--ink)}
+#lay button.on{background:#0000ff;color:#fff}
+/* Karten: flach, eckig, Titelband in Rot */
+.card{background:var(--card);border:1px solid var(--line);border-radius:6px;box-shadow:none}
+.card:has(>h2:first-child){padding:0 22px 20px;overflow:hidden}
+.card>h2:first-child{margin:0 -22px 18px;padding:12px 22px;background:#d90000;color:#fff;border:0;font-size:1rem;letter-spacing:.01em}
+.card>h2:first-child::before{width:10px;height:10px;border-radius:0;background:#fff;box-shadow:4px 4px 0 #0000ff}
+html[data-eff=handy] .card>h2:first-child{margin:0 -12px 12px;padding:10px 14px}
+h3{color:var(--ac);border-bottom:1px solid var(--line);font-size:.95rem}
+label{color:var(--sub);font-weight:700}
+input,select,textarea{background:var(--card);border:1.5px solid var(--inb);border-radius:var(--r)}
+input:focus,select:focus,textarea:focus{border-color:#0000ff;box-shadow:0 0 0 3px rgba(0,0,255,.2)}
+input[type=checkbox]{accent-color:#ff0000}
+button{border-radius:var(--r);box-shadow:none;font-weight:700}
+.row button,dialog button,.card>button,#login button,#vorview button{background:#ff0000;color:#fff;border:0;border-radius:var(--r);box-shadow:none}
+.row button:hover,dialog button:hover,#login button:hover,#vorview button:hover{background:#c20000;transform:none;box-shadow:none}
+button.alt,.row button.alt,dialog button.alt,#vorview button.alt{background:transparent;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none}
+button.alt:hover,.row button.alt:hover,dialog button.alt:hover,#vorview button.alt:hover{background:var(--ink);color:var(--card);border-color:var(--ink)}
+/* Navigation: Tabs als Seitenleiste (Laptop) */
+.tabs{background:none;border-radius:0;padding:0;border-bottom:2px solid var(--ink);gap:0}
+.tabs button{border-radius:0;color:var(--ink)!important;background:transparent!important;box-shadow:none!important;border-bottom:4px solid transparent!important}
+.tabs button:hover{background:var(--line)!important}
+.tabs button.on{color:#ff0000!important;border-bottom-color:#ff0000!important;background:var(--card)!important}
+@media(min-width:1100px){
+html:not([data-eff=tablet]):not([data-eff=handy]) #app{display:grid;grid-template-columns:210px minmax(0,1fr);column-gap:28px;align-items:start}
+html:not([data-eff=tablet]):not([data-eff=handy]) #app>.qbar{grid-column:1/-1;margin-bottom:18px}
+html:not([data-eff=tablet]):not([data-eff=handy]) #app>.pane{grid-column:2;min-width:0}
+html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs{grid-column:1;grid-row:2/span 20;flex-direction:column;width:auto;margin:0;top:calc(var(--qh,0px) + 16px);border:0;background:var(--card);border:1px solid var(--line);border-top:6px solid #ff0000;overflow:visible}
+html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs button{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line)!important;border-left:5px solid transparent!important}
+html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs button.on{border-left-color:#ff0000!important;border-bottom-color:var(--line)!important;background:rgba(255,0,0,.07)!important}
+}
+/* Kacheln, Tabellen, Hinweise */
+.lg{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--c,#ff0000);border-left:1px solid var(--line);border-radius:var(--r);box-shadow:none}
+.lg b{color:var(--ink)}
+.v{border:1px solid var(--line);border-top-width:6px;border-radius:var(--r);box-shadow:none}
+.badge,.tbadge,.new-tag{border-radius:3px}
+.tbadge{background:#0000ff}
+.new-tag{background:#0000ff}
+.dt th{background:var(--ink);color:var(--card);border:0;text-transform:none}
+.dt tbody tr:hover td{background:rgba(255,0,0,.06)}
+.dt tbody tr.me td{background:rgba(0,0,255,.1)}
+.qbar{background:var(--card);border:1px solid var(--line);border-left:6px solid #0000ff;border-radius:var(--r);box-shadow:none}
+.ptile{border:1.5px solid var(--line);border-radius:var(--r);box-shadow:none}
+.ptile:hover{border-color:#ff0000;background:rgba(255,0,0,.05);transform:none}
+.ptile i{background:rgba(255,0,0,.12);border-radius:var(--r)}
+.ptile.on{border:2px solid #ff0000;background:rgba(255,0,0,.07);box-shadow:none}
 .ptile.on i{background:#ff0000}
-#banner{background:#ff0000;color:#fff;border-bottom:4px solid #0000ff}
-#banner button{background:#fff;color:#ff0000}
-#login{border:1px solid var(--line)}
-#login::before{background:linear-gradient(90deg,#0000ff 0 60%,#ff0000 60%)}
-.vor-box{background:rgba(255,0,0,.04);border:1.5px dashed rgba(255,0,0,.5)}
-.vp-head{background:linear-gradient(135deg,#0000ff,#0000b3);border-bottom:4px solid #ff0000}
-.vp-kicker{color:#ffd0d0}
-.vp-sec h3 i{background:#ff0000;box-shadow:0 6px 14px -6px #ff0000}
-.dochead{border-bottom:3px solid #0000ff}
-.dnote,.vordet{border-left:4px solid #ff0000;background:rgba(0,0,255,.06)}
-.agrp{border-left:5px solid #ff0000}
-.agn{background:#0000ff}
-.achild::before,.achild::after{border-color:rgba(0,0,255,.4)}
-.vor-ack{background:rgba(0,0,255,.12);color:var(--brand)}
-.vor-fwd{background:rgba(255,0,0,.1);color:var(--rt)}
-.new-tag{background:linear-gradient(135deg,#ff3b3b,#ff0000)}
-.empty{border-color:var(--inb)}
-dialog.card::backdrop{background:rgba(0,0,60,.6)}
-footer.ft a{color:var(--brand)}
-#toast{background:#0000b3;border-left:5px solid #ff0000}
-#toast.err{background:#ff0000}
+#banner{background:#0000ff;color:#fff;border-bottom:0;box-shadow:none;border-radius:0}
+#banner button{background:#fff;color:#0000ff}
+#login,#vorview{border:1px solid var(--line);border-radius:6px;box-shadow:none}
+#login::before{height:8px;border-radius:0;background:linear-gradient(90deg,#ff0000 0 70%,#0000ff 70%)}
+#login .logo{background:#ff0000;border-radius:0}
+.vor-box{background:none;border:1.5px dashed #0000ff;border-radius:var(--r)}
+.vp-head{background:#ff0000;border-bottom:6px solid #0000ff}
+.vp-kicker{color:#ffe0e0}
+.vp-sec h3 i{background:#0000ff;border-radius:3px;box-shadow:none}
+.dochead{border-bottom:3px solid #ff0000}
+.dnote,.vordet{background:var(--card);border:1px solid var(--line);border-left:5px solid #0000ff;border-radius:var(--r)}
+.agrp{border-left:6px solid #ff0000}
+.agn{background:#ff0000;border-radius:var(--r)}
+.arow,.afilter{border-radius:var(--r)}
+.vor-ack{background:rgba(0,0,255,.12);color:#0000ff;border-radius:3px}
+.vor-fwd{background:rgba(255,0,0,.1);color:var(--rt);border-radius:3px}
+.vorfwd{border-radius:var(--r);background:var(--card)}
+.empty{border-radius:var(--r);border:2px dashed var(--inb)}
+dialog.card{border-radius:6px}
+dialog.card::backdrop{background:rgba(0,0,0,.7)}
+footer.ft a{color:#0000ff}
+#toast{background:var(--ink);color:var(--card);border-left:6px solid #ff0000;border-radius:var(--r)}
+#toast.err{background:#ff0000;color:#fff}
 /* Funkgerät */
-#rbar{background:#06063a;border-color:#2a2ad0;color:#b8bdff}
-#rbar button{color:#d6d9ff;border-color:#3a3ad8}
-.rbody{border-color:#2a2ad0;background:radial-gradient(120% 55% at 50% 0,rgba(255,255,255,.1),transparent 60%),linear-gradient(165deg,#14148a,#06063a 55%,#02021a)}
-.brand,.rl{color:#9aa2ee}
+#rbar{background:#2a0000;border-color:#7a1a1a;color:#ffc2c2}
+#rbar button{color:#ffd6d6;border-color:#8a2a2a}
+.rbody{border-color:#7a1a1a;background:radial-gradient(120% 55% at 50% 0,rgba(255,255,255,.1),transparent 60%),linear-gradient(165deg,#5a0000,#2a0000 55%,#0e0000)}
+.brand,.rl{color:#ffb0b0}
 .led{background:#6b6bff;box-shadow:0 0 8px #6b6bff}
 #radio.busy .led{background:#ff9a9a;box-shadow:0 0 8px #ff9a9a}
 #radio.tx .led{background:#ff0000;box-shadow:0 0 10px #ff0000}
-.knob{background:radial-gradient(circle,#1c1c8a 0 36%,transparent 37%),repeating-conic-gradient(#2a2ad0 0 5deg,#08083e 5deg 10deg)}
-.knob i{background:#ff0000;box-shadow:0 0 6px #ff0000}
-#rdisp{color:#a9b6ff;background:linear-gradient(180deg,#02021c,#010110);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 0 2px #2a2ad0}
+.knob{background:radial-gradient(circle,#5a0000 0 36%,transparent 37%),repeating-conic-gradient(#8a1a1a 0 5deg,#1e0000 5deg 10deg)}
+.knob i{background:#0000ff;box-shadow:0 0 8px #4d4dff}
+#rdisp{color:#a9b6ff;background:linear-gradient(180deg,#02021c,#010110);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 0 2px #7a1a1a}
 #rch{text-shadow:0 0 10px rgba(120,140,255,.6)}
 .rsb{border-bottom-color:#2b2f9a}
 #vu{background:linear-gradient(90deg,#a9b6ff var(--l,0%),#14145a var(--l,0%))}
@@ -801,15 +831,17 @@ footer.ft a{color:var(--brand)}
 #radio.tx #vu{background:linear-gradient(90deg,#ff4d4d var(--l,0%),#4a111b var(--l,0%))}
 #rvolb{background:rgba(1,1,20,.96);border-top-color:#2b2f9a}
 #rvolb u{background:linear-gradient(90deg,currentColor var(--p,0%),#14145a var(--p,0%))}
-#radio select{background:#08083a;border-color:#2a2ad0;color:#e6e9ff}
-.soft button,.pad button{background:linear-gradient(#2020a8,#0c0c52);color:#fff;border-color:#02021a}
-.pad small{color:#b8bdff}
-.navc{background:radial-gradient(circle,#06063a 0 40%,#2020a8 41%);box-shadow:inset 0 0 0 2px #2a2ad0}
-#rmute.on{color:#fff;background:linear-gradient(#ff4d4d,#d10000)}
+#radio select{background:#1e0000;border-color:#7a1a1a;color:#ffecec}
+.soft button,.pad button{background:linear-gradient(#7a1010,#3a0000);color:#fff;border-color:#0e0000}
+.pad small{color:#ffc2c2}
+.navc{background:radial-gradient(circle,#2a0000 0 40%,#7a1010 41%);box-shadow:inset 0 0 0 2px #8a2a2a}
+#rmute.on{color:#fff;background:linear-gradient(#5a5aff,#0000ff)}
 .pad button.on{color:#fff;background:linear-gradient(#5a5aff,#0000ff);border-color:#0000b3}
 .pad button.on small{color:#fff}
-#ptt{background:linear-gradient(#ff2a2a,#b00000);box-shadow:0 4px 0 #5a0000,inset 0 1px 0 rgba(255,255,255,.3)}
+#ptt{background:linear-gradient(#ff2a2a,#c00000);box-shadow:0 4px 0 #5a0000,inset 0 1px 0 rgba(255,255,255,.35)}
 #radio.tx #ptt{background:linear-gradient(#ff6666,#ff0000)}
+#radio.tx .rbody{box-shadow:0 0 0 3px #0000ff,inset 0 -10px 20px rgba(0,0,0,.45)}
+
 </style>
 <script>
 (function(){
