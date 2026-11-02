@@ -2,12 +2,12 @@
 <html lang="de-DE">
 <head>
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#0a3f78">
+<meta name="theme-color" content="#0000ff">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Uniklinikum Berlin · Notaufnahme</title>
 <style>
-:root{--red:#c4001a;--brand:#0b5ca8;--brand-dk:#073f78;--gold:#0b5ca8;--ink:#13243a;--bg:#eef3f9;--card:#ffffff;--line:#d3deeb;--sub:#4f6178;--inb:#a9bbd0;--rt:#b3001a;--ph:#0a3f78;--ac:#1a6cc0;--ac-ink:#fff;--warn:#ffc400;--ok:#1f8a5b;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--fc:var(--sans);--r:3px;color-scheme:light}
+:root{--red:#ff0000;--brand:#0b5ca8;--brand-dk:#073f78;--gold:#0b5ca8;--ink:#13243a;--bg:#eef3f9;--card:#ffffff;--line:#d3deeb;--sub:#4f6178;--inb:#a9bbd0;--rt:#b3001a;--ph:#0a3f78;--ac:#1a6cc0;--ac-ink:#fff;--warn:#ff0000;--ok:#0000ff;--sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;--fc:var(--sans);--r:3px;color-scheme:light}
 :root[data-theme=dark]{--ink:#e6eef8;--bg:#07111f;--card:#0e1b2c;--line:#1f3450;--sub:#8fa6c2;--inb:#2d4a6b;--rt:#ff6b78;--ph:#061a30;--ac:#58a8ff;--ac-ink:#04162b;--gold:#58a8ff;--brand:#3f8fe0;color-scheme:dark}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#e6eef8;--bg:#07111f;--card:#0e1b2c;--line:#1f3450;--sub:#8fa6c2;--inb:#2d4a6b;--rt:#ff6b78;--ph:#061a30;--ac:#58a8ff;--ac-ink:#04162b;--gold:#58a8ff;--brand:#3f8fe0;color-scheme:dark}}
 @media print{:root{--card:#fff!important;--ink:#111!important;--bg:#fff!important;--line:#ccc!important;--sub:#555!important;--rt:#a30013!important}}
@@ -66,7 +66,7 @@ button.alt:hover{filter:none;border-color:var(--ink);background:color-mix(in srg
 .v b{margin-right:6px;font:600 1.45rem/1.15 var(--mono);letter-spacing:-.01em}
 .v .badge{margin-top:5px}
 .v.sw{animation:swb 1s steps(2,jump-none) infinite}
-@keyframes swb{50%{background:color-mix(in srgb,#00a896 24%,var(--card))}}
+@keyframes swb{50%{background:color-mix(in srgb,#ff0000 24%,var(--card))}}
 [style*="border-left-color"]{border-left-width:5px;border-left-style:solid}
 .st{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
 .st button{padding:14px;text-align:left;font-size:1rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-left:10px solid}
@@ -102,7 +102,7 @@ footer.ft{padding:18px 20px 40px;text-align:center;color:var(--sub);font:500 .72
 @media(max-width:820px){.n144{display:none}#clk{margin-left:auto}}
 @media(max-width:700px){.vrow{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:640px){#clk small,.htxt small{display:none}.logo{height:42px}header{padding:8px 14px;gap:10px}}
-@media(prefers-reduced-motion:reduce){.v.sw,#radio.tx #ptt{animation:none}.v.sw{background:color-mix(in srgb,#00a896 24%,var(--card))}}
+@media(prefers-reduced-motion:reduce){.v.sw,#radio.tx #ptt{animation:none}.v.sw{background:color-mix(in srgb,#ff0000 24%,var(--card))}}
 @media print{body *{visibility:hidden}#print,#print *{visibility:visible}#print{position:absolute;left:0;top:0;width:100%;border:0}.card>h2:first-child{color:#000;background:none;margin:0 0 10px;padding:0 0 4px;border-bottom:2px solid #000}.card>h2:first-child::before,.card::after{display:none}.plogo{height:64px}.lage{display:none}}
 
 /* ===== TETRA-Handfunkgerät (verschiebbares Fenster) ===== */
@@ -717,6 +717,99 @@ button.alt:hover{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 6
  .docprint .dochead{border-bottom-color:#000}
  .docprint .dnote{border:1px solid #000;background:none}
 }
+
+/* ===== Design v9: Blau #0000ff und Rot #ff0000 ===== */
+:root{--brand:#0000ff;--brand-dk:#0000b3;--ac:#ff0000;--ac-ink:#fff;--red:#ff0000;--rt:#d10000;--gold:#0000ff;--ph:#0000ff;--bg:#f1f2ff;--card:#fff;--line:#d3d6ff;--inb:#aab0f2;--ink:#0a0a3d;--sub:#4a4f8a;--btn1:#2424ff;--btn2:#0000d9;--ok:#0000ff;--warn:#ff0000;--sh:0 1px 0 #fff inset,0 14px 32px -22px rgba(0,0,255,.5)}
+:root[data-theme=dark]{--brand:#7a7aff;--brand-dk:#5050ff;--ac:#ff4d4d;--ac-ink:#fff;--red:#ff4d4d;--rt:#ff8080;--gold:#7a7aff;--ph:#0000c8;--bg:#05051c;--card:#0d0d33;--line:#25256b;--inb:#3a3a9a;--ink:#eceeff;--sub:#a3a8e6;--btn1:#3a3aff;--btn2:#0000d9;--sh:0 14px 32px -22px rgba(0,0,0,.8)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--brand:#7a7aff;--brand-dk:#5050ff;--ac:#ff4d4d;--ac-ink:#fff;--red:#ff4d4d;--rt:#ff8080;--gold:#7a7aff;--ph:#0000c8;--bg:#05051c;--card:#0d0d33;--line:#25256b;--inb:#3a3a9a;--ink:#eceeff;--sub:#a3a8e6;--btn1:#3a3aff;--btn2:#0000d9;--sh:0 14px 32px -22px rgba(0,0,0,.8)}}
+::selection{background:#0000ff;color:#fff}
+body{background:radial-gradient(900px 480px at 0 -10%,rgba(0,0,255,.13),transparent 70%),radial-gradient(800px 460px at 100% 0,rgba(255,0,0,.08),transparent 70%),var(--bg)}
+header{background:linear-gradient(100deg,#0000ff 0%,#0000d6 100%);border-bottom:4px solid #ff0000;box-shadow:0 12px 28px -14px rgba(0,0,255,.6)}
+.n144{background:#fff;color:#ff0000;border:2px solid #ff0000;box-shadow:none}
+.n144 b{color:#ff0000}
+#clk{border-left-color:rgba(255,255,255,.3)}
+header button.alt,header button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.45)}
+header button.alt:hover,header button:hover{background:#fff;color:#0000ff;border-color:#fff}
+#lay{border:1px solid rgba(255,255,255,.45)}
+#lay button.on{background:#fff;color:#0000ff}
+.card{border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh)}
+.card>h2:first-child{color:var(--brand);border-bottom:2px solid var(--line)}
+.card>h2:first-child::before{width:5px;background:linear-gradient(180deg,#ff0000,#0000ff)}
+h3{color:var(--brand)}
+label{color:var(--sub)}
+input,select,textarea{border:1.5px solid var(--inb);border-radius:10px}
+input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(0,0,255,.18)}
+.row button,dialog button,.card>button,#login button,#vorview button{background:linear-gradient(135deg,var(--btn1),var(--btn2));color:#fff;box-shadow:0 8px 18px -10px rgba(0,0,255,.8)}
+button.alt,.row button.alt,dialog button.alt,#vorview button.alt{background:var(--card);color:var(--brand);border:1.5px solid var(--brand);box-shadow:none}
+button.alt:hover,.row button.alt:hover,dialog button.alt:hover,#vorview button.alt:hover{background:#0000ff;color:#fff;border-color:#0000ff}
+header button.alt:hover{background:#fff;color:#0000ff}
+.qbar .dng,#adlg .dng{background:#ff0000;border-color:#ff0000;color:#fff}
+.tabs{background:rgba(0,0,255,.08);border-radius:14px}
+.tabs button{color:var(--brand)!important}
+.tabs button:hover{background:rgba(0,0,255,.1)!important;color:var(--brand)!important}
+.tabs button.on{background:#0000ff!important;color:#fff!important;box-shadow:inset 0 -4px 0 #ff0000,0 6px 14px -8px rgba(0,0,255,.8)!important}
+.tbadge{background:linear-gradient(135deg,#2424ff,#0000d9)}
+.dt th{background:rgba(0,0,255,.07);color:var(--brand);border-bottom:2px solid #0000ff}
+.dt tbody tr:hover td{background:rgba(0,0,255,.07)}
+.dt tbody tr.me td{background:rgba(255,0,0,.1)}
+.lg{border-left:5px solid var(--c,#0000ff);border-radius:14px}
+.lg b{color:var(--c,var(--brand))}
+.v{border-top-width:6px;border-radius:14px}
+.qbar{border-left:6px solid #ff0000;border-radius:14px}
+.ptile:hover{border-color:#0000ff;background:rgba(0,0,255,.06)}
+.ptile i{background:rgba(0,0,255,.12)}
+.ptile.on{border:2px solid #ff0000;background:rgba(255,0,0,.06)}
+.ptile.on i{background:#ff0000}
+#banner{background:#ff0000;color:#fff;border-bottom:4px solid #0000ff}
+#banner button{background:#fff;color:#ff0000}
+#login{border:1px solid var(--line)}
+#login::before{background:linear-gradient(90deg,#0000ff 0 60%,#ff0000 60%)}
+.vor-box{background:rgba(255,0,0,.04);border:1.5px dashed rgba(255,0,0,.5)}
+.vp-head{background:linear-gradient(135deg,#0000ff,#0000b3);border-bottom:4px solid #ff0000}
+.vp-kicker{color:#ffd0d0}
+.vp-sec h3 i{background:#ff0000;box-shadow:0 6px 14px -6px #ff0000}
+.dochead{border-bottom:3px solid #0000ff}
+.dnote,.vordet{border-left:4px solid #ff0000;background:rgba(0,0,255,.06)}
+.agrp{border-left:5px solid #ff0000}
+.agn{background:#0000ff}
+.achild::before,.achild::after{border-color:rgba(0,0,255,.4)}
+.vor-ack{background:rgba(0,0,255,.12);color:var(--brand)}
+.vor-fwd{background:rgba(255,0,0,.1);color:var(--rt)}
+.new-tag{background:linear-gradient(135deg,#ff3b3b,#ff0000)}
+.empty{border-color:var(--inb)}
+dialog.card::backdrop{background:rgba(0,0,60,.6)}
+footer.ft a{color:var(--brand)}
+#toast{background:#0000b3;border-left:5px solid #ff0000}
+#toast.err{background:#ff0000}
+/* Funkgerät */
+#rbar{background:#06063a;border-color:#2a2ad0;color:#b8bdff}
+#rbar button{color:#d6d9ff;border-color:#3a3ad8}
+.rbody{border-color:#2a2ad0;background:radial-gradient(120% 55% at 50% 0,rgba(255,255,255,.1),transparent 60%),linear-gradient(165deg,#14148a,#06063a 55%,#02021a)}
+.brand,.rl{color:#9aa2ee}
+.led{background:#6b6bff;box-shadow:0 0 8px #6b6bff}
+#radio.busy .led{background:#ff9a9a;box-shadow:0 0 8px #ff9a9a}
+#radio.tx .led{background:#ff0000;box-shadow:0 0 10px #ff0000}
+.knob{background:radial-gradient(circle,#1c1c8a 0 36%,transparent 37%),repeating-conic-gradient(#2a2ad0 0 5deg,#08083e 5deg 10deg)}
+.knob i{background:#ff0000;box-shadow:0 0 6px #ff0000}
+#rdisp{color:#a9b6ff;background:linear-gradient(180deg,#02021c,#010110);box-shadow:inset 0 0 26px rgba(0,0,0,.9),0 0 0 2px #2a2ad0}
+#rch{text-shadow:0 0 10px rgba(120,140,255,.6)}
+.rsb{border-bottom-color:#2b2f9a}
+#vu{background:linear-gradient(90deg,#a9b6ff var(--l,0%),#14145a var(--l,0%))}
+#radio.busy #rdisp{background:linear-gradient(180deg,#14003a,#08001c);color:#d4caff}
+#radio.busy #vu{background:linear-gradient(90deg,#d4caff var(--l,0%),#24104a var(--l,0%))}
+#radio.tx #rdisp{background:linear-gradient(180deg,#400008,#240004);color:#ff9a9a}
+#radio.tx #vu{background:linear-gradient(90deg,#ff4d4d var(--l,0%),#4a111b var(--l,0%))}
+#rvolb{background:rgba(1,1,20,.96);border-top-color:#2b2f9a}
+#rvolb u{background:linear-gradient(90deg,currentColor var(--p,0%),#14145a var(--p,0%))}
+#radio select{background:#08083a;border-color:#2a2ad0;color:#e6e9ff}
+.soft button,.pad button{background:linear-gradient(#2020a8,#0c0c52);color:#fff;border-color:#02021a}
+.pad small{color:#b8bdff}
+.navc{background:radial-gradient(circle,#06063a 0 40%,#2020a8 41%);box-shadow:inset 0 0 0 2px #2a2ad0}
+#rmute.on{color:#fff;background:linear-gradient(#ff4d4d,#d10000)}
+.pad button.on{color:#fff;background:linear-gradient(#5a5aff,#0000ff);border-color:#0000b3}
+.pad button.on small{color:#fff}
+#ptt{background:linear-gradient(#ff2a2a,#b00000);box-shadow:0 4px 0 #5a0000,inset 0 1px 0 rgba(255,255,255,.3)}
+#radio.tx #ptt{background:linear-gradient(#ff6666,#ff0000)}
 </style>
 <script>
 (function(){
@@ -820,16 +913,16 @@ const $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const STATUS = [
-  ["s1","Einsatzbereit","#2e8b57"],
-  ["s2","Einsatz übernommen","#e0a100"],
-  ["s3","Am Einsatzort","#e2001a"],
-  ["s4","Sprechwunsch","#00897b"],
-  ["s5","Nicht einsatzbereit","#6b7178"],
-  ["s6","Patient aufgenommen","#8e24aa"],
-  ["s7","Am Zielort","#1e66b0"]
+  ["s1","Einsatzbereit","#0000ff"],
+  ["s2","Einsatz übernommen","#8a1fd6"],
+  ["s3","Am Einsatzort","#ff0000"],
+  ["s4","Sprechwunsch","#ff6b6b"],
+  ["s5","Nicht einsatzbereit","#6b6f8f"],
+  ["s6","Patient aufgenommen","#a30000"],
+  ["s7","Am Zielort","#4a6bff"]
 ];
-const sInfo = k => k === "aus" ? ["aus", "Außer Dienst", "#6b7178"] : ALLST.find(s => s[0] === k) || STATUS[0];
-const KSTATUS=[["k1","Verfügbar","#2e8b57"],["k2","Aufnahme vorbereitet","#00897b"],["k3","Patient vor Ort","#e2001a"],["k4","Patient übernommen","#8e24aa"],["k5","Nicht verfügbar","#6b7178"]];
+const sInfo = k => k === "aus" ? ["aus", "Außer Dienst", "#6b6f8f"] : ALLST.find(s => s[0] === k) || STATUS[0];
+const KSTATUS=[["k1","Verfügbar","#0000ff"],["k2","Aufnahme vorbereitet","#ff6b6b"],["k3","Patient vor Ort","#ff0000"],["k4","Patient übernommen","#a30000"],["k5","Nicht verfügbar","#6b6f8f"]];
 const ALLST=[...STATUS,...KSTATUS];
 const ABT=["Innere Medizin","Innere Medizin – Kardiologie","Allgemeinchirurgie","Herzchirurgie","Kinder- und Jugendchirurgie","Orthopädie und Unfallchirurgie","Kinder- und Jugendmedizin","Kinderkardiologie / Kinderneurologie","Neurologie","Radiologie","Anästhesiologie","Notfallmedizin"];
 let me = null, actx = null, lastAnn = null, firstAnn = true;
@@ -899,7 +992,7 @@ function admLive(){$("#ad-c").innerHTML=`<p class="hint">Alle Personen, die gera
 function admLiveDraw(){const t=$("#live-l");if(!t)return;
   const rows=Object.entries(CLI).sort((a,b)=>String(a[1].name||"").localeCompare(String(b[1].name||""),"de",{numeric:true}));
   t.innerHTML=rows.length?rows.map(([cid,c])=>{const ct=CTRL[cid]||{};
-    return `<tr><td><b>${esc(c.name||"–")}</b>${ct.mute?' <span class="badge" style="background:#c4001a">Funk gesperrt</span>':""}</td><td>${c.leit?"Leitstelle":"Fahrzeug"}</td><td>${esc(chName(c.ch||""))}</td><td>${esc(c.acc||"–")}</td>`+
+    return `<tr><td><b>${esc(c.name||"–")}</b>${ct.mute?' <span class="badge" style="background:#ff0000">Funk gesperrt</span>':""}</td><td>${c.leit?"Leitstelle":"Fahrzeug"}</td><td>${esc(chName(c.ch||""))}</td><td>${esc(c.acc||"–")}</td>`+
       `<td><div class="row" style="margin-top:0"><button type="button" class="alt" data-live="mute" data-cid="${esc(cid)}">${ct.mute?"Funk freigeben":"Funk sperren"}</button><button type="button" class="alt" data-live="kick" data-cid="${esc(cid)}">Abmelden</button></div></td></tr>`}).join("")
     :'<tr><td colspan="5">Gerade ist niemand angemeldet.</td></tr>'}
 function admDraw(){
@@ -1286,18 +1379,18 @@ function leitstelle(){
     $("#m-vs").innerHTML=Object.entries(V).filter(([id,v])=>v.status!=="aus").map(([id,v])=>`<label class="chk"><input type="checkbox" data-v="${esc(id)}"${selV.has(id)?" checked":""}>${esc(v.name)} · ${TYL[typOf(v)]} · ${sInfo(v.status)[1]}</label>`).join("")||'<p class="hint">Noch kein Fahrzeug im Dienst.</p>';
     $("#a-target").innerHTML='<option value="alle">Alle Fahrzeuge</option>'+opts;$("#a-target").value=ct||"alle";
     const vcard=([id,v])=>{const s=sInfo(v.status),ms=Object.values(M).filter(m=>vl(m).includes(id)&&!m.done);
-      return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div>${v.abt?`<div>Abteilung: ${esc(v.abt)}</div>`:""}<div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div>${v.loc?`<div>Standort: ${esc(v.loc.text)} <span class="mut">(${hm(v.loc.ts)})</span></div>`:""}${v.status!=="aus"?`<div class="row vq"><button class="alt" data-q="status" data-v="${esc(id)}">Status?</button><button class="alt" data-q="standort" data-v="${esc(id)}">Standort?</button><button class="alt" data-call="${esc(v.name)}">Rufen</button></div>`:""}<div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#2e8b57">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`};
+      return `<div class="v${v.status==='s4'&&!v.swAck?' sw':''}" style="border-top-color:${s[2]}"><b>${esc(v.name)}</b> <span class="badge" style="background:${s[2]}">${s[1]}</span><div>Besatzung: ${esc(v.crew||"–")}</div>${v.abt?`<div>Abteilung: ${esc(v.abt)}</div>`:""}<div>Einsatz: ${ms.length?ms.map(m=>esc(m.nr+" "+m.sw)).join(", "):"keiner"}</div>${v.loc?`<div>Standort: ${esc(v.loc.text)} <span class="mut">(${hm(v.loc.ts)})</span></div>`:""}${v.status!=="aus"?`<div class="row vq"><button class="alt" data-q="status" data-v="${esc(id)}">Status?</button><button class="alt" data-q="standort" data-v="${esc(id)}">Standort?</button><button class="alt" data-call="${esc(v.name)}">Rufen</button></div>`:""}<div class="row">${v.status==='s4'?(v.swAck?`<span class="badge" style="background:#0000ff">✔ Sprechwunsch bestätigt ${hm(v.swAck)}</span>`:`<button data-sw="${id}">Sprechwunsch bestätigen</button>`):""}<button class="alt" data-id="${id}">Entfernen</button></div></div>`};
     {const rdv=Object.entries(V).filter(([,v])=>typOf(v)!=="kh").sort(byName),khv=Object.entries(V).filter(([,v])=>typOf(v)==="kh").sort(byName),ab=a=>a||"Ohne Abteilung";
      $("#vlist").innerHTML=rdv.length?rdv.map(vcard).join(""):'<div class="empty"><i>🚑</i><b>Kein Rettungsdienst angemeldet</b></div>';
      const gr=[...new Set([...ABT,...khv.map(([,v])=>ab(v.abt))])].filter(a=>khv.some(([,v])=>ab(v.abt)===a));
      $("#khlist").innerHTML=gr.length?gr.map(a=>`<h3>${esc(a)}</h3><div class="grid">${khv.filter(([,v])=>ab(v.abt)===a).map(vcard).join("")}</div>`).join(""):'<div class="empty"><i>🏥</i><b>Keine Person im Dienst</b></div>'}
     {const vs=Object.values(V).filter(v=>v.status!=="aus"),cnt=f=>vs.filter(v=>f(v.status)).length,mo=Object.values(M).filter(m=>!m.done&&!m.vor&&!m.vordet);
-     const chips=[["Fahrzeuge im Dienst",vs.length,"#1e66b0"],["Einsatzbereit",cnt(x=>x==="s1"),"#2e8b57"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#e0a100"],["Sprechwunsch",cnt(x=>x==="s4"),"#00897b"],["Offene Einsätze",mo.filter(m=>!vl(m).length).length,"#e2001a"],["Warten auf Bestätigung",mo.filter(m=>vl(m).some(v=>!ackT(m,v))).length,"#8e24aa"]];
+     const chips=[["Fahrzeuge im Dienst",vs.length,"#4a6bff"],["Einsatzbereit",cnt(x=>x==="s1"),"#0000ff"],["Im Einsatz",cnt(x=>["s2","s3","s6","s7"].includes(x)),"#8a1fd6"],["Sprechwunsch",cnt(x=>x==="s4"),"#ff6b6b"],["Offene Einsätze",mo.filter(m=>!vl(m).length).length,"#ff0000"],["Warten auf Bestätigung",mo.filter(m=>vl(m).some(v=>!ackT(m,v))).length,"#a30000"]];
      $("#lage").innerHTML=chips.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("")}
     const PR=m=>{const i=["Echo","Delta","Charlie","Bravo","Alpha","Omega"].indexOf(m.prio);return i>=0?i:m.prio==="Notfall – Sondersignal"?0:m.prio==="Dringend"?2:5};
     const rows=Object.entries(M).filter(([,m])=>!m.done&&!m.vor&&!m.vordet).sort((a,b)=>(PR(a[1])-PR(b[1]))||b[1].ts-a[1].ts);
-    $("#mlist").innerHTML='<h2 class="sech">Laufende Einsätze ('+rows.length+')</h2>'+(rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b7178"]:!vs_.length?["Offen","#e2001a"]:na===0?["Bestätigt","#2e8b57"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#e0a100"];
-      return `<div class="card${MNEW.has(id)?" is-new":""}" style="border-left:6px solid ${PC[m.prio]||"#6b7178"}"><b>${esc(m.nr)}</b>${MNEW.has(id)?' <span class="new-tag">NEU</span>':""} <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):'<div class="empty"><i>📭</i><b>Keine laufenden Einsätze</b><span>Lege oben einen neuen Einsatz an. Abgeschlossene Einsätze liegen im Archiv.</span></div>');
+    $("#mlist").innerHTML='<h2 class="sech">Laufende Einsätze ('+rows.length+')</h2>'+(rows.length?rows.map(([id,m])=>{const vs_=vl(m),na=vs_.filter(v=>!ackT(m,v)).length,st=m.done?["Abgeschlossen","#6b6f8f"]:!vs_.length?["Offen","#ff0000"]:na===0?["Bestätigt","#0000ff"]:["Zugewiesen"+(vs_.length>1?` (${vs_.length-na}/${vs_.length} bestätigt)`:""),"#8a1fd6"];
+      return `<div class="card${MNEW.has(id)?" is-new":""}" style="border-left:6px solid ${PC[m.prio]||"#6b6f8f"}"><b>${esc(m.nr)}</b>${MNEW.has(id)?' <span class="new-tag">NEU</span>':""} <span class="badge" style="background:${st[1]}">${st[0]}</span><div>${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b6f8f"}">${esc(m.prio)}</span> `:""}${esc(m.art)} · ${esc(m.sw)} · ${esc(m.adr)}</div>${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${m.t?"<div>Zeiten: "+Object.entries(m.t).sort((a,b)=>a[1]-b[1]).map(([k,v])=>{const i=k.lastIndexOf("_"),f=i>0?k.slice(0,i):"";return (f?(V[f]?V[f].name:f)+" ":"")+sInfo(i>0?k.slice(i+1):k)[1]+" "+hm(v)}).join(" · ")+"</div>":""}<div>Fahrzeuge: ${vs_.length?vs_.map(v=>esc(V[v]?V[v].name:v)+(ackT(m,v)?" ✔ "+hm(ackT(m,v)):" ⏳")+(m.fin&&m.fin[v]?" (fertig)":"")).join(" · "):"–"}</div>${m.info?`<div>${esc(m.info)}</div>`:""}<div class="row"><button data-a="e" data-id="${id}">Bearbeiten</button><button class="alt" data-a="f" data-id="${id}">${m.done?"Wieder öffnen":"Abschließen"}</button><button class="alt" data-a="d" data-id="${id}">Löschen</button></div></div>`}).join(""):'<div class="empty"><i>📭</i><b>Keine laufenden Einsätze</b><span>Lege oben einen neuen Einsatz an. Abgeschlossene Einsätze liegen im Archiv.</span></div>');
     {const qt=$("#q-to"),cq=qt.value;qt.innerHTML='<option value="alle">Alle Fahrzeuge</option>'+Object.entries(V).filter(([id,v])=>v.status!=="aus"&&v.crew).sort(byName).map(([id,v])=>`<option value="${esc(id)}">${esc(v.name)}</option>`).join("");
      qt.value=[...qt.options].some(o=>o.value===cq)?cq:"alle"}
     drawQ();
@@ -1404,12 +1497,12 @@ function leitstelle(){
   const cnt=(arr,f)=>arr.reduce((o,x)=>{const k=f(x);if(k)o[k]=(o[k]||0)+1;return o},{});
   const avg=a=>a.length?(Math.round(a.reduce((x,y)=>x+y,0)/a.length/6000)/10)+" min":"–";
   function drawStat(){const ms=Object.values(M),d0=new Date().setHours(0,0,0,0),pr=Object.values(PRT);
-    const k=[["Einsätze gesamt",ms.length,"#1e66b0"],["Heute",ms.filter(m=>m.ts>=d0).length,"#2e8b57"],["Abgeschlossen",ms.filter(m=>m.done).length,"#6b7178"],["Offen",ms.filter(m=>!m.done).length,"#e2001a"],
-      ["Ø bis Bestätigung",avg(ms.filter(m=>ackMin(m)>m.ts).map(m=>ackMin(m)-m.ts)),"#e0a100"],["Ø bis Eintreffen",avg(ms.filter(m=>tMin(m,"s3")>m.ts).map(m=>tMin(m,"s3")-m.ts)),"#00897b"],["Ø Einsatzdauer",avg(ms.filter(m=>m.doneTs>m.ts).map(m=>m.doneTs-m.ts)),"#8e24aa"],["Protokolle",pr.length,"#1e66b0"]];
+    const k=[["Einsätze gesamt",ms.length,"#4a6bff"],["Heute",ms.filter(m=>m.ts>=d0).length,"#0000ff"],["Abgeschlossen",ms.filter(m=>m.done).length,"#6b6f8f"],["Offen",ms.filter(m=>!m.done).length,"#ff0000"],
+      ["Ø bis Bestätigung",avg(ms.filter(m=>ackMin(m)>m.ts).map(m=>ackMin(m)-m.ts)),"#8a1fd6"],["Ø bis Eintreffen",avg(ms.filter(m=>tMin(m,"s3")>m.ts).map(m=>tMin(m,"s3")-m.ts)),"#ff6b6b"],["Ø Einsatzdauer",avg(ms.filter(m=>m.doneTs>m.ts).map(m=>m.doneTs-m.ts)),"#a30000"],["Protokolle",pr.length,"#4a6bff"]];
     $("#kpi").innerHTML=k.map(c=>`<div class="lg" style="--c:${c[2]}"><b>${c[1]}</b><span>${c[0]}</span></div>`).join("");
-    $("#b-art").innerHTML=bars(cnt(ms,m=>m.art),"#1e66b0");$("#b-prio").innerHTML=bars(cnt(ms,m=>m.prio),"#e2001a");
-    $("#b-fz").innerHTML=bars(cnt(ms.flatMap(m=>vl(m).map(v=>({v}))),x=>V[x.v]?V[x.v].name:x.v),"#2e8b57");
-    $("#b-naca").innerHTML=bars(cnt(pr,p=>p.naca),"#e0a100");$("#b-tr").innerHTML=bars(cnt(pr,p=>p.tprio),"#8e24aa")}
+    $("#b-art").innerHTML=bars(cnt(ms,m=>m.art),"#4a6bff");$("#b-prio").innerHTML=bars(cnt(ms,m=>m.prio),"#ff0000");
+    $("#b-fz").innerHTML=bars(cnt(ms.flatMap(m=>vl(m).map(v=>({v}))),x=>V[x.v]?V[x.v].name:x.v),"#0000ff");
+    $("#b-naca").innerHTML=bars(cnt(pr,p=>p.naca),"#8a1fd6");$("#b-tr").innerHTML=bars(cnt(pr,p=>p.tprio),"#a30000")}
   panes[5].innerHTML=`<div class="card"><h2>Fahrzeugstamm</h2><p class="hint">Alle Fahrzeuge, die sich beim Anmelden auswählen lassen. Mehrere Personen können sich auf dasselbe Fahrzeug anmelden, hier siehst du, wer gerade in welchem Fahrzeug sitzt. Der Stamm wird von der Administration gepflegt und kann hier nur eingesehen werden.</p><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Typ</th><th>Besatzung (angemeldet)</th><th>Status</th></tr></thead><tbody id="stl"></tbody></table></div></div>`;
   function drawStamm(){const TY={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW",kh:"Person"};
     $("#stl").innerHTML=Object.entries(STM).filter(([,v])=>typOf(v)!=="kh").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true})).map(([id,v])=>{const c=crewOf(id),st=V[id]&&c.length?sInfo(V[id].status):null;
@@ -1489,7 +1582,7 @@ async function fahrzeug(){
     if(!FZREADY){FZREADY=true;ms.forEach(([id])=>FZSEEN.add(id))}
   else ms.forEach(([id,m])=>{if(!FZSEEN.has(id)){FZSEEN.add(id);FZNEW.add(id);toast("Neuer Einsatz zugewiesen: "+m.nr);setTimeout(()=>{FZNEW.delete(id);const el=document.querySelector('[data-mid="'+id+'"]');if(el)el.classList.remove("is-new")},9000)}});
   ms.forEach(([id,m])=>{if(m.vordet&&!PREFILLED.has(id))vorQueue.push({...m,id})});if(fzReady)flushVor();
-    $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<div class="mitem${FZNEW.has(id)?" is-new":""}" data-mid="${id}"><b>${esc(m.nr)}</b>${FZNEW.has(id)?' <span class="new-tag">NEU</span>':""} ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b7178"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${KH?khBtns(id):""}<br>${ackT(m,me.vid)?`<span class="badge" style="background:#2e8b57">✔ Bestätigt ${hm(ackT(m,me.vid))}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></div>`).join(""):"Kein Einsatz zugewiesen."});
+    $("#mission").innerHTML=ms.length?ms.map(([id,m])=>`<div class="mitem${FZNEW.has(id)?" is-new":""}" data-mid="${id}"><b>${esc(m.nr)}</b>${FZNEW.has(id)?' <span class="new-tag">NEU</span>':""} ${m.prio?`<span class="badge" style="background:${PC[m.prio]||"#6b6f8f"}">${esc(m.prio)}</span> `:""}· ${esc(m.art)}<br>${esc(m.sw)} · ${esc(m.adr)}${m.info?"<br>"+esc(m.info):""}${m.vordet?vordetHtml(m.vordet):""}${reqHtml(m)}${KH?khBtns(id):""}<br>${ackT(m,me.vid)?`<span class="badge" style="background:#0000ff">✔ Bestätigt ${hm(ackT(m,me.vid))}</span>`:`<button data-ack="${id}">Einsatz bestätigen</button>`} <button class="alt" data-fin="${id}">Einsatz abschließen</button></div>`).join(""):"Kein Einsatz zugewiesen."});
   onValue(ref(db,"vehicles"),s=>{const rows=Object.entries(s.val()||{}).filter(([i,v])=>v.crew&&v.status!=="aus").sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de",{numeric:true}));
     $("#duty").innerHTML=rows.length?rows.map(([id,v])=>{const st=sInfo(v.status);return `<tr${id===me.vid?' class="me"':""}><td><b>${esc(v.name)}</b></td><td>${esc(v.crew||"–")}</td><td><span class="badge" style="background:${st[2]}">${st[1]}</span></td></tr>`}).join(""):'<tr><td colspan="3">Kein Fahrzeug im Dienst.</td></tr>'});
   onValue(vref,s=>{const v=s.val()||{};vcur=v;if(qPend&&v.loc&&v.loc.qid===qPend){qPend=null;const d=$("#qdlg");if(d.open)d.close()}$$("#st button").forEach(b=>b.classList.toggle("on",b.dataset.s===v.status))});
@@ -1564,7 +1657,7 @@ async function fahrzeug(){
 const ALPHA=["Omega","Alpha","Bravo","Charlie","Delta","Echo"],AL={O:"Omega",A:"Alpha",B:"Bravo",C:"Charlie",D:"Delta",E:"Echo"};
 const ALTXT={Omega:"Omega – niedrigste Priorität (KTW)",Alpha:"Alpha – niedrig (N-KTW)",Bravo:"Bravo – niedrig (RTW)",Charlie:"Charlie – höher (RTW)",Delta:"Delta – Notarztindikation (NEF + RTW)",Echo:"Echo – akute Lebensgefahr (NEF + RTW)"};
 const ALRM={Omega:["ktw"],Alpha:["ktw"],Bravo:["rtw"],Charlie:["rtw"],Delta:["nef","rtw"],Echo:["nef","rtw"]};
-const PC={Omega:"#6b7178",Alpha:"#2e8b57",Bravo:"#1e66b0",Charlie:"#e0a100",Delta:"#e2001a",Echo:"#8e24aa","Notfall – Sondersignal":"#e2001a","Dringend":"#e0a100","Planbar / Transport":"#1e66b0"};
+const PC={Omega:"#6b6f8f",Alpha:"#0000ff",Bravo:"#4a6bff",Charlie:"#8a1fd6",Delta:"#ff0000",Echo:"#a30000","Notfall – Sondersignal":"#ff0000","Dringend":"#8a1fd6","Planbar / Transport":"#4a6bff"};
 const CODES="1|Bauchschmerzen|B;2|Allergie|C;3|Tierbiss/Tierangriff|B;4|Verbrechen/Überfall/Sexualdelikt|C;5|Rückenschmerzen|A;6|Atembeschwerden|D;7|Feuer/Verbrennung|D;8|Gefahrengutunfall|D;9|Atem-Kreislaufstillstand|E;10|Brustschmerzen|D;11|Ersticken|E;12|Krampfanfall/Epileptiker|C;13|Blutzuckerentgleisung|C;14|Ertrinken|E;15|Stromunfall|D;16|Augenverletzung|B;17|Sturz|B;18|Kopfschmerzen|B;19|Herzbeschwerden|D;20|Kälte/Hitzeproblem|C;21|Blutung|C;22|Person in Zwangslage|C;23|Überdosis/Vergiftung|D;24|Schwangerschaft|C;25|Psychiatrie/Selbstmordgefährdet|C;26|Kranke Person|B;27|Stich-, Schnitt-, Schussverletzung|D;28|Schlaganfall|D;29|Verkehrsunfall|D;30|Verletzung|B;31|Ohnmachtsanfall/Bewusstlosigkeit|D;32|Hilflose Person|B;33|Anforderung durch Arzt/Versorgungseinrichtung|B;34|Automatische Unfallmeldung|C;37|Transfer|O;42|Anforderung durch anderes Rettungsmittel|C".split(";").map(x=>x.split("|"));
 const codeTxt=c=>"RD-"+c[0]+" "+c[1]+(c[0]==="9"?" (REA)":"");
 const TYL={rtw:"RTW",nef:"NEF / NAW",ktw:"KTW / NKTW",kh:"Person"};
