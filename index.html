@@ -898,6 +898,50 @@ html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs button:last-child{b
 html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs button:hover{background:var(--line)!important}
 html:not([data-eff=tablet]):not([data-eff=handy]) #app>.tabs button.on{color:var(--brand)!important;border-left-color:#ff0000!important;background:rgba(255,0,0,.07)!important}
 }
+
+/* ===== Archiv und manuelle Zuordnung der Akten ===== */
+.afilter{padding:18px;border-top:4px solid var(--ac)}
+.afilter .row{align-items:center}
+#af-count{margin-left:auto;font:600 .82rem var(--mono);color:var(--sub)}
+.arow,.agrp{transition:box-shadow .15s,border-color .15s,background .15s}
+.arow:hover,.agrp:hover{box-shadow:0 6px 18px -12px rgba(0,0,0,.45)}
+.agrp>summary{padding:14px 18px}
+.agrp>summary:hover{background:color-mix(in srgb,var(--ac) 5%,var(--card))}
+.agn{width:44px;height:44px;font:800 1rem "Helvetica Neue",Arial,sans-serif;letter-spacing:.03em;color:#fff;background:#23272e;border-bottom:4px solid #ff0000;border-radius:2px}
+.agh>b{font-size:1.08rem}
+.acnt{display:inline-block;margin-left:6px;padding:1px 8px;font:600 .72rem var(--mono);color:var(--sub);border:1px solid var(--line);border-radius:999px;vertical-align:middle}
+.agb{gap:5px}
+.tbadge{background:var(--sub);font-weight:600}
+.tbadge.t-einsatz{background:#3b3b4a}
+.tbadge.t-vor{background:#0000ff}
+.tbadge.t-notfall{background:#d90000}
+.tbadge.t-kt{background:#b45f00}
+.tbadge.t-revers{background:#7a3db8}
+.tbadge.t-akte{background:#0a6bb8}
+.tbadge.t-arb{background:#1c8a4a}
+.tbadge.t-tot{background:#111}
+.achild{padding:12px 18px 12px 44px;cursor:grab;transition:background .12s}
+.achild:hover{background:color-mix(in srgb,var(--ac) 4%,var(--card))}
+.achild>div:first-child{min-width:0}
+.achild.t-notfall::before,.achild.t-kt::before,.achild.t-revers::before{border-left-color:#d90000}
+.achild.t-akte::before,.achild.t-vor::before{border-left-color:#0000ff}
+.achild.t-arb::before{border-left-color:#1c8a4a}
+.arow{cursor:grab}
+.manual{margin-left:8px;font-size:.8rem;opacity:.75}
+.dragging{opacity:.45}
+.dropok{outline:3px dashed var(--ac);outline-offset:-3px;background:color-mix(in srgb,var(--ac) 8%,var(--card))!important}
+button.bz{border-color:var(--ac)!important;color:var(--ac)!important}
+button.bz:hover{background:var(--ac)!important;color:#fff!important}
+dialog#azdlg{width:94vw;max-width:560px;padding:22px 24px}
+dialog#azdlg h2{margin-top:0}
+.azlist{display:grid;gap:8px;max-height:48vh;overflow:auto;margin:12px 0;padding:2px}
+button.azp{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;text-align:left;color:var(--ink);background:var(--card)!important;border:1.5px solid var(--line)!important;border-radius:var(--r);box-shadow:none!important;transform:none!important}
+button.azp:hover{border-color:var(--ac)!important;background:color-mix(in srgb,var(--ac) 7%,var(--card))!important}
+button.azp .azt{display:grid;gap:2px;min-width:0}
+button.azp small{color:var(--sub);font-size:.8rem}
+.azopt{margin-top:0}
+@media(max-width:640px){.achild{padding-left:36px}.afilter{padding:14px}#af-count{margin-left:0;width:100%}}
+@media print{.azopt,#azdlg,button.bz{display:none!important}}
 </style>
 <script>
 (function(){
@@ -1255,7 +1299,7 @@ function tabs(names){
 const ARCH_TYPES=[["","Alle Arten"],["einsatz","Einsätze"],["vor","Voranmeldungen"],["notfall","Notfallprotokoll"],["kt","Krankentransport"],["revers","Transportverweigerung"],["akte","Patientenakte"],["arb","Arbeitsunfähigkeit"],["tot","Todesbescheinigung"]];
 const archTyp=r=>r.kind==="mis"?"einsatz":r.kind==="vor"?"vor":r.kind==="doc"?r.ptyp:(PT[r.ptyp]?r.ptyp:"notfall");
 const ARCH_NAME=k=>(ARCH_TYPES.find(x=>x[0]===k)||[0,"Protokoll"])[1];
-const PMETA=new Set(["ptyp","vid","fz","crew","enr","created","ts","geaendert","vit","vorid","vorx"]);
+const PMETA=new Set(["fall","ptyp","vid","fz","crew","enr","created","ts","geaendert","vit","vorid","vorx"]);
 const protHas=p=>Object.entries(p||{}).some(([k,v])=>!PMETA.has(k)&&(v===true||(typeof v==="string"&&v.trim())))||Object.values((p||{}).vit||{}).some(r=>Object.entries(r||{}).some(([k,v])=>k!=="t"&&String(v).trim()));
 function archive(box,edit,leit){
   box.innerHTML=`<div id="aview"><div class="card afilter"><div class="fields af">
@@ -1264,7 +1308,8 @@ function archive(box,edit,leit){
     <div><label for="af-f">Fahrzeug</label><select id="af-f"><option value="">Alle Fahrzeuge</option></select></div>
     <div><label for="af-von">Von</label><input id="af-von" type="date"></div>
     <div><label for="af-bis">Bis</label><input id="af-bis" type="date"></div>
-   </div><div class="row"><button type="button" class="alt" id="af-reset">Filter zurücksetzen</button><button type="button" class="alt" id="af-open">Alle aufklappen</button><button type="button" class="alt" id="af-close">Alle zuklappen</button><span class="mut" id="af-count"></span></div></div><div id="alist"></div></div><div id="adet"></div>`;
+   </div><div class="row"><button type="button" class="alt" id="af-reset">Filter zurücksetzen</button><button type="button" class="alt" id="af-open">Alle aufklappen</button><button type="button" class="alt" id="af-close">Alle zuklappen</button><span class="mut" id="af-count"></span></div></div><div id="alist"></div></div><div id="adet"></div>
+  <dialog id="azdlg" class="card"><h2>Akte zuordnen</h2><p class="hint" id="az-info"></p><label for="az-q">Patient suchen</label><input id="az-q" autocomplete="off" placeholder="Name, Geburtsdatum oder Einsatz-Nr."><div id="az-list" class="azlist"></div><div class="row azopt"><button type="button" class="alt" id="az-own">Als eigenen Patienten führen</button><button type="button" class="alt" id="az-auto">Automatisch zuordnen</button></div><div class="row"><button type="button" class="alt" id="az-x">Abbrechen</button></div></dialog>`;
   const D={prot:{},doc:{},mis:{},vor:{}},nm=v=>(STM[v]||{}).name||v,dt=t=>new Date(t||0).toLocaleString("de-DE");
   const all=()=>[
     ...Object.entries(D.prot).filter(([,p])=>protHas(p)).map(([id,p])=>({...p,id,kind:"prot"})),
@@ -1274,25 +1319,73 @@ function archive(box,edit,leit){
   ].map(r=>({...r,fzl:r.fzl||[r.fz].filter(Boolean)}));
   /* Gruppierung: Alles zu einer Person / einem Einsatz (Voranmeldung, Einsatz, Notfallprotokoll, Patientenakte, weitere Akten) steht untereinander in einer Karte */
   const OPEN=new Set(),TR={vor:0,einsatz:1,notfall:2,kt:2,revers:2,akte:3,arb:4,tot:5};
+  const ini=n=>String(n||"").trim().split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("")||"?";
   const nm0=r=>String(r.kind==="prot"?r.p_name:r.kind==="doc"?r.name:r.kind==="vor"?r.pat:"").toLowerCase().replace(/[^a-zäöüß0-9 ]+/g," ").split(/\s+/).filter(Boolean).sort().join(" ");
   const gb0=r=>String(r.kind==="prot"?r.p_gebdat:r.kind==="doc"?(r.vals||{}).gebdat:r.kind==="vor"?r.gebdat:"")||"";
   const ek=r=>[r.enr,r.einsatz,r.kind==="mis"?r.nr:""].map(x=>String(x||"").trim()).filter(Boolean);
-  const groupRows=rows=>{const p=rows.map((_,i)=>i),f=i=>{while(p[i]!==i){p[i]=p[p[i]];i=p[i]}return i},un=(a,b)=>{p[f(a)]=f(b)},seen={},N=rows.map(nm0),G=rows.map(gb0);
-    rows.forEach((r,i)=>ek(r).forEach(k=>{if(k in seen)un(i,seen[k]);else seen[k]=i}));
-    rows.forEach((_,i)=>{if(!N[i]||/unbekannt/.test(N[i]))return;for(let j=i+1;j<rows.length;j++)if(N[j]===N[i]&&(!G[i]||!G[j]||G[i]===G[j]))un(i,j)});
+  const manual=r=>!!r.fall;
+  const groupRows=rows=>{const p=rows.map((_,i)=>i),f=i=>{while(p[i]!==i){p[i]=p[p[i]];i=p[i]}return i},un=(a,b)=>{p[f(a)]=f(b)},seen={},N=rows.map(nm0),G=rows.map(gb0),fs={};
+    /* 1. Manuell zugeordnet: nur der Fall-Schlüssel zählt, keine automatische Gruppierung */
+    rows.forEach((r,i)=>{if(manual(r)){if(r.fall in fs)un(i,fs[r.fall]);else fs[r.fall]=i}});
+    /* 2. Rest: automatisch nach Einsatz-Nr. und Name */
+    rows.forEach((r,i)=>{if(manual(r))return;ek(r).forEach(k=>{if(k in seen)un(i,seen[k]);else seen[k]=i})});
+    rows.forEach((r,i)=>{if(manual(r)||!N[i]||/unbekannt/.test(N[i]))return;for(let j=i+1;j<rows.length;j++)if(!manual(rows[j])&&N[j]===N[i]&&(!G[i]||!G[j]||G[i]===G[j]))un(i,j)});
     const m=new Map();rows.forEach((r,i)=>{const k=f(i);if(!m.has(k))m.set(k,[]);m.get(k).push(r)});
     return [...m.values()].sort((a,b)=>Math.max(...b.map(r=>r.ts||0))-Math.max(...a.map(r=>r.ts||0)))};
   const btns=r=>{const key=r.kind+":"+esc(r.id);
-    return `<div class="row"><button data-a="v" data-id="${key}">Ansehen</button>${leit&&(r.kind==="mis"||r.kind==="vor")?`<button class="alt" data-a="o" data-id="${key}">Wieder öffnen</button>`:""}${edit&&r.kind==="prot"?`<button class="alt" data-a="e" data-id="${esc(r.id)}">Bearbeiten</button>`:""}${!edit||r.kind==="doc"?`<button class="alt" data-a="d" data-id="${key}">Löschen</button>`:""}</div>`};
+    return `<div class="row"><button data-a="v" data-id="${key}">Ansehen</button>${leit&&(r.kind==="mis"||r.kind==="vor")?`<button class="alt" data-a="o" data-id="${key}">Wieder öffnen</button>`:""}${edit&&r.kind==="prot"?`<button class="alt" data-a="e" data-id="${esc(r.id)}">Bearbeiten</button>`:""}<button class="alt bz" data-a="z" data-id="${key}" title="Dieser Akte einen Patienten zuordnen">Zuordnen</button>${!edit||r.kind==="doc"?`<button class="alt" data-a="d" data-id="${key}">Löschen</button>`:""}</div>`};
   const meta=r=>`<div class="mut">${esc(r.fz||"–")} · ${dt(r.ts)}${r.enr&&r.kind!=="mis"?" · Einsatz "+esc(r.enr):""}</div>`;
+  const tb=r=>`<span class="badge tbadge t-${archTyp(r)}">${ARCH_NAME(archTyp(r))}</span>`;
   const rowHtml=(r,cls,child)=>child
-    ?`<div class="${cls}"><div><b>${ARCH_NAME(archTyp(r))}</b>${r.kind==="mis"?" · "+esc(r.name):""}${meta(r)}</div>${btns(r)}</div>`
-    :`<div class="${cls}"><div><b>${esc(r.p_name||r.name||"Unbekannte Person")}</b> <span class="badge tbadge">${ARCH_NAME(archTyp(r))}</span>${meta(r)}</div>${btns(r)}</div>`;
+    ?`<div class="${cls} t-${archTyp(r)}" draggable="true" data-rk="${r.kind}:${esc(r.id)}"><div><b>${ARCH_NAME(archTyp(r))}</b>${r.kind==="mis"?" · "+esc(r.name):""}${r.fall?'<span class="manual" title="Manuell zugeordnet">✋</span>':""}${meta(r)}</div>${btns(r)}</div>`
+    :`<div class="${cls}" draggable="true" data-rk="${r.kind}:${esc(r.id)}" data-keys="${r.kind}:${esc(r.id)}"><div><b>${esc(r.p_name||r.name||"Unbekannte Person")}</b> ${tb(r)}${r.fall?'<span class="manual" title="Manuell zugeordnet">✋</span>':""}${meta(r)}</div>${btns(r)}</div>`;
   const grpHtml=g=>{
     const s=[...g].sort((a,b)=>(TR[archTyp(a)]??9)-(TR[archTyp(b)]??9)||(b.ts||0)-(a.ts||0)),keys=s.map(r=>r.kind+":"+r.id);
     const named=s.map(r=>({r,n:(r.kind==="prot"?r.p_name:r.kind==="doc"?r.name:r.kind==="vor"?r.pat:"")})).find(x=>x.n),enr=(s.find(r=>r.enr&&r.kind!=="mis")||{}).enr||(s.find(r=>r.kind==="mis")||{}).nr;
-    const cnt={};s.forEach(r=>{const t=ARCH_NAME(archTyp(r));cnt[t]=(cnt[t]||0)+1});
-    return `<details class="card agrp" data-keys="${esc(keys.join(","))}"${keys.some(k=>OPEN.has(k))?" open":""}><summary><span class="agn">${s.length}</span><div class="agh"><b>${esc(named?named.n:"Unbekannte Person")}</b><div class="mut">${enr?"Einsatz "+esc(enr)+" · ":""}zuletzt ${dt(Math.max(...s.map(r=>r.ts||0)))}</div><div class="agb">${Object.entries(cnt).map(([t,n])=>`<span class="badge tbadge">${t}${n>1?" ×"+n:""}</span>`).join(" ")}</div></div></summary><div class="agbody">${s.map(r=>rowHtml(r,"achild",true)).join("")}</div></details>`};
+    const cnt={},tk={};s.forEach(r=>{const t=ARCH_NAME(archTyp(r));cnt[t]=(cnt[t]||0)+1;tk[t]=archTyp(r)});const gbs=(s.map(gb0).find(Boolean)||"").split("-").reverse().join(".");
+    return `<details class="card agrp" data-keys="${esc(keys.join(","))}"${keys.some(k=>OPEN.has(k))?" open":""}><summary><span class="agn" title="${s.length} Akten">${esc(ini(named?named.n:""))}</span><div class="agh"><b>${esc(named?named.n:"Unbekannte Person")}</b> <span class="acnt">${s.length} Akten</span><div class="mut">${gbs?"geb. "+esc(gbs)+" · ":""}${enr?"Einsatz "+esc(enr)+" · ":""}zuletzt ${dt(Math.max(...s.map(r=>r.ts||0)))}</div><div class="agb">${Object.entries(cnt).map(([t,n])=>`<span class="badge tbadge t-${tk[t]}">${t}${n>1?" ×"+n:""}</span>`).join(" ")}</div></div></summary><div class="agbody">${s.map(r=>rowHtml(r,"achild",true)).join("")}</div></details>`};
+  /* ---- Manuelle Zuordnung: Akte einem Patienten zuweisen (Dialog oder Ziehen und Ablegen) ---- */
+  const PATH={prot:"protocols/",doc:"dokumente/",mis:"missions/",vor:"voranmeldungen/"};
+  let LASTG=[],AZ=null;
+  const gname=g=>{const x=g.map(r=>({r,n:r.kind==="prot"?r.p_name:r.kind==="doc"?r.name:r.kind==="vor"?r.pat:""})).find(y=>y.n);return x?x.n:"Unbekannte Person"};
+  const gkeys=g=>g.map(r=>r.kind+":"+r.id);
+  const newKey=()=>"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const recOf=k=>all().find(r=>r.kind+":"+r.id===k);
+  async function setFall(recs,key,msg){
+    const u={};recs.forEach(r=>u[PATH[r.kind]+r.id+"/fall"]=key);
+    try{await update(ref(db),u);audit("Akte zugeordnet",recs.map(r=>r.kind+" "+(r.enr||r.ptyp||r.id)).join(", ")+" → "+(key===null?"automatisch":key==="-"?"eigener Fall":key));toast(msg)}
+    catch(x){toast("Zuordnen fehlgeschlagen: "+(x.message||x),true)}}
+  /* Akte (Schlüssel) in eine bestehende Patienten-Gruppe verschieben */
+  async function moveTo(recKey,grp){
+    const r=recOf(recKey);if(!r||!grp)return;
+    if(gkeys(grp).includes(recKey)){toast("Diese Akte gehört schon zu diesem Patienten.");return}
+    const key=(grp.find(x=>x.fall)||{}).fall||newKey();
+    const set1=[r,...grp.filter(x=>x.fall!==key)];
+    await setFall(set1,key,"Zugeordnet zu "+gname(grp)+".")}
+  const azDraw=()=>{
+    const q=$("#az-q").value.trim().toLowerCase(),r=AZ&&recOf(AZ);if(!r)return;
+    const G0=groupRows(all()),own=G0.find(g=>gkeys(g).includes(AZ));
+    const cand=G0.filter(g=>g!==own).filter(g=>!q||g.some(x=>[x.p_name,x.name,x.pat,x.enr,x.nr,gb0(x)].join(" ").toLowerCase().includes(q)));
+    $("#az-list").innerHTML=cand.length?cand.map(g=>{const ks=gkeys(g),types=[...new Set(g.map(archTyp))].map(t=>`<span class="badge tbadge t-${t}">${ARCH_NAME(t)}</span>`).join(" ");
+      const gb=(g.map(gb0).find(Boolean)||"").split("-").reverse().join(".");
+      return `<button type="button" class="azp" data-g="${esc(ks.join(","))}"><span class="agn">${esc(ini(gname(g)))}</span><span class="azt"><b>${esc(gname(g))}</b><small>${gb?"geb. "+esc(gb)+" · ":""}${g.length} ${g.length===1?"Akte":"Akten"} · zuletzt ${dt(Math.max(...g.map(x=>x.ts||0)))}</small><span class="agb">${types}</span></span></button>`}).join("")
+      :'<div class="empty"><i>🔍</i><b>Kein Patient gefunden</b><span>Suche anpassen oder die Akte als eigenen Patienten führen.</span></div>'};
+  const azOpen=k=>{const r=recOf(k);if(!r)return;AZ=k;
+    $("#az-info").innerHTML="Zu welchem Patienten gehört <b>"+esc(ARCH_NAME(archTyp(r)))+"</b>"+(r.p_name||r.name||r.pat?" („"+esc(r.p_name||r.name||r.pat)+"“)":"")+"?";
+    $("#az-q").value="";azDraw();$("#az-auto").hidden=!r.fall;const d=$("#azdlg");if(!d.open)d.showModal();$("#az-q").focus()};
+  $("#az-q").addEventListener("input",azDraw);
+  $("#az-x").onclick=()=>$("#azdlg").close();
+  $("#az-list").onclick=async e=>{const b=e.target.closest("[data-g]");if(!b)return;const ks=b.dataset.g.split(",");
+    const grp=groupRows(all()).find(g=>gkeys(g).join(",")===ks.join(","));$("#azdlg").close();await moveTo(AZ,grp)};
+  $("#az-own").onclick=async()=>{const r=recOf(AZ);$("#azdlg").close();if(r)await setFall([r],newKey(),"Als eigener Patient geführt.")};
+  $("#az-auto").onclick=async()=>{const r=recOf(AZ);$("#azdlg").close();if(r)await setFall([r],null,"Wieder automatisch zugeordnet.")};
+  /* Ziehen und Ablegen: Zeile auf eine Patientenkarte ziehen */
+  let dragK=null;
+  box.addEventListener("dragstart",e=>{const t=e.target.closest&&e.target.closest("[data-rk]");if(!t)return;dragK=t.dataset.rk;e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",dragK)}catch{}t.classList.add("dragging")});
+  box.addEventListener("dragend",()=>{dragK=null;$$(".dragging,.dropok").forEach(x=>x.classList.remove("dragging","dropok"))});
+  box.addEventListener("dragover",e=>{const c=dragK&&e.target.closest&&e.target.closest("details.agrp,.arow");if(!c)return;e.preventDefault();$$(".dropok").forEach(x=>x!==c&&x.classList.remove("dropok"));c.classList.add("dropok")});
+  box.addEventListener("drop",async e=>{const c=dragK&&e.target.closest&&e.target.closest("details.agrp,.arow");if(!c)return;e.preventDefault();c.classList.remove("dropok");
+    const ks=(c.dataset.keys||"").split(",").filter(Boolean),grp=groupRows(all()).find(g=>gkeys(g).join(",")===ks.join(","));const k=dragK;dragK=null;await moveTo(k,grp)});
   box.addEventListener("toggle",e=>{const d=e.target;if(!d.matches||!d.matches("details.agrp"))return;d.dataset.keys.split(",").forEach(k=>d.open?OPEN.add(k):OPEN.delete(k))},true);
   $("#af-open").onclick=()=>$$("#alist details.agrp").forEach(d=>d.open=true);
   $("#af-close").onclick=()=>$$("#alist details.agrp").forEach(d=>d.open=false);
@@ -1329,6 +1422,7 @@ function archive(box,edit,leit){
     dpage(pt.t,`Einsatz ${esc(p.enr||"–")} · Erstellt ${dt(p.created||p.ts)} · Gedruckt ${dt(Date.now())}`,`<div class="dtext dnote">Fahrzeug: ${esc(p.fz)} · Besatzung: ${esc(p.crew)} · Einsatz: ${esc(p.enr||"–")}<br>${p.geaendert?`Zuletzt geändert von ${esc(p.geaendert.name||"–")} am ${dt(p.geaendert.ts)}`:"Noch keine Änderungen erfasst."}</div>`+hh);
   };
   box.onclick=e=>{const b=e.target.closest("button[data-a]");if(!b)return;const a=b.dataset.a,[kind,id]=String(b.dataset.id).split(":");
+    if(a==="z"){azOpen(kind+":"+id);return}
     if(a==="v"){const r=all().find(x=>x.kind===kind&&x.id===id);if(r){audit("Ansicht",kind+" "+(r.enr||r.ptyp||""));detail(r)}return}
     if(a==="d"){if(confirm("Eintrag endgültig löschen?")){audit("Gelöscht",kind+" "+id);set(ref(db,({prot:"protocols/",doc:"dokumente/",mis:"missions/",vor:"voranmeldungen/"})[kind]+id),null)}return}
     if(a==="o"){const u={};u[(kind==="mis"?"missions/":"voranmeldungen/")+id+"/done"]=null;u[(kind==="mis"?"missions/":"voranmeldungen/")+id+"/doneTs"]=null;
@@ -1664,7 +1758,7 @@ async function fahrzeug(){
   const abtCardHtml=KH?`<div class="card"><h2>Abteilung</h2><p class="hint">Wechsle die Abteilung, damit die Leitstelle weiß, wo du gerade bist.</p><div class="row"><select id="abt-sel" aria-label="Abteilung">${ABT.map(a=>`<option${a===abtNow?" selected":""}>${esc(a)}</option>`).join("")}</select><button type="button" id="abt-go">Abteilung wechseln</button></div><p class="mut" id="abt-now">Aktuell: ${esc(abtNow)}</p></div>`:"";
   panes[0].innerHTML=`${abtCardHtml}<div class="card"><h2>Zugewiesene Einsätze</h2><div id="mission"></div></div><div class="card"><h2>Status</h2><div class="st" id="st">${(KH?[...KSTATUS,STATUS[3]]:STATUS).map(s=>`<button data-s="${s[0]}" style="border-left-color:${s[2]};--sc:${s[2]}">${s[1]}</button>`).join("")}</div></div>`+`<div class="card"><h2>Im Dienst</h2><div style="overflow-x:auto"><table class="dt"><thead><tr><th>Fahrzeug</th><th>Besatzung</th><th>Status</th></tr></thead><tbody id="duty"></tbody></table></div></div>`;
   panes[1].innerHTML=`<form id="pform" onsubmit="return false"><div class="pintro"><p class="hint">Protokolltyp wählen. Die Patientendaten bleiben beim Wechsel erhalten.</p></div><div id="vor-strip" class="vorstrip" hidden></div><div class="pgroup"><span class="pglabel">Rettungsdienst</span><div class="ptiles">${["notfall","kt","revers"].map(k=>ptile(k,PT[k].ic,PT[k].t,PT[k].d)).join("")}</div></div><div class="pgroup"><span class="pglabel">Akten</span><div class="ptiles">${(KH?AKTEN:AKTEN.filter(a=>a[0]==="tot")).map(a=>ptile(...a)).join("")}</div></div><div id="pf-pat">${dHead(PT.notfall.t)}${sec(SEC[0])}</div><div class="pf" id="pf-notfall">${PT.notfall.secs.map(sec).join("")}</div><div class="pf" id="pf-kt" hidden>${PT.kt.secs.map(sec).join("")}</div><div class="pf" id="pf-revers" hidden>${PT.revers.secs.map(sec).join("")}</div><div class="pf docprint" id="pf-doc" hidden><div id="pdoc"></div><div class="row noprint"><button type="button" id="pdoc-p">Drucken / als PDF speichern</button><button type="button" class="alt" id="pdoc-s">Im Archiv speichern</button><span class="mut" id="pdoc-m" role="status"></span></div></div><div class="row"><button class="alt" id="newp">Neues Protokoll beginnen</button></div></form>`;
-  let MC={},cmid="",cm="",enr="",created=Date.now(),timer,pid="p"+Date.now(),vorId="",vorX=false,vorCur=null,vorOff=null,vorTm=0;
+  let MC={},cmid="",cm="",enr="",created=Date.now(),fall=null,timer,pid="p"+Date.now(),vorId="",vorX=false,vorCur=null,vorOff=null,vorTm=0;
   try{pid=sessionStorage.getItem("pid")||pid;sessionStorage.setItem("pid",pid)}catch{}
   onValue(ref(db,"missions"),s=>{const ms=Object.entries(s.val()||{}).filter(([i,m])=>vl(m).includes(me.vid)&&!m.done&&!(m.fin&&m.fin[me.vid]));MC=Object.fromEntries(ms);cm=ms.length?ms[0][1].nr:"";cmid=ms.length?ms[0][0]:"";
     if(!FZREADY){FZREADY=true;ms.forEach(([id])=>FZSEEN.add(id))}
@@ -1699,7 +1793,7 @@ async function fahrzeug(){
     msg.textContent="Wird gespeichert …";
     try{
       await set(ref(db,"dokumente/d"+Date.now()+Math.random().toString(36).slice(2,6)),
-        {ptyp:k,t:DOCS[k].t,name:vals.name||vals.pat||"",fz:me.call||"",crew:me.name||"",enr:enr||"",vid:me.vid||"",ts:Date.now(),vals});
+        {ptyp:k,t:DOCS[k].t,name:vals.name||vals.pat||"",fz:me.call||"",crew:me.name||"",enr:enr||"",fall:fall||null,vid:me.vid||"",ts:Date.now(),vals});
       audit("Akte gespeichert",k);$("#pdoc-s").disabled=true;msg.textContent="Im Archiv gespeichert. Ändern, um erneut zu speichern.";
     }catch(x){msg.textContent="Speichern fehlgeschlagen: "+(x.message||x)}
   };
@@ -1723,18 +1817,18 @@ async function fahrzeug(){
       vorId="v"+pid;await set(ref(db,"voranmeldungen/"+vorId),{...vorFields(o),org:"Uniklinikum Rettungsdienst",quelle:"intern",pid,vid:me.vid,ts:Date.now()});
       watchVor();update(ref(db,"protocols/"+pid),{vorid:vorId});audit("Voranmeldung automatisch",o.enr||"")}
     catch(x){vorId="";toast("Voranmeldung fehlgeschlagen: "+(x.message||x),true)}};
-  const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();enr=d.enr||"";vorId=d.vorid||"";vorX=!!d.vorx;saved=protHas(d);watchVor();fill(d)};
+  const load=async()=>{const d=(await get(ref(db,"protocols/"+pid))).val()||{};created=d.created||Date.now();fall=d.fall||null;enr=d.enr||"";vorId=d.vorid||"";vorX=!!d.vorx;saved=protHas(d);watchVor();fill(d)};
   const setPid=id=>{clearTimeout(timer);pid=id;try{sessionStorage.setItem("pid",id)}catch{}};
   await load();
   const save=()=>{clearTimeout(timer);timer=setTimeout(()=>{
     const o={};$$("#pform [data-k]").forEach(el=>o[el.dataset.k]=el.type==="checkbox"?el.checked:el.value);
     o.vit=$$(".vrow").map(r=>Object.fromEntries([...r.querySelectorAll("input")].map(i=>[i.dataset.v,i.value])));
-    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:lastP,vorid:vorId||null,vorx:vorX||null,geaendert:{name:me.name||"",ts:Date.now()}});if(!saved&&!protHas(o))return;saved=true;
+    enr=enr||cm;Object.assign(o,{vid:me.vid,fz:me.call,crew:me.name,enr,created,ts:Date.now(),ptyp:lastP,vorid:vorId||null,vorx:vorX||null,fall:fall||null,geaendert:{name:me.name||"",ts:Date.now()}});if(!saved&&!protHas(o))return;saved=true;
     set(ref(db,"protocols/"+pid),o);clearTimeout(vorTm);vorTm=setTimeout(()=>autoVor(o,pid),vorId?300:4000)},600)};
   panes[1].addEventListener("input",()=>{if(DOCS[ptype])return;toggles();save()});
   panes[0].addEventListener("click",e=>{if(e.target.id==="abt-go"){const a=$("#abt-sel").value;update(vref,{abt:a});me.abt=a;try{sessionStorage.setItem("me",JSON.stringify(me))}catch{}$("#abt-now").textContent="Aktuell: "+a}});
   $("#vadd").onclick=()=>{vrow({t:new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});save()};
-  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";created=Date.now();vorId="";vorX=false;saved=false;watchVor();fill({ptyp:ptype})}};
+  $("#newp").onclick=()=>{if(confirm("Neues Protokoll beginnen? Das aktuelle bleibt im Archiv erhalten.")){setPid("p"+Date.now());enr="";fall=null;created=Date.now();vorId="";vorX=false;saved=false;watchVor();fill({ptyp:ptype})}};
   fzReady=true;flushVor();
   archive(panes[2],true);
   // Bearbeiten aus dem Archiv
